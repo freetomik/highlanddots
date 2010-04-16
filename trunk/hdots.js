@@ -104,6 +104,15 @@ var staff =
    details.heigth = y - details.top - details.space;
    ctx.closePath();
    details.top = y;
+   
+   var y1 = staff.details.findNote.e1;
+   var y2 = staff.details.findNote.f2;
+   details.staffHeight = y1-y2;
+   
+   var width = staff.details.barthick;
+   var x = staff.details.x;
+   
+   
  }
  
  function prime() {
@@ -209,7 +218,7 @@ function plotMusic(score)
                        needStaff = false;          
                      }
                      
-                     logit(["Ping:", mel]);
+                     // logit(["Ping:", mel]);
                      
                      if (typeof mel.getBoundingRect === "function") {
                        rect = mel.getBoundingRect(staff);
@@ -224,16 +233,21 @@ function plotMusic(score)
                        mel.paint(staff);
                        staff.details.x += staff.details.space * 1.25 * mel.noteCount();
                        break;
+                     case "graphic":
+                       mel.paint(staff);
+                       staff.details.x += 20;
+                       break;
+
                      }
                      
                      if (mel.newBar) {
-                       var y1 = staff.details.findNote.e1;
-                       var y2 = staff.details.findNote.f2;
-                       var width = staff.details.barthick;
-                       var x = staff.details.x;
                        
-                       ctx.fillRect(x, y2, width, y1-y2);
-                       staff.details.x += 10;
+                       ctx.fillRect(staff.details.x,
+                                    staff.details.findNote.f2,
+                                    staff.details.barthick,
+                                    staff.details.staffHeight);
+                       
+                       staff.details.x += staff.details.barthick * 2;
                      }
                      if (mel.staffEnd) {
                        needStaff = true;

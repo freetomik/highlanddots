@@ -39,6 +39,31 @@ var z_beat = (function() {
               
 }());
 
+
+var z_graphic = (function() {
+                      var a = {
+                        "&": {filename: "treble-clef.png"}
+                      };
+                      
+                      
+                      function isType(s) {
+                        return (typeof a[s] !== "undefined");
+                      }
+                      
+                      function create(s) {
+                        var mel = score.createGraphic(a[s].filename);
+                        meldObjectToObject(a[s], mel);
+                        return mel;
+                      }
+                      return {
+                        isType: isType,
+                        create: create
+                      };
+                      
+                      
+}());
+
+
 var z_timesig = (function() {
                 
  var a = ["5_8","12_8","2_4","3_2","3_4","4_4","5_4","6_4","6_8",
@@ -627,7 +652,7 @@ function parseBWW(dots) {
       s = b[i];
       
       // List of things to ignore for now.
-      if (["", "&", "sharpf", "sharpc"].indexOf(s) !== -1) {
+      if (["", "sharpf", "sharpc"].indexOf(s) !== -1) {
         continue;
       }
       
@@ -637,8 +662,9 @@ function parseBWW(dots) {
       // found.  Don't abort the loop eary because some elements will 
       // create more than one node.
       [
+      z_graphic,
       z_timesig,
-      z_beat,
+      z_beat, // Should be before staffControl
       z_melody,
       z_noteDot,
       z_staffControl,
