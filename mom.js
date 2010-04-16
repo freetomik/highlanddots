@@ -58,7 +58,7 @@ Score.prototype.buildCollections = function() {
     }
     
     
-    // This whole beam code is pattered, of course, after the BWW format.
+    // This whole beam code is patterned, of course, after the BWW format.
     // Eventually, I'd love to see the option to fix beaming and group
     // noting based on beat count.
     
