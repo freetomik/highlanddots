@@ -201,12 +201,19 @@ function plotMusic(score)
   
   score.data.forEach(function(mel) {
                      //logit(["mel: ", mel]);
+                     
+                     var rect;
+                     
                      if (needStaff) {
                        prepNewStaff();
                        needStaff = false;          
                      }
                      
                      logit(["Ping:", mel]);
+                     
+                     if (typeof mel.getBoundingRect === "function") {
+                       rect = mel.getBoundingRect(staff);
+                     }
                      
                      switch(mel.type) {
                      case "melody":
