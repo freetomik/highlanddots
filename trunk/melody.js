@@ -3,9 +3,8 @@
 (function() {
     var THISTYPE = "melody";
     
-    function ThisType(note) {   
+    function ThisType() {   
       this.stemDir = "down";
-      
       return this;
     }
     
@@ -18,8 +17,8 @@
       this.paint2(score);
     };
     
-    Score.prototype.createMelodyNote = function(s) {
-      return new ThisType(s);
+    Score.prototype.createMelodyNote = function() {
+      return new ThisType();
     };
 }());
 

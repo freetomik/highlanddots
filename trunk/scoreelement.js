@@ -3,16 +3,7 @@
 function ScoreElement() {
   var self=this;
   this.isPrintable = false;
-  
-  this.getTypeOf = function(a) {
-    
-    var s = self.elementList[a];
-    if (!s) {
-      return "undefined";
-    } else {
-      return s.type;
-    }
-  };
+  return this;  
 }
 
 ScoreElement.prototype.elementList = {}; 

@@ -3,7 +3,7 @@
 (function() {
  var THISTYPE = "embellishment";
 
- function ThisType(mel) {  
+ function ThisType() {  
    this.stemDir = "up";
    
    return this;
@@ -24,8 +24,8 @@
    //staff.details.x += staff.details.space * this.scaleFactor;
  };
  
- Score.prototype.createEmbellishment = function(s) {
-   return new ThisType(s);
+ Score.prototype.createEmbellishment = function() {
+   return new ThisType();
  };
 }
 ());
@@ -65,8 +65,8 @@
    staff.details.x = x;
  };
  
- Score.prototype.createEmbellishmentGroup = function(s) {
-   return new ThisType(s);
+ Score.prototype.createEmbellishmentGroup = function() {
+   return new ThisType();
  };
 }
 ());
