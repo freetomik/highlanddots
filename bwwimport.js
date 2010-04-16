@@ -19,7 +19,7 @@ var z_beat = (function() {
               function isType(s) {
               // We don't need a class for this silly thing.
               // Thats the beauty of dynamic languages.
-              var mel = z_staffControl.create(s);
+              var mel = z_staffControl.create();
               
               if (s === "~") {return true;}
               if (mel.newBar) {return true;}
@@ -482,7 +482,7 @@ var z_ghbgrace = (function() {
                       }[notes[i]];
                       
                       if (!note) {note =notes[i].toUpperCase();}
-                      mel = score.createEmbellishment(s);
+                      mel = score.createEmbellishment();
                       mel.note = note;
                       mel.staffPosition = GHPRef[mel.note];
                       grp.appendNode(mel);
@@ -525,7 +525,7 @@ var z_melody = (function() {
                 {
                   
                   var s, chunk;
-                  var mel = score.createMelodyNote(note);
+                  var mel = score.createMelodyNote();
                   
                   chunk = note.split("_");
                   
@@ -567,7 +567,7 @@ var z_staffControl = (function() {
                       }
                       
                       function create(s) {
-                        var mel = score.createStaffControl(s);
+                        var mel = score.createStaffControl();
                         meldObjectToObject(a[s], mel);
                         return mel;
                       }

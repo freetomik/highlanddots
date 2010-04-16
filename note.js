@@ -1,6 +1,6 @@
 "use strict";
 
-function Note(note) {  
+function Note() {  
   this.isPrintable = true;
   this.scaleFactor = 1.0;
   this.stemDir = "down";
