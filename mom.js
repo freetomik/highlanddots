@@ -25,9 +25,15 @@ Score.prototype.buildCollections = function() {
   var c = {}; // Collections
   var i, l = this.data.length;
   var mel;
+  var beamGroup;
+  var inBeam;
+  var endBeam;
+  
   c.notes = [];
   c.melodyNotes = [];
   c.graceNotes = [];
+  c.beams = [];
+  
   
   function pushGroup(dest, src) {
     var i;
@@ -36,6 +42,8 @@ Score.prototype.buildCollections = function() {
     }
   }
   
+  inBeam = false;
+  endBeam = false;
   for (i = 0; i < l; i++) {
     mel = this.data[i];
     
@@ -48,6 +56,23 @@ Score.prototype.buildCollections = function() {
       c.notes.push(mel);
       c.melodyNotes.push(mel);
     }
+    
+    
+    // This whole beam code is pattered, of course, after the BWW format.
+    // Eventually, I'd love to see the option to fix beaming and group
+    // noting based on beat count.
+    
+    if (mel.tail === "r" || mel.tail === 'l') {
+      if (!inBeam) {beamGroup = [];}
+      inBeam = true;
+      beamGroup.push(mel);
+    }
+
+    if (mel.type === "beat" && inBeam) {
+      c.beams.push(beamGroup);
+      inBeam = false;
+    }
+    
   }
   this.collections = c;
 }
