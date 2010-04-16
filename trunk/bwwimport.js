@@ -12,6 +12,30 @@ var GHPRef = {
   HA: "a3"
 };
 
+// Is this a beat? Which would end a beam?
+var z_beat = (function() {
+    function isType(s) {
+              var mel = z_staffControl.create(s);
+              
+              if (s === "~") {return true;}
+              if (mel.newBar) {return true;}
+              return false;
+    };
+    
+
+    function create(s) {
+      var mel = new ScoreElement();
+      mel.type = "beat";
+      return mel;
+    }
+    return {
+      isType: isType,
+      create: create
+    };
+
+              }());
+              
+
 var z_ghbgrace = (function() {
     var a = {   
       "hgrpla": {category: "EMBELISHMENTS", dots: "agdg*"},
@@ -581,6 +605,7 @@ function parseBWW(dots) {
       mel = undefined;
       
       [
+      z_beat,
       z_melody,
       z_noteDot,
       z_staffControl,
@@ -591,10 +616,11 @@ function parseBWW(dots) {
             if (mel) {
               score.appendNode(mel);
             }
-          }                      
+          }
       });
-    }   
-  }  
+    }
+  }
+  
   
   var i, l = dots.length;
   var s, bits;
