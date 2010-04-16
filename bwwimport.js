@@ -12,6 +12,8 @@ var GHPRef = {
   HA: "a3"
 };
 
+
+
 // Is this a beat? Which would end a beam?
 var z_beat = (function() {
               function isType(s) {
@@ -35,6 +37,31 @@ var z_beat = (function() {
                 create: create
               };
               
+}());
+
+var z_timesig = (function() {
+                
+ var a = ["5_8","12_8","2_4","3_2","3_4","4_4","5_4","6_4","6_8",
+"7_4","9_8","C","C_","15_8","18_8","21_8","2_2","2_8","3_8","4_8","7_8",
+"8_8","10_8","11_8","2_16","3_16","4_16","5_16","6_16","7_16","8_16",
+"9_16","10_16","11_16","12_16"];
+                
+                function isType(s) {
+                  return (a.indexOf(s) !== -1);
+                }
+                
+                function create(s)
+                {
+                 var mel = score.createTimeSig();
+                 mel.timeSig = s.split("_").join("/");
+                 return mel;
+                  
+                }
+                return {
+                  isType: isType,
+                  create: create
+                };
+                
 }());
 
 
@@ -610,11 +637,13 @@ function parseBWW(dots) {
       // found.  Don't abort the loop eary because some elements will 
       // create more than one node.
       [
+      z_timesig,
       z_beat,
       z_melody,
       z_noteDot,
       z_staffControl,
       z_ghbgrace
+    
       ].forEach(function(f) {
                 if (f.isType(s)) {
                 mel = f.create(s);
