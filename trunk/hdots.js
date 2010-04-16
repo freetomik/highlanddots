@@ -22,105 +22,105 @@ function testDraw() {
 
 var staff = 
 (
-  
-  function() {
-    var ctx;
-    
-    var HIDDEN_LINE_COLOR = "rgb(200, 200, 200)";
-    
-    var details = {
-      height: -1,  // Calculated at run time
-      width: 700,  // The width of the staff
-      thick: 1,    // Thickness of staff line segment
-      space: 10,   // The thickness of each space
-      top: 10      // Where to draw the top line "F"
-    };
-    details.barthick = details.space /10;
-    
-    var canvas = document.createElement("canvas");
-    var coords = {};
-    
-    function canDraw() {
-      return !!canvas.getContext;              
-    }
-    
-    function drawStaff(width) {
-      var x, y;
-      var halfy;
-
-      function drawLine() {
-        ctx.fillRect(x, y, width, details.thick);
-        y += details.space;
-      }
-      
-      width = width || details.width;
-      
-      x = 5;
-      y = details.top;
-      coords.x = x;
-      coords.y = y;
-      
-      ctx.beginPath();
-      
-      details.findNote = {};
-      
-      halfy = details.space/2;
-      //High A line
-      ctx.fillStyle = HIDDEN_LINE_COLOR;
-      ctx.strokeStyle = HIDDEN_LINE_COLOR;
-      details.findNote.a3 = y; 
-      details.findNote.g2 = y + halfy; 
-      drawLine();
-      
-      ctx.fillStyle = "black";
-      ctx.strokeStyle = "black";
-      details.findNote.f2 = y; 
-      details.findNote.e2 = y + halfy; 
-      drawLine();
-      
-      details.findNote.d2 = y; 
-      details.findNote.c2 = y + halfy; 
-      drawLine();
-      
-      details.findNote.b2 = y; 
-      details.findNote.a2 = y + halfy; 
-      drawLine();
-      
-      details.findNote.g1 = y; 
-      details.findNote.f1 = y + halfy; 
-      drawLine();
-      
-      details.findNote.e1 = y; 
-      details.findNote.d1 = y + halfy; 
-      drawLine();
-      
-      ctx.fillStyle = HIDDEN_LINE_COLOR;
-      ctx.strokeStyle = HIDDEN_LINE_COLOR;
-      details.findNote.c1 = y; 
-      drawLine();
-      
-      //alert(details.findNote.toSource());   
-      
-      details.heigth = y - details.top - details.space;
-      ctx.closePath();
-      details.top = y;
-    }
-    
-    function prime() {
-      var cv = document.getElementById("canvas");
-      if (cv.getContext) {
-        ctx = cv.getContext("2d");
-      }
-      details.ctx = ctx;
-    }
-    
-    return {
-      prime: prime,
-      canDraw: canDraw,
-      drawStaff: drawStaff,
-      details: details
-    };
-  }());
+ 
+ function() {
+ var ctx;
+ 
+ var HIDDEN_LINE_COLOR = "rgb(200, 200, 200)";
+ 
+ var details = {
+   height: -1,  // Calculated at run time
+   width: 700,  // The width of the staff
+   thick: 1,    // Thickness of staff line segment
+   space: 10,   // The thickness of each space
+   top: 10      // Where to draw the top line "F"
+ };
+ details.barthick = details.space /10;
+ 
+ var canvas = document.createElement("canvas");
+ var coords = {};
+ 
+ function canDraw() {
+   return !!canvas.getContext;              
+ }
+ 
+ function drawStaff(width) {
+   var x, y;
+   var halfy;
+   
+   function drawLine() {
+     ctx.fillRect(x, y, width, details.thick);
+     y += details.space;
+   }
+   
+   width = width || details.width;
+   
+   x = 5;
+   y = details.top;
+   coords.x = x;
+   coords.y = y;
+   
+   ctx.beginPath();
+   
+   details.findNote = {};
+   
+   halfy = details.space/2;
+   //High A line
+   ctx.fillStyle = HIDDEN_LINE_COLOR;
+   ctx.strokeStyle = HIDDEN_LINE_COLOR;
+   details.findNote.a3 = y; 
+   details.findNote.g2 = y + halfy; 
+   drawLine();
+   
+   ctx.fillStyle = "black";
+   ctx.strokeStyle = "black";
+   details.findNote.f2 = y; 
+   details.findNote.e2 = y + halfy; 
+   drawLine();
+   
+   details.findNote.d2 = y; 
+   details.findNote.c2 = y + halfy; 
+   drawLine();
+   
+   details.findNote.b2 = y; 
+   details.findNote.a2 = y + halfy; 
+   drawLine();
+   
+   details.findNote.g1 = y; 
+   details.findNote.f1 = y + halfy; 
+   drawLine();
+   
+   details.findNote.e1 = y; 
+   details.findNote.d1 = y + halfy; 
+   drawLine();
+   
+   ctx.fillStyle = HIDDEN_LINE_COLOR;
+   ctx.strokeStyle = HIDDEN_LINE_COLOR;
+   details.findNote.c1 = y; 
+   drawLine();
+   
+   //alert(details.findNote.toSource());   
+   
+   details.heigth = y - details.top - details.space;
+   ctx.closePath();
+   details.top = y;
+ }
+ 
+ function prime() {
+   var cv = document.getElementById("canvas");
+   if (cv.getContext) {
+     ctx = cv.getContext("2d");
+   }
+   details.ctx = ctx;
+ }
+ 
+ return {
+   prime: prime,
+   canDraw: canDraw,
+   drawStaff: drawStaff,
+   details: details
+ };
+ }());
 
 function testImport() {
   var dots = [];
@@ -200,37 +200,38 @@ function plotMusic(score)
   
   
   score.data.forEach(function(mel) {
-      //logit(["mel: ", mel]);
-      if (needStaff) {
-        prepNewStaff();
-        needStaff = false;
-        
-      }
-      
-      if (mel.type === "melody")
-      {
-        mel.paint(staff);
-        staff.details.x += staff.details.space * 2.5;
-      }
-      else if (mel.type === "egrp")
-      {
-        mel.paint(staff);
-        staff.details.x += staff.details.space * 1.25 * mel.noteCount();
-      }
-      
-      if (mel.newBar) {
-        var y1 = staff.details.findNote.e1;
-        var y2 = staff.details.findNote.f2;
-        var width = staff.details.barthick;
-        var x = staff.details.x;
-        
-        ctx.fillRect(x, y2, width, y1-y2);
-        staff.details.x += 10;
-      }
-      if (mel.staffEnd) {
-        needStaff = true;
-        staff.details.top += staff.details.space * 3;        
-      }
+                     //logit(["mel: ", mel]);
+                     if (needStaff) {
+                       prepNewStaff();
+                       needStaff = false;          
+                     }
+                     
+                     logit(["Ping:", mel]);
+                     
+                     switch(mel.type) {
+                     case "melody":
+                       mel.paint(staff);
+                       staff.details.x += staff.details.space * 2.5;
+                       break;
+                     case "egrp":
+                       mel.paint(staff);
+                       staff.details.x += staff.details.space * 1.25 * mel.noteCount();
+                       break;
+                     }
+                     
+                     if (mel.newBar) {
+                       var y1 = staff.details.findNote.e1;
+                       var y2 = staff.details.findNote.f2;
+                       var width = staff.details.barthick;
+                       var x = staff.details.x;
+                       
+                       ctx.fillRect(x, y2, width, y1-y2);
+                       staff.details.x += 10;
+                     }
+                     if (mel.staffEnd) {
+                       needStaff = true;
+                       staff.details.top += staff.details.space * 3;        
+                     }
   });
 }
 
