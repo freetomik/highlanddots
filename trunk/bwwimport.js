@@ -39,6 +39,30 @@ var z_beat = (function() {
               
 }());
 
+
+var z_graphic = (function() {
+                      var a = {
+                        "&": {imgName: "treble-clef"}
+                      };
+                      
+                      
+                      function isType(s) {
+                        return (typeof a[s] !== "undefined");
+                      }
+                      
+                      function create(s) {
+                        var mel = score.createGraphic(a[s].imgName);
+                        meldObjectToObject(a[s], mel);
+                        return mel;
+                      }
+                      return {
+                        isType: isType,
+                        create: create
+                      };
+                      
+                      
+}());
+
 var z_timesig = (function() {
                 
  var a = ["5_8","12_8","2_4","3_2","3_4","4_4","5_4","6_4","6_8",
@@ -632,18 +656,19 @@ function parseBWW(dots) {
     for (i = 0; i < l; i++) {
       s = b[i];
       
-      // List of things to ignore for now.
-      if (["", "&", "sharpf", "sharpc"].indexOf(s) !== -1) {
+     // List of things to ignore for now.
+      if (["", "sharpf", "sharpc"].indexOf(s) !== -1) {
         continue;
       }
-      
+       
       mel = undefined;
       
       // Loop through our melody element types and add it if a match is
       // found.  Don't abort the loop eary because some elements will 
       // create more than one node.
       [
-      z_timesig,
+        z_graphic,
+        z_timesig,
       z_beat,
       z_melody,
       z_noteDot,
@@ -672,6 +697,6 @@ function parseBWW(dots) {
   }
   
   score.buildCollections();
-  logit(score);
+  //logit(score);
 }
 
