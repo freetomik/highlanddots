@@ -33,10 +33,16 @@ var staff =
    width: 700,  // The width of the staff
    thick: 1,    // Thickness of staff line segment
    space: 10,   // The thickness of each space
-   top: 10      // Where to draw the top line "F"
+   top: 50     // Where to draw the top line "F"
  };
  details.barthick = details.space /10;
- 
+ details.beamStyle = "straight";  // can be "straight" or "sloped") {
+ details.noteColor1 = "black";
+ details.noteColor2 = "green";
+ details.noteColor3 = "blue";
+ details.noteColor4 = "red";
+
+
  var canvas = document.createElement("canvas");
  var coords = {};
  
@@ -104,15 +110,6 @@ var staff =
    details.heigth = y - details.top - details.space;
    ctx.closePath();
    details.top = y;
-   
-   var y1 = staff.details.findNote.e1;
-   var y2 = staff.details.findNote.f2;
-   details.staffHeight = y1-y2;
-   
-   var width = staff.details.barthick;
-   var x = staff.details.x;
-   
-   
  }
  
  function prime() {
@@ -197,14 +194,14 @@ function plotMusic(score)
   var ctx = staff.details.ctx;
   var needStaff = true;
   
-  ctx.fillStyle = "green";
-  ctx.strokeStyle = "green";
+  ctx.fillStyle = staff.details.noteColor1;
+  ctx.strokeStyle = staff.details.noteColor1;
   
   function prepNewStaff() {
     staff.drawStaff();
     staff.details.x = 5;
-    ctx.fillStyle = "green";
-    ctx.strokeStyle = "green";
+    ctx.fillStyle = staff.details.noteColor1;
+    ctx.strokeStyle = staff.details.noteColor1;
   }
   
   
@@ -218,36 +215,37 @@ function plotMusic(score)
                        needStaff = false;          
                      }
                      
-                     // logit(["Ping:", mel]);
+                     logit(["Ping:", mel]);
                      
+                     //TODO : enable bounding box for gracenotes in a group
                      if (typeof mel.getBoundingRect === "function") {
                        rect = mel.getBoundingRect(staff);
                      }
                      
                      switch(mel.type) {
-                     case "melody":
-                       mel.paint(staff);
-                       staff.details.x += staff.details.space * 2.5;
-                       break;
-                     case "egrp":
-                       mel.paint(staff);
-                       staff.details.x += staff.details.space * 1.25 * mel.noteCount();
-                       break;
-                     case "graphic":
-                       mel.paint(staff);
-                       staff.details.x += 20;
-                       break;
-
+                       case "melody":
+                         mel.paint(staff);
+                         staff.details.x += staff.details.space * 2.5;
+                         break;
+                       case "embellishment":
+                         mel.paint(staff);
+                         staff.details.x += staff.details.space * 1.25;
+                         break;
+//TJM
+//                     case "egrp":
+//                       mel.paint(staff);
+//                       staff.details.x += staff.details.space * 1.25 * mel.noteCount();
+//                       break;
                      }
                      
                      if (mel.newBar) {
+                       var y1 = staff.details.findNote.e1;
+                       var y2 = staff.details.findNote.f2;
+                       var width = staff.details.barthick;
+                       var x = staff.details.x;
                        
-                       ctx.fillRect(staff.details.x,
-                                    staff.details.findNote.f2,
-                                    staff.details.barthick,
-                                    staff.details.staffHeight);
-                       
-                       staff.details.x += staff.details.barthick * 2;
+                       ctx.fillRect(x, y2, width, y1-y2);
+                       staff.details.x += 10;
                      }
                      if (mel.staffEnd) {
                        needStaff = true;
@@ -258,8 +256,11 @@ function plotMusic(score)
 
 function logit(s) {
   if (typeof s === "object") { // Yes, it catches arrays.  That is good.
-    //s = "" + s.toSource();
-    s = JSON.stringify(s, undefined, 2);
+    s = "" + s.toSource();
+// TJM line below causes too much recursion error
+//     as a result of having objects reference 
+//     any containing collections
+//    s = JSON.stringify(s, undefined, 2);
   }
   
   var e = document.getElementById("log");
