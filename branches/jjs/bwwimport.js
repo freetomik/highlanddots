@@ -19,19 +19,15 @@ var z_beat = (function() {
               function isType(s) {
               // We don't need a class for this silly thing.
               // Thats the beauty of dynamic languages.
-              var mel = z_staffControl.create(s);
+              var mel = z_staffControl.create();
               
-              var v = false;
-              
-              if (s === "~") {v = true;}
-              if (mel.newBar)  {v = true;}
-              //logit(["z_beat:", s, v]);
-              return v;
+              if (s === "~") {return true;}
+              if (mel.newBar) {return true;}
+              return false;
               };
               
               
               function create(s) {
-                
                 var mel = new ScoreElement();
                 mel.type = "beat";
                 return mel;
@@ -66,7 +62,6 @@ var z_graphic = (function() {
                       
                       
 }());
-
 
 var z_timesig = (function() {
                 
@@ -491,14 +486,15 @@ var z_ghbgrace = (function() {
                   }
                   
                   function create(s) {
-                    var grp = score.createEmbellishmentGroup();
+//TJM                    var grp = score.createEmbellishmentGroup();
                     var note;
                     var notes;
                     var b = a[s];
                     var mel;
+                    var mels = [];
                     var i;
                     
-                    meldObjectToObject(a[s], grp);
+//                    meldObjectToObject(a[s], grp);
                     
                     notes = b.dots.match(/[aA-zZ]/g);
                     for (i = 0; i < notes.length; i++) {
@@ -514,10 +510,12 @@ var z_ghbgrace = (function() {
                       mel = score.createEmbellishment();
                       mel.note = note;
                       mel.staffPosition = GHPRef[mel.note];
-                      grp.appendNode(mel);
+		      if (notes.length > 1) mel.grouped = true;
+//TJM                      grp.appendNode(mel);
+                      mels.push(mel);
                       
                     }
-                    return grp;
+                    return (mels);
                   }
                   
                   
@@ -567,7 +565,10 @@ var z_melody = (function() {
                   } 
                   
                   s = chunk[0].match(/(l|r)$/);
-                  if (s) {mel.tail = s[0];} 
+                  if (s) {
+                    mel.tail = s[0]; 
+                    mel.grouped = true;
+                  } 
                   
                   return mel;
                   
@@ -655,19 +656,19 @@ function parseBWW(dots) {
     for (i = 0; i < l; i++) {
       s = b[i];
       
-      // List of things to ignore for now.
+     // List of things to ignore for now.
       if (["", "sharpf", "sharpc"].indexOf(s) !== -1) {
         continue;
       }
-      
+       
       mel = undefined;
       
       // Loop through our melody element types and add it if a match is
       // found.  Don't abort the loop eary because some elements will 
       // create more than one node.
       [
-      z_graphic,
-      z_timesig,
+        z_graphic,
+        z_timesig,
       z_beat,
       z_melody,
       z_noteDot,
@@ -676,10 +677,10 @@ function parseBWW(dots) {
     
       ].forEach(function(f) {
                 if (f.isType(s)) {
-                mel = f.create(s);
-                if (mel) {
-                  score.appendNode(mel);
-                }
+                  mel = f.create(s);
+                  if (mel) {
+                    score.appendNode(mel);
+                  }
                 }
       });
     }
