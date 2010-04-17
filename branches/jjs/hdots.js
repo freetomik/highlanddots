@@ -29,6 +29,7 @@ var staff =
  var HIDDEN_LINE_COLOR = "rgb(200, 200, 200)";
  
  var details = {
+   staffHeight: -1, // The height of the 5line staff.
    height: -1,  // Calculated at run time
    width: 700,  // The width of the staff
    thick: 1,    // Thickness of staff line segment
@@ -221,6 +222,7 @@ function plotMusic(score)
                      // logit(["Ping:", mel]);
                      
                      if (typeof mel.getBoundingRect === "function") {
+                       logit(["Rect", rect]);
                        rect = mel.getBoundingRect(staff);
                      }
                      
@@ -235,7 +237,7 @@ function plotMusic(score)
                        break;
                      case "graphic":
                        mel.paint(staff);
-                       staff.details.x += 20;
+                       staff.details.x += rect.width;
                        break;
 
                      }

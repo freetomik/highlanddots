@@ -46,7 +46,7 @@ var z_beat = (function() {
 
 var z_graphic = (function() {
                       var a = {
-                        "&": {filename: "treble-clef.png"}
+                        "&": {imgName: "treble-clef"}
                       };
                       
                       
@@ -55,7 +55,7 @@ var z_graphic = (function() {
                       }
                       
                       function create(s) {
-                        var mel = score.createGraphic(a[s].filename);
+                        var mel = score.createGraphic(a[s].imgName);
                         meldObjectToObject(a[s], mel);
                         return mel;
                       }
@@ -696,6 +696,6 @@ function parseBWW(dots) {
   }
   
   score.buildCollections();
-  logit(score);
+  //logit(score);
 }
 
