@@ -6,7 +6,14 @@ function Score(){
 
 Score.prototype = {
     appendNode: function(mel) {
-      this.data.push(mel);
+      if (mel instanceof Array) {
+	var o;
+	for (o in mel) {
+          this.data.push(mel[o]);
+        }	
+      } else {
+        this.data.push(mel);
+      }
     },
     getLastElementByType: function(type) {
       var i = 0, l = this.data.length;
@@ -47,9 +54,15 @@ Score.prototype.buildCollections = function() {
   for (i = 0; i < l; i++) {
     mel = this.data[i];
     
-    if (mel.type === "egrp") {
-      pushGroup(c.notes, mel.notes);
-      pushGroup(c.graceNotes, mel.notes);
+//TJM
+//    if (mel.type === "egrp") {
+//      pushGroup(c.notes, mel.notes);
+//      pushGroup(c.graceNotes, mel.notes);
+//    }
+
+    if (mel.type === "embellishment") {
+      c.notes.push(mel);
+      c.graceNotes.push(mel);
     }
     
     if (mel.type === "melody") {
@@ -57,18 +70,18 @@ Score.prototype.buildCollections = function() {
       c.melodyNotes.push(mel);
     }
     
-    
     // This whole beam code is patterned, of course, after the BWW format.
     // Eventually, I'd love to see the option to fix beaming and group
     // noting based on beat count.
     
-    if (mel.tail === "r" || mel.tail === 'l') {
+    if (mel.grouped) {
       if (!inBeam) {beamGroup = [];}
       inBeam = true;
       beamGroup.push(mel);
+      mel.beamGroup = beamGroup;
     }
 
-    if (mel.type === "beat" && inBeam) {
+    if (mel.type === "beat" && inBeam || !mel.grouped && inBeam) {
       c.beams.push(beamGroup);
       inBeam = false;
     }
