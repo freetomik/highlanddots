@@ -4,7 +4,7 @@ function Note() {
   this.isPrintable = true;
   this.scaleFactor = 1.0;
   this.stemDir = "down";
-  
+  this.grouped = false;
   return this;
 }
 
@@ -29,11 +29,10 @@ Note.prototype.stemDirection = function() {
 Note.prototype.c = {};
 
 Note.prototype.calc = function(staff) {  
-  var c = Note.prototype.c;
+  var c = this.c;//Note.prototype.c;
   var w;
   var h;
 
-  
   c.width = staff.details.space * this.scaleFactor;
   c.height = c.width; // what should this be? staff.details.height; 
 
@@ -56,6 +55,26 @@ Note.prototype.calc = function(staff) {
   c.cp1y2 = c.endY + h;
   c.cp2x2 = c.x - w;
   c.cp2y2 = c.y + h;
+
+  // calc stem length and direction
+  c.stemlen = staff.details.space * 3.2 * this.scaleFactor;
+  if (c.stemlenDelta == undefined) c.stemlenDelta = 0;
+
+  c.barthick = staff.details.barthick * this.scaleFactor;
+  if (c.barthick < 1) {c.barthick = 1;}
+
+  if (this.stemDirection() == "up") {
+    c.stemx1 = c.x + (c.r*2) + (staff.details.thick/2);
+    c.stemx2 = c.stemx1;
+    c.stemy1 = c.y;
+    c.stemy2 = c.y - c.stemlen;
+  } else {
+    c.stemx1 = c.x - (c.r/2) + staff.details.thick;
+    c.stemx2 = c.stemx1;
+    c.stemy1 = c.y;
+    c.stemy2 = c.y + c.stemlen;
+  }
+
 }
 
 
@@ -84,47 +103,56 @@ Note.prototype.getBoundingRect = function(staff) {
 
 Note.prototype.paint2 = function(staff) {
   var c = this.c;
-
   var ctx = staff.details.ctx;
   var self = this;
   
-  function paintStem() {
+  function paintStem(grp) {
     
-    var stemx1 = c.x - (c.r/2) + staff.details.thick;
-    var stemy1 = c.y;
-    var stemlen = staff.details.space * 3.2 * self.scaleFactor;
-    var barthick = staff.details.barthick * self.scaleFactor;
-
     var tails = self.countTails();
-    var i;
-    
-    if (self.stemDirection() == "up") {
-      // TJM reset stem co-ords for 'up' stems
-      stemx1 = c.x + (c.r*2) + (barthick/2);
-      stemy1 = c.y - stemlen;      
+    var lw = ctx.lineWidth;
+    var i,tailx,taily;
+    var yInc, yMult = 1;
+
+    yInc = (c.height/2) + c.barthick;		// amount to increment Y between tails
+    if (self.stemDirection() == "down") {
+      yMult = -1;				// 
     }
-    
-    if (barthick < 1) {barthick = 1;}
-    
-    ctx.fillRect(stemx1, stemy1, barthick, stemlen);
-    
+
+    // FIXME : scale factor on line width?
+    ctx.lineWidth = staff.details.thick; 
+    ctx.beginPath();
+    ctx.moveTo(c.stemx1, c.stemy1);
+    ctx.lineTo(c.stemx2, c.stemy2+c.stemlenDelta);
+    ctx.stroke();
+    ctx.closePath();
+
     if (tails) {
-      if (self.stemDirection() == "up") {
-        for (i = 0; i < tails; i++) {
-          ctx.fillRect(stemx1, stemy1, c.r*2, barthick*3);
-          stemy1 += c.r;
-        }
+      if (self.grouped && Note.isLastInGroup(self, grp)) {
+        tailx = c.stemx1 - c.width;
+      } else if (self.grouped) {
+        tailx = c.stemx1 + (c.width*2); // twice width to bridge to next note stem
       } else {
-        stemy1 += stemlen;
-        for (i = 0; i < tails; i++) {
-          ctx.fillRect(stemx1, stemy1, c.r*2, barthick*3);
-          stemy1 -= c.r;
-        }
+        tailx = c.stemx1 + c.width;
       }
+      taily = c.stemy2+c.stemlenDelta;
+
+      // FIXME : line width should be 1/2 ... but 1/3 looks better
+      ctx.lineWidth = c.height/3;
+
+      for (i = 0; i < tails; i++) {
+        ctx.beginPath();
+        ctx.moveTo(c.stemx1, taily);
+        ctx.lineTo(tailx, taily);
+        ctx.stroke();
+        ctx.closePath();
+
+        taily += yInc * yMult;
+      }
+
+      ctx.lineWidth = lw;
     }
   }
   
-
   this.calc(staff);  
   ctx.beginPath();
   ctx.moveTo(c.x, c.y);
@@ -151,8 +179,94 @@ Note.prototype.paint2 = function(staff) {
   }
   
   if (this.hasStem()) {
-    paintStem();
+    var grp = score.collections.findIn(this, score.collections.beams);
+    if (this.grouped) {
+      Note.adjustStemForBeaming(staff, this, grp);
+    } else {
+      // FIXME :  there's a bug somewhere ..... c appear to be
+      //            a class level var - it should be instance level
+      // workaround :: reset stemlenDelta
+      this.c.stemlenDelta = 0;
+    }
+    paintStem(grp);
   }
 
 };
+
+
+ Note.isLastInGroup = function(note, group) {
+   return (note == group[group.length-1]);
+ };
+ 
+ Note.isFirstInGroup = function(note, group) {
+   return (note == group[0]);
+ };
+
+ Note.highestInGroup = function(group) {
+   var highest = group[0];
+   var lowest = group[0];
+   for (i=0; i<group.length; i++) {
+     if (staff.details.findNote[group[i].staffPosition] < staff.details.findNote[highest.staffPosition]) {
+       highest = group[i];
+     }
+   }
+   return (highest);
+ };
+
+ Note.lowestInGroup = function(group) {
+   var lowest = group[0];
+   for (i=0; i<group.length; i++) {
+     if (staff.details.findNote[group[i].staffPosition] > staff.details.findNote[lowest.staffPosition]) {
+       lowest = group[i];
+     }
+   }
+   return (lowest);
+ };
+
+ 
+Note.adjustStemForBeaming = function(staff, note, noteGrp) {
+   var i, note;
+   var details = staff.details;
+   var deltas = [];
+   
+   function straight () {
+     // FIXME : this works but really shouldn't be hardcoded!
+     var highestY = staff.details.findNote["a3"];
+     var lowestY = staff.details.findNote["g1"];
+
+     if (note.stemDirection() == "up") {
+       note.c.stemlenDelta = highestY - staff.details.findNote[note.staffPosition];
+
+     } else {
+       note.c.stemlenDelta = lowestY - staff.details.findNote[note.staffPosition];
+
+     }
+   }
+   
+   function sloped () {
+
+     var highest = Note.highestInGroup(noteGrp);
+     var lowest = Note.lowestInGroup(noteGrp);
+
+     for (var i=0; i<noteGrp.length; i++) {
+       note = noteGrp[i];
+       if (note.stemDirection() == "up") {
+         deltas[i] = staff.details.findNote[highest.staffPosition]
+                              - staff.details.findNote[note.staffPosition];
+
+       } else {
+         deltas[i] = staff.details.findNote[lowest.staffPosition] 
+                              - staff.details.findNote[note.staffPosition];
+
+       }
+     }
+   }
+   
+   if (details.beamStyle != undefined && details.beamStyle == "sloped") {
+     sloped();
+   } else {
+     straight(); 
+   }
+   
+ };
 

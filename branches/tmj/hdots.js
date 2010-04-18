@@ -29,15 +29,20 @@ var staff =
  var HIDDEN_LINE_COLOR = "rgb(200, 200, 200)";
  
  var details = {
-   staffHeight: -1, // The height of the 5line staff.
    height: -1,  // Calculated at run time
    width: 700,  // The width of the staff
    thick: 1,    // Thickness of staff line segment
    space: 10,   // The thickness of each space
-   top: 10      // Where to draw the top line "F"
+   top: 50     // Where to draw the top line "F"
  };
  details.barthick = details.space /10;
- 
+ details.beamStyle = "straight";  // can be "straight" or "sloped") {
+ details.noteColor1 = "black";
+ details.noteColor2 = "green";
+ details.noteColor3 = "blue";
+ details.noteColor4 = "red";
+
+
  var canvas = document.createElement("canvas");
  var coords = {};
  
@@ -113,7 +118,7 @@ var staff =
    var width = staff.details.barthick;
    var x = staff.details.x;
    
-   
+      
  }
  
  function prime() {
@@ -198,14 +203,14 @@ function plotMusic(score)
   var ctx = staff.details.ctx;
   var needStaff = true;
   
-  ctx.fillStyle = "green";
-  ctx.strokeStyle = "green";
+  ctx.fillStyle = staff.details.noteColor1;
+  ctx.strokeStyle = staff.details.noteColor1;
   
   function prepNewStaff() {
     staff.drawStaff();
     staff.details.x = 5;
-    ctx.fillStyle = "green";
-    ctx.strokeStyle = "green";
+    ctx.fillStyle = staff.details.noteColor1;
+    ctx.strokeStyle = staff.details.noteColor1;
   }
   
   
@@ -219,32 +224,36 @@ function plotMusic(score)
                        needStaff = false;          
                      }
                      
-                     // logit(["Ping:", mel]);
+                     logit(["Ping:", mel]);
                      
+                     //TODO : enable bounding box for gracenotes in a group
                      if (typeof mel.getBoundingRect === "function") {
-                       logit(["Rect", rect]);
                        rect = mel.getBoundingRect(staff);
                      }
                      
                      switch(mel.type) {
-                     case "melody":
-                       mel.paint(staff);
-                       staff.details.x += staff.details.space * 2.5;
-                       break;
-                     case "egrp":
-                       mel.paint(staff);
-                       staff.details.x += staff.details.space * 1.25 * mel.noteCount();
-                       break;
-                     case "graphic":
+                       case "melody":
+                         mel.paint(staff);
+                         staff.details.x += staff.details.space * 2.5;
+                         break;
+                       case "embellishment":
+                         mel.paint(staff);
+                         staff.details.x += staff.details.space * 1.25;
+                         break;
+                                             case "graphic":
                        mel.paint(staff);
                        staff.details.x += rect.width;
                        break;
 
+//TJM
+//                     case "egrp":
+//                       mel.paint(staff);
+//                       staff.details.x += staff.details.space * 1.25 * mel.noteCount();
+//                       break;
                      }
                      
                      if (mel.newBar) {
-                       
-                       ctx.fillRect(staff.details.x,
+         ctx.fillRect(staff.details.x,
                                     staff.details.findNote.f2,
                                     staff.details.barthick,
                                     staff.details.staffHeight);
@@ -261,7 +270,11 @@ function plotMusic(score)
 function logit(s) {
   if (typeof s === "object") { // Yes, it catches arrays.  That is good.
     //s = "" + s.toSource();
+// TJM line below causes too much recursion error
+//     as a result of having objects reference 
+//     any containing collections
     s = JSON.stringify(s, undefined, 2);
+
   }
   
   var e = document.getElementById("log");
