@@ -41,19 +41,6 @@ Score.prototype.buildCollections = function() {
   c.graceNotes = [];
   c.beams = [];
   
-  c.findIn = function(mel, collection) {
-    var i,j,grp;
-    for (i = 0; i < collection.length; i++) {
-      grp = collection[i];
-      for (j = 0; j <grp.length; j++) {
-        if (grp[j] == mel) {
-          return (grp);
-        }
-      }
-    }
-    return (null);
-  };
-  
   function pushGroup(dest, src) {
     var i;
     for (i = 0; i < src.length; i++) {

@@ -36,11 +36,12 @@ var staff =
    top: 50     // Where to draw the top line "F"
  };
  details.barthick = details.space /10;
- details.beamStyle = "straight";  // can be "straight" or "sloped") {
+ details.beamStyle = "straight";  // can be "straight" or "sloped"
  details.noteColor1 = "black";
  details.noteColor2 = "green";
  details.noteColor3 = "blue";
  details.noteColor4 = "red";
+ details.uiTracing = false;        // true | false toggles bounding box tracing
 
 
  var canvas = document.createElement("canvas");

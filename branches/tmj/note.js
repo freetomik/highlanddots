@@ -5,6 +5,7 @@ function Note() {
   this.scaleFactor = 1.0;
   this.stemDir = "down";
   this.grouped = false;
+  this.c = {};
   return this;
 }
 
@@ -26,7 +27,7 @@ Note.prototype.stemDirection = function() {
 
 
 // Storage area for some commonly used calcuations.
-Note.prototype.c = {};
+//Note.prototype.c = {};
 
 Note.prototype.calc = function(staff) {  
   var c = this.c;//Note.prototype.c;
@@ -79,13 +80,9 @@ Note.prototype.calc = function(staff) {
 
 
 Note.prototype.getBoundingRect = function(staff) {
-  var ctx = staff.details.ctx;
-  var strokeStyle = ctx.strokeStyle; 
   var c = this.c;
   
-  ctx.strokeStyle = "rgba(0, 0, 200, 0.5)";
   this.calc(staff);  
-
   
   var o = {
     x: c.x,
@@ -94,8 +91,15 @@ Note.prototype.getBoundingRect = function(staff) {
     height: c.height
   };
   
-  ctx.strokeRect(o.x, o.y, o.width, o.height);
-  ctx.strokeStyle = strokeStyle;
+  if (staff.details.uiTracing) {
+    var ctx = staff.details.ctx;
+    var strokeStyle = ctx.strokeStyle; 
+    ctx.strokeStyle = "rgba(0, 0, 200, 0.5)";
+
+    ctx.strokeRect(o.x, o.y, o.width, o.height);
+
+    ctx.strokeStyle = strokeStyle;
+  }
 
   return o;
 }
@@ -127,13 +131,22 @@ Note.prototype.paint2 = function(staff) {
     ctx.closePath();
 
     if (tails) {
-      if (self.grouped && Note.isLastInGroup(self, grp)) {
+      if (self.grouped && Note.groupUtils.isLast(self, grp)) {
         tailx = c.stemx1 - c.width;
       } else if (self.grouped) {
+
+        // lookahead to next note
+        // IF next note has fewer tails && current tail count > next tail count
+        //    THEN tails are 1/2 width
+        // ELSE tail is as wide as the gap between notes
+
+        //Note.groupUtils.lookahead(self, grp, "countTails");
+
         tailx = c.stemx1 + (c.width*2); // twice width to bridge to next note stem
       } else {
         tailx = c.stemx1 + c.width;
       }
+
       taily = c.stemy2+c.stemlenDelta;
 
       // FIXME : line width should be 1/2 ... but 1/3 looks better
@@ -142,7 +155,17 @@ Note.prototype.paint2 = function(staff) {
       for (i = 0; i < tails; i++) {
         ctx.beginPath();
         ctx.moveTo(c.stemx1, taily);
-        ctx.lineTo(tailx, taily);
+
+        if (!self.grouped && staff.details.beamStyle == "sloped") {
+          if (self.stemDirection() == "up") {
+            ctx.lineTo(tailx, taily+c.width);
+          } else {
+            ctx.lineTo(tailx, taily-c.width);
+          }
+        } else {
+          ctx.lineTo(tailx, taily);
+        }
+
         ctx.stroke();
         ctx.closePath();
 
@@ -179,9 +202,9 @@ Note.prototype.paint2 = function(staff) {
   }
   
   if (this.hasStem()) {
-    var grp = score.collections.findIn(this, score.collections.beams);
+    var grp = Note.groupUtils.findGroup (this, "beams");
     if (this.grouped) {
-      Note.adjustStemForBeaming(staff, this, grp);
+      Note.groupUtils.beam(staff, this, grp);
     } else {
       // FIXME :  there's a bug somewhere ..... c appear to be
       //            a class level var - it should be instance level
@@ -194,15 +217,63 @@ Note.prototype.paint2 = function(staff) {
 };
 
 
- Note.isLastInGroup = function(note, group) {
+/*
+ * Note group utility functions. These functions are Object functions, not
+ * instance functions. This is the JS equivalent of Java static methods.
+ */
+Note.groupUtils = {};
+
+/* 
+ * collectionType can be "notes" | "melodyNotes" | "graceNotes" | "beams"
+ */
+Note.groupUtils.findGroup = function(note, collectionType) {
+    var i,j,collection, grp;
+    collection = score.collections[collectionType];
+    for (i = 0; i < collection.length; i++) {
+      grp = collection[i];
+      for (j = 0; j <grp.length; j++) {
+        if (grp[j] == note) {
+          return (grp);
+        }
+      }
+    }
+    return (null);
+  };
+
+/*
+ * If grp is null, the note's beam group will be found.
+ */
+Note.groupUtils.lookahead = function(note, grp, attribName) {
+  var i;
+  var next, val = null;
+
+  if (grp == null) 
+    grp = Note.groupUtils.findGroup(note, "beams");
+
+  for (i = 0; i < grp.length; i++) {
+    if (grp[i] == note && i < (grp.length -1) ) {
+      next = grp[i+1];
+      if (next[attribName]) {
+        if (typeof next[attribName] == "function") {
+          val = next[attribName]();
+        } else  {
+          val = next[attribName];
+        }
+      }
+    }
+  }
+  return val;
+}
+
+Note.groupUtils.isLast = function(note, group) {
    return (note == group[group.length-1]);
  };
  
- Note.isFirstInGroup = function(note, group) {
+Note.groupUtils.isFirst = function(note, group) {
    return (note == group[0]);
  };
 
- Note.highestInGroup = function(group) {
+Note.groupUtils.highest = function(group) {
    var highest = group[0];
    var lowest = group[0];
    for (i=0; i<group.length; i++) {
@@ -213,7 +284,7 @@ Note.prototype.paint2 = function(staff) {
    return (highest);
  };
 
- Note.lowestInGroup = function(group) {
+Note.groupUtils.lowest = function(group) {
    var lowest = group[0];
    for (i=0; i<group.length; i++) {
      if (staff.details.findNote[group[i].staffPosition] > staff.details.findNote[lowest.staffPosition]) {
@@ -223,11 +294,13 @@ Note.prototype.paint2 = function(staff) {
    return (lowest);
  };
 
- 
-Note.adjustStemForBeaming = function(staff, note, noteGrp) {
-   var i, note;
+Note.groupUtils.beam = function(staff, note) {
+   var i, note, noteGrp;
    var details = staff.details;
    var deltas = [];
+   
+   noteGrp = Note.groupUtils.findGroup(note, "beams");
+   // TODO: error handling?
    
    function straight () {
      // FIXME : this works but really shouldn't be hardcoded!
@@ -236,18 +309,75 @@ Note.adjustStemForBeaming = function(staff, note, noteGrp) {
 
      if (note.stemDirection() == "up") {
        note.c.stemlenDelta = highestY - staff.details.findNote[note.staffPosition];
-
      } else {
        note.c.stemlenDelta = lowestY - staff.details.findNote[note.staffPosition];
-
      }
    }
    
    function sloped () {
+/*
+     var highest = Note.groupUtils.highest(noteGrp);
+     var highest = Note.groupUtils.highest(noteGrp);
+     var first = noteGrp[0];
+     var last = noteGrp[noteGrp.length-1];
+     var i, slope, note, highestY, firstY, lastY, xSpan;
+     var pivot, yMult;
+     
+     highestY = staff.details.findNote[highest.staffPosition];
+     firstY   = staff.details.findNote[first.staffPosition];
+     lastY    = staff.details.findNote[last.staffPosition];
 
-     var highest = Note.highestInGroup(noteGrp);
-     var lowest = Note.lowestInGroup(noteGrp);
+     // FIXME : X diffs taken from staff layout spacing in hdot.js:238
+     //    this is expected to break when staff spacing is re-engineered
+     noteXSpan = staff.details.space * 2.5;
+     grpXSpan = noteXSpan * noteGrp.length;
 
+     if ((firstY == lastY && firstY == highestY) { 
+       for (i=0; i<notes.length; i++) {
+         note = noteGrp[i];
+         if (note.stemDirection() == "up") {
+           note.c.stemlenDelta = firstY - staff.details.findNote[note.staffPosition];
+         } else {
+           note.c.stemlenDelta = lowestY - staff.details.findNote[note.staffPosition];
+         }
+       }
+     } else {
+       // find slope
+       // m = (y1 - y2) / (x1 - x2);
+
+       slope = (firstY - lastY) / grpXSpan;
+
+///////
+
+       if (note.stemDirection() == "up") {
+         pivot = highest;
+         yMult = -1;
+       } else {
+         pivot = lowest;
+       }
+
+stopped here ............
+
+       for (var i = iHigh; i > 0; i--) {
+         if (i == 0)
+           break;
+         else
+           noteGrp[i-1].c.stemlenDelta = staff.details.findNote[noteGrp[i]] - (noteXSpan * m);
+       }
+       for (var i = iHigh; i < noteGrp.length; i++) {
+         if (i == (noteGrp.length -1))
+           break;
+         else
+           noteGrp[i+1].c.stemlenDelta = staff.details.findNote[noteGrp[i]] - (noteXSpan * m);
+	}
+
+
+
+
+
+
+
+/////////////////////////
      for (var i=0; i<noteGrp.length; i++) {
        note = noteGrp[i];
        if (note.stemDirection() == "up") {
@@ -260,6 +390,7 @@ Note.adjustStemForBeaming = function(staff, note, noteGrp) {
 
        }
      }
+ */
    }
    
    if (details.beamStyle != undefined && details.beamStyle == "sloped") {
