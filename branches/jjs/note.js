@@ -40,7 +40,7 @@ Note.prototype.calc = function(staff) {
   h = c.height/2;
 
   c.x = staff.details.x;
-  c.y = staff.details.findNote[this.staffPosition];
+  c.y = staff.details.noteInfo[this.staffPosition].y;
   c.r = (staff.details.space /2 ) * this.scaleFactor;
 
   c.endX = c.x + c.width;
@@ -171,8 +171,15 @@ Note.prototype.paint2 = function(staff) {
   }
   
   if (this.dotType && this.dotType === "dot") {
+    //FIXME: This dot really needs to move if the note is on a space
+    var doty = c.y;
+//    if (!staff.details.noteInfo[this.staffPosition].drawnOnLine) {
+      doty += staff.details.space/2;
+//    }
+    
+    
     ctx.beginPath();
-    ctx.arc(c.x+c.r*3, c.y-c.r*1.2, c.r/3, 0, Math.PI*2, true);
+    ctx.arc(c.x+c.r*3, doty-c.r*1.2, c.r/3, 0, Math.PI*2, true);
     ctx.closePath();
     ctx.fill();
     
@@ -205,7 +212,7 @@ Note.prototype.paint2 = function(staff) {
    var highest = group[0];
    var lowest = group[0];
    for (i=0; i<group.length; i++) {
-     if (staff.details.findNote[group[i].staffPosition] < staff.details.findNote[highest.staffPosition]) {
+     if (staff.details.noteInfo[group[i].staffPosition].y < staff.details.noteInfo[highest.staffPosition].y) {
        highest = group[i];
      }
    }
@@ -215,7 +222,7 @@ Note.prototype.paint2 = function(staff) {
  Note.lowestInGroup = function(group) {
    var lowest = group[0];
    for (i=0; i<group.length; i++) {
-     if (staff.details.findNote[group[i].staffPosition] > staff.details.findNote[lowest.staffPosition]) {
+     if (staff.details.noteInfo[group[i].staffPosition].y > staff.details.noteInfo[lowest.staffPosition].y) {
        lowest = group[i];
      }
    }
@@ -230,14 +237,14 @@ Note.adjustStemForBeaming = function(staff, note, noteGrp) {
    
    function straight () {
      // FIXME : this works but really shouldn't be hardcoded!
-     var highestY = staff.details.findNote["a3"];
-     var lowestY = staff.details.findNote["g1"];
+     var highestY = staff.details.noteInfo.a3.y;
+     var lowestY = staff.details.noteInfo.g1.y;
 
      if (note.stemDirection() == "up") {
-       note.c.stemlenDelta = highestY - staff.details.findNote[note.staffPosition];
+       note.c.stemlenDelta = highestY - staff.details.noteInfo[note.staffPosition].y;
 
      } else {
-       note.c.stemlenDelta = lowestY - staff.details.findNote[note.staffPosition];
+       note.c.stemlenDelta = lowestY - staff.details.noteInfo[note.staffPosition].y;
 
      }
    }
@@ -250,12 +257,12 @@ Note.adjustStemForBeaming = function(staff, note, noteGrp) {
      for (var i=0; i<noteGrp.length; i++) {
        note = noteGrp[i];
        if (note.stemDirection() == "up") {
-         deltas[i] = staff.details.findNote[highest.staffPosition]
-                              - staff.details.findNote[note.staffPosition];
+         deltas[i] = staff.details.noteInfo[highest.staffPosition].y
+                              - staff.details.noteInfo[note.staffPosition].y;
 
        } else {
-         deltas[i] = staff.details.findNote[lowest.staffPosition] 
-                              - staff.details.findNote[note.staffPosition];
+         deltas[i] = staff.details.noteInfo[lowest.staffPosition].y 
+                              - staff.details.noteInfo[note.staffPosition].y;
 
        }
      }

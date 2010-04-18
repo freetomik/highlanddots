@@ -697,6 +697,6 @@ function parseBWW(dots) {
   }
   
   score.buildCollections();
-  //logit(score);
+  logit(score);
 }
 
