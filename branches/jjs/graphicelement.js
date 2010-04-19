@@ -89,7 +89,7 @@ ThisType.prototype.getBoundingRect = function(staff) {
   
   var o = {
     x: c.dx,
-    y: c.dy-(c.height/2),
+    y: c.dy,
     width: c.dw,
     height: c.dh
   };

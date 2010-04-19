@@ -63,7 +63,7 @@ var staff =
      var s1 = "a b c d e f g".split(" ");
      var l = s1.length;
      var n;
-     var onLine = true;
+     var onLine = false;
      var o;
      
      details.noteInfo = {};
@@ -74,10 +74,11 @@ var staff =
            drawnOnLine: onLine,
            needsLedgerLine: notesOnStaff.indexOf(n) === -1 
          };
+       onLine = !onLine;
+         logit("prepData: " + n  + o.toSource());
          
          details.noteInfo[n] = o;
        }
-       onLine = !onLine;
      }
    }
    prepData();   
@@ -247,6 +248,7 @@ function plotMusic(score)
                      //logit(["mel: ", mel]);
                      
                      var rect;
+                           var strokeStyle = ctx.strokeStyle; 
                      
                      if (needStaff) {
                        prepNewStaff();
@@ -258,6 +260,12 @@ function plotMusic(score)
                      //TODO : enable bounding box for gracenotes in a group
                      if (typeof mel.getBoundingRect === "function") {
                        rect = mel.getBoundingRect(staff);
+                       if (rect) {
+                         ctx.strokeStyle = "rgba(0, 0, 200, 0.5)";
+                         logit(["rect: ", rect.x, rect.y, rect.width, rect.height]);
+                         ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
+                         ctx.strokeStyle = strokeStyle;                         
+                       }
                      }
                      
                      switch(mel.type) {
