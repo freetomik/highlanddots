@@ -281,22 +281,13 @@ function plotMusic(score)
                        mel.paint(staff);
                        staff.details.x += rect.width;
                        break;
+                     case "staffControl":
+                       mel.paint(staff);
+                       staff.details.x += rect.width;
+                       break;
                        
-                       //TJM
-                       //                     case "egrp":
-                       //                       mel.paint(staff);
-                       //                       staff.details.x += staff.details.space * 1.25 * mel.noteCount();
-                       //                       break;
                      }
                      
-                     if (mel.newBar) {
-                       ctx.fillRect(staff.details.x,
-                                    staff.details.noteInfo.f2.y,
-                                    staff.details.barthick,
-                                    staff.details.staffHeight);
-                       
-                       staff.details.x += staff.details.barthick * 2;
-                     }
                      if (mel.staffEnd) {
                        needStaff = true;
                        staff.details.top += staff.details.space * 3;        
