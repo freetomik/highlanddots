@@ -33,7 +33,11 @@ var staff =
    width: 700,  // The width of the staff
    thick: 1,    // Thickness of staff line segment
    space: 10,   // The thickness of each space
-   top: 50     // Where to draw the top line "F"
+   
+   newTop: 50,   // Top of a new score
+   top: -1,     // Where to draw the top line of the CURRENT line of music
+   x: 0,        // Cursor postion
+   maxX: 0      // Max width of score
  };
  details.barthick = details.space /10;
  details.beamStyle = "straight";  // can be "straight" or "sloped") {
@@ -75,14 +79,14 @@ var staff =
            needsLedgerLine: notesOnStaff.indexOf(n) === -1 
          };
        onLine = !onLine;
-         logit("prepData: " + n  + o.toSource());
+         //("prepData: " + n  + o.toSource());
          
          details.noteInfo[n] = o;
        }
      }
    }
    prepData();   
-  logit(details.noteInfo);
+  //(details.noteInfo);
 
 
    function drawLine() {
@@ -90,7 +94,7 @@ var staff =
      y += details.space;
    }
    
-   width = width || details.width;
+   width = width || details.maxX;
    
    x = 5;
    y = details.top;
@@ -243,8 +247,11 @@ function plotMusic(score)
     ctx.strokeStyle = staff.details.noteColor1;
   }
   
-  
-  score.data.forEach(function(mel) {
+
+  function reFlowAndReDraw(doPaint) {  
+    staff.details.top = staff.details.newTop;
+    
+    score.data.forEach(function(mel) {
                      //logit(["mel: ", mel]);
                      
                      var rect;
@@ -261,47 +268,51 @@ function plotMusic(score)
                      if (typeof mel.getBoundingRect === "function") {
                        rect = mel.getBoundingRect(staff);
                        if (rect) {
+                         if (doPaint) {
                          ctx.strokeStyle = "rgba(0, 0, 200, 0.5)";
-                         logit(["rect: ", rect.x, rect.y, rect.width, rect.height]);
+                         //logit(["rect: ", rect.x, rect.y, rect.width, rect.height]);
                          ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
-                         ctx.strokeStyle = strokeStyle;                         
+                         ctx.strokeStyle = strokeStyle;
+                         }                         
                        }
                      }
                      
                      switch(mel.type) {
                      case "melody":
-                       mel.paint(staff);
+                       if (doPaint) {mel.paint(staff);};
                        staff.details.x += staff.details.space * 2.5;
                        break;
                      case "embellishment":
-                       mel.paint(staff);
+                       if (doPaint) {mel.paint(staff);};
                        staff.details.x += staff.details.space * 1.25;
                        break;
                      case "graphic":
-                       mel.paint(staff);
+                       if (doPaint) {mel.paint(staff);};
+                       staff.details.x += rect.width;
+                       break;
+                     case "staffControl":
+                       if (doPaint) {mel.paint(staff);};
                        staff.details.x += rect.width;
                        break;
                        
-                       //TJM
-                       //                     case "egrp":
-                       //                       mel.paint(staff);
-                       //                       staff.details.x += staff.details.space * 1.25 * mel.noteCount();
-                       //                       break;
                      }
                      
-                     if (mel.newBar) {
-                       ctx.fillRect(staff.details.x,
-                                    staff.details.noteInfo.f2.y,
-                                    staff.details.barthick,
-                                    staff.details.staffHeight);
-                       
-                       staff.details.x += staff.details.barthick * 2;
-                     }
                      if (mel.staffEnd) {
+                       if (staff.details.x > staff.details.maxX) {
+                         staff.details.maxX = staff.details.x;
+                       }
                        needStaff = true;
                        staff.details.top += staff.details.space * 3;        
                      }
   });
+  }
+  
+  reFlowAndReDraw(false); // Calculate sizes
+  document.getElementById("canvas").width = staff.details.maxX;
+  document.getElementById("canvas").height = staff.details.top;
+  reFlowAndReDraw(true);  // and draw.
+  logit(staff.details);  
+  
 }
 
 function logit(s) {
