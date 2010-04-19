@@ -61,22 +61,29 @@ var staff =
    //Pre-prep the names for the note position lines
    
    function prepData() {
+     /*
+      * Figure out all of the notes positions that we can display, and their
+      * location on the staff.
+      */
+      
+      //These are the notes that are on the treble cleff, and therefore
+      // don't need ledger lines.
      var notesOnStaff = "e1 f1 g1 a2 b2 c2 d2 e2 f2".split(" ");
      
      var i, j;
-     var s1 = "a b c d e f g".split(" ");
+     var s1 = "a b c d e f g".split(" "); // the notes of the scale
      var l = s1.length;
      var n;
      var onLine = false;
      var o;
      
      details.noteInfo = {};
-     for(i = -2; i < 4; i++) {
+     for(i = -2; i < 4; i++) { // And extended scale runs this range
        for (j = 0; j < l; j++) {
          n = s1[j] + i;
          o = {
-           drawnOnLine: onLine,
-           needsLedgerLine: notesOnStaff.indexOf(n) === -1 
+           drawnOnLine: onLine,  // Is this note drawn on the line 'true' or the space 'false'
+           needsLedgerLine: notesOnStaff.indexOf(n) === -1 // Do we need a ledger line for this note. 
          };
        onLine = !onLine;
          //("prepData: " + n  + o.toSource());
@@ -100,6 +107,13 @@ var staff =
    y = details.top;
    coords.x = x;
    coords.y = y;
+   
+   
+   // This is brute force and crude, but it works.
+   // Draw the line and record its y position, and record
+   // the y position of the space underneath of it.
+   // We use the 'y' position for pretty much everything that involves
+   // placing things on the screen.
    
    ctx.beginPath();
    
