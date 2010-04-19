@@ -106,7 +106,7 @@ Note.prototype.paint2 = function(staff) {
   var ctx = staff.details.ctx;
   var self = this;
   
-  function paintStem() {
+  function paintStem(grp) {
     
     var tails = self.countTails();
     var lw = ctx.lineWidth;
@@ -127,7 +127,7 @@ Note.prototype.paint2 = function(staff) {
     ctx.closePath();
 
     if (tails) {
-      if (self.grouped && Note.isLastInGroup(self, self.beamGroup)) {
+      if (self.grouped && Note.isLastInGroup(self, grp)) {
         tailx = c.stemx1 - c.width;
       } else if (self.grouped) {
         tailx = c.stemx1 + (c.width*2); // twice width to bridge to next note stem
@@ -186,15 +186,16 @@ Note.prototype.paint2 = function(staff) {
   }
   
   if (this.hasStem()) {
+    var grp = score.collections.findIn(this, score.collections.beams);
     if (this.grouped) {
-      Note.adjustStemForBeaming(staff, this, this.beamGroup);
+      Note.adjustStemForBeaming(staff, this, grp);
     } else {
       // FIXME :  there's a bug somewhere ..... c appear to be
       //            a class level var - it should be instance level
       // workaround :: reset stemlenDelta
       this.c.stemlenDelta = 0;
     }
-    paintStem();
+    paintStem(grp);
   }
 
 };

@@ -298,7 +298,7 @@ function plotMusic(score)
 
 function logit(s) {
   if (typeof s === "object") { // Yes, it catches arrays.  That is good.
-    s = "" + s.toSource();
+    //s = "" + s.toSource();
     // TJM line below causes too much recursion error
     //     as a result of having objects reference 
     //     any containing collections
