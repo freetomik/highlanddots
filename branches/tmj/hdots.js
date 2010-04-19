@@ -41,7 +41,8 @@ var staff =
  details.noteColor2 = "green";
  details.noteColor3 = "blue";
  details.noteColor4 = "red";
- details.uiTracing = false;        // true | false toggles bounding box tracing
+ details.logging = false;        // true | false toggles bounding box tracing
+ details.uiTracing = true;        // true | false toggles bounding box tracing
 
 
  var canvas = document.createElement("canvas");
@@ -54,7 +55,38 @@ var staff =
  function drawStaff(width) {
    var x, y;
    var halfy;
+
+   //Pre-prep the names for the note position lines
    
+   function prepData() {
+     var notesOnStaff = "e1 f1 g1 a2 b2 c2 d2 e2 f2".split(" ");
+     
+     var i, j;
+     var s1 = "a b c d e f g".split(" ");
+     var l = s1.length;
+     var n;
+     var onLine = false;
+     var o;
+     
+     details.noteInfo = {};
+     for(i = -2; i < 4; i++) {
+       for (j = 0; j < l; j++) {
+         n = s1[j] + i;
+         o = {
+           drawnOnLine: onLine,
+           needsLedgerLine: notesOnStaff.indexOf(n) === -1 
+         };
+       onLine = !onLine;
+         logit("prepData: " + n  + o.toSource());
+         
+         details.noteInfo[n] = o;
+       }
+     }
+   }
+   prepData();   
+  logit(details.noteInfo);
+
+
    function drawLine() {
      ctx.fillRect(x, y, width, details.thick);
      y += details.space;
@@ -69,41 +101,40 @@ var staff =
    
    ctx.beginPath();
    
-   details.findNote = {};
    
    halfy = details.space/2;
    //High A line
    ctx.fillStyle = HIDDEN_LINE_COLOR;
    ctx.strokeStyle = HIDDEN_LINE_COLOR;
-   details.findNote.a3 = y; 
-   details.findNote.g2 = y + halfy; 
+   details.noteInfo.a3.y = y; 
+   details.noteInfo.g2.y = y + halfy; 
    drawLine();
    
    ctx.fillStyle = "black";
    ctx.strokeStyle = "black";
-   details.findNote.f2 = y; 
-   details.findNote.e2 = y + halfy; 
+   details.noteInfo.f2.y = y; 
+   details.noteInfo.e2.y = y + halfy; 
    drawLine();
    
-   details.findNote.d2 = y; 
-   details.findNote.c2 = y + halfy; 
+  details.noteInfo.d2.y = y; 
+   details.noteInfo.c2.y = y + halfy; 
    drawLine();
    
-   details.findNote.b2 = y; 
-   details.findNote.a2 = y + halfy; 
+   details.noteInfo.b2.y = y; 
+   details.noteInfo.a2.y = y + halfy; 
    drawLine();
    
-   details.findNote.g1 = y; 
-   details.findNote.f1 = y + halfy; 
+   details.noteInfo.g1.y = y; 
+   details.noteInfo.f1.y = y + halfy; 
    drawLine();
    
-   details.findNote.e1 = y; 
-   details.findNote.d1 = y + halfy; 
+   details.noteInfo.e1.y = y; 
+   details.noteInfo.d1.y = y + halfy; 
    drawLine();
    
    ctx.fillStyle = HIDDEN_LINE_COLOR;
    ctx.strokeStyle = HIDDEN_LINE_COLOR;
-   details.findNote.c1 = y; 
+   details.noteInfo.c1.y = y; 
    drawLine();
    
    //alert(details.findNote.toSource());   
@@ -112,14 +143,14 @@ var staff =
    ctx.closePath();
    details.top = y;
    
-   var y1 = staff.details.findNote.e1;
-   var y2 = staff.details.findNote.f2;
+   var y1 = staff.details.noteInfo.e1.y;
+   var y2 = staff.details.noteInfo.f2.y;
    details.staffHeight = y1-y2;
    
    var width = staff.details.barthick;
    var x = staff.details.x;
    
-      
+   
  }
  
  function prime() {
@@ -219,43 +250,54 @@ function plotMusic(score)
                      //logit(["mel: ", mel]);
                      
                      var rect;
+                           var strokeStyle = ctx.strokeStyle; 
                      
                      if (needStaff) {
                        prepNewStaff();
                        needStaff = false;          
                      }
                      
-                     logit(["Ping:", mel]);
+                     //logit(["Ping:", mel]);
                      
-                     //TODO : enable bounding box for gracenotes in a group
                      if (typeof mel.getBoundingRect === "function") {
                        rect = mel.getBoundingRect(staff);
+                       if (rect) {
+                         // TODO: cache bounding box for later UI interactions
+                         if (staff.details.uiTracing) {
+                           // ui outline tracing and logging
+                           ctx.strokeStyle = "rgba(0, 0, 200, 0.5)";
+                           logit(["rect: ", rect.x, rect.y, rect.width, rect.height]);
+                           ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
+                           ctx.strokeStyle = strokeStyle;
+                         }
+                           
+                       }
                      }
                      
                      switch(mel.type) {
-                       case "melody":
-                         mel.paint(staff);
-                         staff.details.x += staff.details.space * 2.5;
-                         break;
-                       case "embellishment":
-                         mel.paint(staff);
-                         staff.details.x += staff.details.space * 1.25;
-                         break;
-                                             case "graphic":
+                     case "melody":
+                       mel.paint(staff);
+                       staff.details.x += staff.details.space * 2.5;
+                       break;
+                     case "embellishment":
+                       mel.paint(staff);
+                       staff.details.x += staff.details.space * 1.25;
+                       break;
+                     case "graphic":
                        mel.paint(staff);
                        staff.details.x += rect.width;
                        break;
-
-//TJM
-//                     case "egrp":
-//                       mel.paint(staff);
-//                       staff.details.x += staff.details.space * 1.25 * mel.noteCount();
-//                       break;
+                       
+                       //TJM
+                       //                     case "egrp":
+                       //                       mel.paint(staff);
+                       //                       staff.details.x += staff.details.space * 1.25 * mel.noteCount();
+                       //                       break;
                      }
                      
                      if (mel.newBar) {
-         ctx.fillRect(staff.details.x,
-                                    staff.details.findNote.f2,
+                       ctx.fillRect(staff.details.x,
+                                    staff.details.noteInfo.f2.y,
                                     staff.details.barthick,
                                     staff.details.staffHeight);
                        
@@ -269,11 +311,12 @@ function plotMusic(score)
 }
 
 function logit(s) {
+  if (!staff.details.logging) return;
   if (typeof s === "object") { // Yes, it catches arrays.  That is good.
     //s = "" + s.toSource();
-// TJM line below causes too much recursion error
-//     as a result of having objects reference 
-//     any containing collections
+    // TJM line below causes too much recursion error
+    //     as a result of having objects reference 
+    //     any containing collections
     s = JSON.stringify(s, undefined, 2);
 
   }

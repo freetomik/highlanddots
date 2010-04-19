@@ -4,8 +4,9 @@ function Note() {
   this.isPrintable = true;
   this.scaleFactor = 1.0;
   this.stemDir = "down";
-  this.grouped = false;
-  this.c = {};
+  this.grouped = false;         // note is part of group
+  this.c = {};                  // Storage area for some commonly used calcuations.
+  var self = this;
   return this;
 }
 
@@ -26,11 +27,9 @@ Note.prototype.stemDirection = function() {
 };
 
 
-// Storage area for some commonly used calcuations.
-//Note.prototype.c = {};
 
 Note.prototype.calc = function(staff) {  
-  var c = this.c;//Note.prototype.c;
+  var c = this.c;
   var w;
   var h;
 
@@ -41,7 +40,7 @@ Note.prototype.calc = function(staff) {
   h = c.height/2;
 
   c.x = staff.details.x;
-  c.y = staff.details.findNote[this.staffPosition];
+  c.y = staff.details.noteInfo[this.staffPosition].y;
   c.r = (staff.details.space /2 ) * this.scaleFactor;
 
   c.endX = c.x + c.width;
@@ -80,6 +79,7 @@ Note.prototype.calc = function(staff) {
 
 
 Note.prototype.getBoundingRect = function(staff) {
+  var ctx = staff.details.ctx;
   var c = this.c;
   
   this.calc(staff);  
@@ -91,16 +91,6 @@ Note.prototype.getBoundingRect = function(staff) {
     height: c.height
   };
   
-  if (staff.details.uiTracing) {
-    var ctx = staff.details.ctx;
-    var strokeStyle = ctx.strokeStyle; 
-    ctx.strokeStyle = "rgba(0, 0, 200, 0.5)";
-
-    ctx.strokeRect(o.x, o.y, o.width, o.height);
-
-    ctx.strokeStyle = strokeStyle;
-  }
-
   return o;
 }
 
@@ -193,9 +183,15 @@ Note.prototype.paint2 = function(staff) {
     ctx.fill();
   }
   
-  if (this.dotType && this.dotType === "dot") {
+  if (this.dotType === "dot") {
+    
+    var doty = c.y;
+    if (staff.details.noteInfo[self.staffPosition].drawnOnLine) {
+      doty -= c.r*1.2
+    }
+    
     ctx.beginPath();
-    ctx.arc(c.x+c.r*3, c.y-c.r*1.2, c.r/3, 0, Math.PI*2, true);
+    ctx.arc(c.x+c.r*3, doty, c.r/3, 0, Math.PI*2, true);
     ctx.closePath();
     ctx.fill();
     
@@ -304,93 +300,53 @@ Note.groupUtils.beam = function(staff, note) {
    
    function straight () {
      // FIXME : this works but really shouldn't be hardcoded!
-     var highestY = staff.details.findNote["a3"];
-     var lowestY = staff.details.findNote["g1"];
+     var highestY = staff.details.noteInfo[GHPRef.HA].y;
+     var lowestY = staff.details.noteInfo[GHPRef.LG].y;
 
      if (note.stemDirection() == "up") {
-       note.c.stemlenDelta = highestY - staff.details.findNote[note.staffPosition];
+       note.c.stemlenDelta = highestY - staff.details.noteInfo[note.staffPosition].y;
      } else {
-       note.c.stemlenDelta = lowestY - staff.details.findNote[note.staffPosition];
+       note.c.stemlenDelta = lowestY - staff.details.noteInfo[note.staffPosition].y;
      }
+     note.c.beamSlope = 0;
    }
    
    function sloped () {
-/*
+     var i, note, pivot, slope, pivoty, firsty, lasty, xSpan;
      var highest = Note.groupUtils.highest(noteGrp);
-     var highest = Note.groupUtils.highest(noteGrp);
+     var lowest = Note.groupUtils.lowest(noteGrp);
      var first = noteGrp[0];
      var last = noteGrp[noteGrp.length-1];
-     var i, slope, note, highestY, firstY, lastY, xSpan;
-     var pivot, yMult;
+     var yMult = 1;
      
-     highestY = staff.details.findNote[highest.staffPosition];
-     firstY   = staff.details.findNote[first.staffPosition];
-     lastY    = staff.details.findNote[last.staffPosition];
-
-     // FIXME : X diffs taken from staff layout spacing in hdot.js:238
-     //    this is expected to break when staff spacing is re-engineered
-     noteXSpan = staff.details.space * 2.5;
-     grpXSpan = noteXSpan * noteGrp.length;
-
-     if ((firstY == lastY && firstY == highestY) { 
-       for (i=0; i<notes.length; i++) {
-         note = noteGrp[i];
-         if (note.stemDirection() == "up") {
-           note.c.stemlenDelta = firstY - staff.details.findNote[note.staffPosition];
-         } else {
-           note.c.stemlenDelta = lowestY - staff.details.findNote[note.staffPosition];
-         }
-       }
+     if (note.stemDirection() == "up") {
+       pivot = highest;
      } else {
-       // find slope
-       // m = (y1 - y2) / (x1 - x2);
-
-       slope = (firstY - lastY) / grpXSpan;
-
-///////
-
-       if (note.stemDirection() == "up") {
-         pivot = highest;
-         yMult = -1;
-       } else {
-         pivot = lowest;
-       }
-
-stopped here ............
-
-       for (var i = iHigh; i > 0; i--) {
-         if (i == 0)
-           break;
-         else
-           noteGrp[i-1].c.stemlenDelta = staff.details.findNote[noteGrp[i]] - (noteXSpan * m);
-       }
-       for (var i = iHigh; i < noteGrp.length; i++) {
-         if (i == (noteGrp.length -1))
-           break;
-         else
-           noteGrp[i+1].c.stemlenDelta = staff.details.findNote[noteGrp[i]] - (noteXSpan * m);
-	}
-
-
-
-
-
-
-
-/////////////////////////
-     for (var i=0; i<noteGrp.length; i++) {
-       note = noteGrp[i];
-       if (note.stemDirection() == "up") {
-         deltas[i] = staff.details.findNote[highest.staffPosition]
-                              - staff.details.findNote[note.staffPosition];
-
-       } else {
-         deltas[i] = staff.details.findNote[lowest.staffPosition] 
-                              - staff.details.findNote[note.staffPosition];
-
-       }
+       pivot = lowest;
      }
- */
+     
+     firsty = staff.details.noteInfo[first.staffPosition].y;
+     lasty  = staff.details.noteInfo[last.staffPosition].y;
+
+     if (firstY == lastY) {
+       note.c.beamSlope = 0;
+       note.c.stemlenDelta = pivoty - (staff.details.noteInfo[note.staffPosition].y);
+       
+     } else {
+       // FIXME : X diffs taken from staff layout spacing in hdot.js:238
+       //    this is expected to break when staff spacing is re-engineered
+       noteXSpan = staff.details.space * 2.5;
+       pivotXSpan = noteXSpan * Note.groupUtils.indexOf(pivot, noteGrp);
+       grpXSpan = noteXSpan * noteGrp.length;
+       pivoty = staff.details.noteInfo[pivot.staffPosition].y;
+
+       note.c.beamSlope = (firstY - lastY) / grpXSpan;
+
+// TDO : stem up|down multiplier?
+       note.c.stemlenDelta = pivoty - (pivotXSpan * m);
+
+     }
+     
    }
    
    if (details.beamStyle != undefined && details.beamStyle == "sloped") {
