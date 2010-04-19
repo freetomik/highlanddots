@@ -44,7 +44,7 @@ function preloadGraphicsList () {
  ThisType.prototype.c = {};
  
  ThisType.prototype.calc = function(staff) {
-   logit([THISTYPE + ":", ""+this.fname]);
+   //logit([THISTYPE + ":", ""+this.fname]);
 
    var img = new Image();
 
@@ -79,7 +79,7 @@ function preloadGraphicsList () {
 
    document.body.removeChild(img);
    
-   logit([THISTYPE, size, ratio, img, dx, dy, dw, dh]);
+   //logit([THISTYPE, size, ratio, img, dx, dy, dw, dh]);
    
  }
 
