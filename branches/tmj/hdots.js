@@ -244,7 +244,8 @@ function testImport() {
   // Notation tests
   dots.push("");
   dots.push("& sharpf sharpc 4_4 ");
-  dots.push("! ^ts D_4 D_8 ^te ^3s El_8~dbf Fr_8 Dl_8 ^3e ~gg Fr_8 HGl_8");
+  dots.push("! ^ts D_4 D_8 ^te ^3s El_8~dbf Fr_8 Dl_8 ^3e ~gg Fr_8 HGl_8 !t");
+  dots.push("! '1 D_4 D_8 '_ '2 El_8~dbf Fr_8 Dl_8 '_ ~gg Fr_8 HGl_8 !I");
   dots.push("");
 
   
@@ -317,6 +318,9 @@ function plotMusic(score)
                        staff.details.x += rect.width;
                        break;
                      case "phrasegroup":
+                       if (doPaint) {mel.paint(staff);};
+                       break;
+                     case "volta":
                        if (doPaint) {mel.paint(staff);};
                        break;
                      }

@@ -602,8 +602,12 @@ var z_phrasegroup = (function() {
     var a = {"^ts": {name: "tie", start: true,  end: false},
              "^te": {name: "tie", start: false,  end: true},
              "^3s": {name: "triplet", start: true,  end: false},
-             "^3e": {name: "triplet", start: false,  end: true},
+             "^3e": {name: "triplet", start: false,  end: true}
             };
+
+
+// BWW Time Lines ie. voltas
+//  '1 '2 '22 '23 '24 '25 '25 '26 '27 '28 '224 'intro _' 
     
     function isType(s) {
       return (typeof a[s] !== "undefined");
@@ -612,6 +616,54 @@ var z_phrasegroup = (function() {
     function create(s)
     {
       var mel = score.createPhraseGroup();
+      meldObjectToObject(a[s], mel);
+      return mel;
+      
+    }
+    return {
+      isType: isType,
+      create: create
+    };
+    
+}());
+
+var z_volta = (function() {
+    
+    /* *************************************** */
+    /* * Volta, or repeated section            */
+    /* * BWW syntax '1      [music]  _'        */
+    /* *            '2      [music]  _'        */
+    /* *            '22     [music]  _'        */
+    /* *            '2x     [music]  _'        */
+    /* *            '28     [music]  _'        */
+    /* *            '224    [music]  _'        */
+    /* *            'intro  [music]  _'        */
+    /* *   can be intrepreted as               */
+    /* *        'Repeat# [of part#]'           */
+    /* *   where missing part # implies        */
+    /* *   current part                        */
+    /* *************************************** */
+
+    var a = {"'1": {start: true,  end: false, repeat: 1, part: 0},
+             "'2": {start: true,  end: false, repeat: 1, part: 0},
+             "'23": {start: true,  end: false, repeat: 3, part: 2},
+             "'24": {start: true,  end: false, repeat: 4, part: 2},
+             "'25": {start: true,  end: false, repeat: 5, part: 2},
+             "'26": {start: true,  end: false, repeat: 6, part: 2},
+             "'27": {start: true,  end: false, repeat: 7, part: 2},
+             "'28": {start: true,  end: false, repeat: 8, part: 2},
+             "'224": {start: true,  end: false, repeat: 1, part: 2},
+             "'intro": {start: true,  end: false},
+             "'_": {start: false,  end: true}
+            };
+
+    function isType(s) {
+      return (typeof a[s] !== "undefined");
+    }
+    
+    function create(s)
+    {
+      var mel = score.createVolta();
       meldObjectToObject(a[s], mel);
       return mel;
       
@@ -715,6 +767,7 @@ function parseBWW(dots) {
       z_timesig,
       z_beat,
       z_phrasegroup,
+      z_volta,
       z_melody,
       z_noteDot,
       z_staffControl,

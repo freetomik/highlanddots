@@ -90,14 +90,16 @@ Score.prototype.buildCollections = function() {
           inTriplet = false;
           c.triplets[mel] = tripletGroup;
         }
-      } else if (mel.name === "volta") {
-        if (mel.start) {
-          voltaGroup = [];
-          inVolta = true;
-        } else if (mel.end) {
-          inVolta = false;
-          c.voltas[mel] = voltaGroup;
-        }
+      }
+    }
+
+    if (mel.type === "volta") {
+      if (mel.start) {
+        voltaGroup = [];
+        inVolta = true;
+      } else if (mel.end) {
+        inVolta = false;
+        c.voltas[mel] = voltaGroup;
       }
     }
 
