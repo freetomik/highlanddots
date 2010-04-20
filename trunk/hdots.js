@@ -40,13 +40,15 @@ var staff =
    maxX: 0      // Max width of score
  };
  details.barthick = details.space /10;
- details.beamStyle = "straight";  // can be "straight" or "sloped") {
+ details.beamStyle = "straight";  // can be "straight" or "sloped"
  details.noteColor1 = "black";
  details.noteColor2 = "green";
  details.noteColor3 = "blue";
  details.noteColor4 = "red";
- 
- 
+ details.logging = false;        // true | false toggles bounding box tracing
+ details.uiTracing = true;        // true | false toggles bounding box tracing
+
+
  var canvas = document.createElement("canvas");
  var coords = {};
  
@@ -86,14 +88,14 @@ var staff =
            needsLedgerLine: notesOnStaff.indexOf(n) === -1 // Do we need a ledger line for this note. 
          };
        onLine = !onLine;
-         //("prepData: " + n  + o.toSource());
+         logit("prepData: " + n  + o.toSource());
          
          details.noteInfo[n] = o;
        }
      }
    }
    prepData();   
-  //(details.noteInfo);
+  logit(details.noteInfo);
 
 
    function drawLine() {
@@ -266,7 +268,7 @@ function plotMusic(score)
     staff.details.top = staff.details.newTop;
     
     score.data.forEach(function(mel) {
-                     //logit(["mel: ", mel]);
+                     logit(["mel: ", mel]);
                      
                      var rect;
                            var strokeStyle = ctx.strokeStyle; 
@@ -276,7 +278,7 @@ function plotMusic(score)
                        needStaff = false;          
                      }
                      
-                     //logit(["Ping:", mel]);
+                     logit(["Ping:", mel]);
                      
                      //TODO : enable bounding box for gracenotes in a group
                      if (typeof mel.getBoundingRect === "function") {
@@ -284,7 +286,7 @@ function plotMusic(score)
                        if (rect) {
                          if (doPaint) {
                          ctx.strokeStyle = "rgba(0, 0, 200, 0.5)";
-                         //logit(["rect: ", rect.x, rect.y, rect.width, rect.height]);
+                         logit(["rect: ", rect.x, rect.y, rect.width, rect.height]);
                          ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
                          ctx.strokeStyle = strokeStyle;
                          }                         
@@ -330,6 +332,7 @@ function plotMusic(score)
 }
 
 function logit(s) {
+  if (!staff.details.logging) return;
   if (typeof s === "object") { // Yes, it catches arrays.  That is good.
     //s = "" + s.toSource();
     // TJM line below causes too much recursion error
