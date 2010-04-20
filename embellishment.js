@@ -11,7 +11,7 @@
  ThisType.inherits(Note);
  
  ThisType.prototype.isPrintable = true;
- ThisType.prototype.scaleFactor = 0.75;
+ ThisType.prototype.scaleFactor = 0.6;
  ThisType.prototype.duration = 32;
  ThisType.prototype.type = THISTYPE;
  

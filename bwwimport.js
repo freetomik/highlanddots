@@ -42,16 +42,33 @@ var z_beat = (function() {
 
 var z_graphic = (function() {
     var a = {
-      "&": {imgName: "treble-clef"}
+      "&":         {name: "treble-clef", staffNote: GHPRef.LG},
+      "sharpha":   {name: "sharp", staffNote: GHPRef.HA},
+      "sharphg":   {name: "sharp", staffNote: GHPRef.HG},
+      "sharpf":    {name: "sharp", staffNote: GHPRef.F},
+      "sharpe":    {name: "sharp", staffNote: GHPRef.E},
+      "sharpd":    {name: "sharp", staffNote: GHPRef.D},
+      "sharpc":    {name: "sharp", staffNote: GHPRef.C},
+      "sharpb":    {name: "sharp", staffNote: GHPRef.B},
+      "sharpla":   {name: "sharp", staffNote: GHPRef.LA},
+      "sharplg":   {name: "sharp", staffNote: GHPRef.LG},
+      "naturalha": {name: "natural", staffNote: GHPRef.HA},
+      "naturalhg": {name: "natural", staffNote: GHPRef.HG},
+      "naturalf":  {name: "natural", staffNote: GHPRef.F},
+      "naturale":  {name: "natural", staffNote: GHPRef.E},
+      "naturald":  {name: "natural", staffNote: GHPRef.D},
+      "naturalc":  {name: "natural", staffNote: GHPRef.C},
+      "naturalb":  {name: "natural", staffNote: GHPRef.B},
+      "naturalla": {name: "natural", staffNote: GHPRef.LA},
+      "naturallg": {name: "natural", staffNote: GHPRef.LG}
     };
-    
     
     function isType(s) {
       return (typeof a[s] !== "undefined");
     }
     
     function create(s) {
-      var mel = score.createGraphic(a[s].imgName);
+      var mel = score.createGraphic(a[s].name);
       meldObjectToObject(a[s], mel);
       return mel;
     }
@@ -656,8 +673,8 @@ function parseBWW(dots) {
     for (i = 0; i < l; i++) {
       s = b[i];
       
-      // List of things to ignore for now.
-      if (["", "sharpf", "sharpc"].indexOf(s) !== -1) {
+     // List of things to ignore for now.
+      if ([""].indexOf(s) !== -1) {
         continue;
       }
       
@@ -692,11 +709,11 @@ function parseBWW(dots) {
   for (i = 0; i < l; i++) {
     s = dots[i];
     bits = s.split(/\s|~/);
-    //logit(bits);
+    logit(bits);
     parseBits(bits);
   }
   
   score.buildCollections();
-  //logit(score);
+  logit(score);
 }
 
