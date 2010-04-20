@@ -46,7 +46,7 @@ var staff =
  details.noteColor3 = "blue";
  details.noteColor4 = "red";
  details.logging = false;        // true | false toggles bounding box tracing
- details.uiTracing = true;        // true | false toggles bounding box tracing
+ details.uiTracing = false;        // true | false toggles bounding box tracing
 
 
  var canvas = document.createElement("canvas");
@@ -284,7 +284,7 @@ function plotMusic(score)
                      if (typeof mel.getBoundingRect === "function") {
                        rect = mel.getBoundingRect(staff);
                        if (rect) {
-                         if (doPaint) {
+                         if (doPaint && staff.details.uiTracing) {
                          ctx.strokeStyle = "rgba(0, 0, 200, 0.5)";
                          logit(["rect: ", rect.x, rect.y, rect.width, rect.height]);
                          ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
