@@ -33,7 +33,11 @@ var staff =
    width: 700,  // The width of the staff
    thick: 1,    // Thickness of staff line segment
    space: 10,   // The thickness of each space
-   top: 50     // Where to draw the top line "F"
+   
+   newTop: 50,   // Top of a new score
+   top: -1,     // Where to draw the top line of the CURRENT line of music
+   x: 0,        // Cursor postion
+   maxX: 0      // Max width of score
  };
  details.barthick = details.space /10;
  details.beamStyle = "straight";  // can be "straight" or "sloped"
@@ -42,7 +46,7 @@ var staff =
  details.noteColor3 = "blue";
  details.noteColor4 = "red";
  details.logging = false;        // true | false toggles bounding box tracing
- details.uiTracing = true;        // true | false toggles bounding box tracing
+ details.uiTracing = false;        // true | false toggles bounding box tracing
 
 
  var canvas = document.createElement("canvas");
@@ -59,22 +63,29 @@ var staff =
    //Pre-prep the names for the note position lines
    
    function prepData() {
+     /*
+      * Figure out all of the notes positions that we can display, and their
+      * location on the staff.
+      */
+      
+      //These are the notes that are on the treble cleff, and therefore
+      // don't need ledger lines.
      var notesOnStaff = "e1 f1 g1 a2 b2 c2 d2 e2 f2".split(" ");
      
      var i, j;
-     var s1 = "a b c d e f g".split(" ");
+     var s1 = "a b c d e f g".split(" "); // the notes of the scale
      var l = s1.length;
      var n;
      var onLine = false;
      var o;
      
      details.noteInfo = {};
-     for(i = -2; i < 4; i++) {
+     for(i = -2; i < 4; i++) { // And extended scale runs this range
        for (j = 0; j < l; j++) {
          n = s1[j] + i;
          o = {
-           drawnOnLine: onLine,
-           needsLedgerLine: notesOnStaff.indexOf(n) === -1 
+           drawnOnLine: onLine,  // Is this note drawn on the line 'true' or the space 'false'
+           needsLedgerLine: notesOnStaff.indexOf(n) === -1 // Do we need a ledger line for this note. 
          };
        onLine = !onLine;
          logit("prepData: " + n  + o.toSource());
@@ -92,12 +103,19 @@ var staff =
      y += details.space;
    }
    
-   width = width || details.width;
+   width = width || details.maxX;
    
    x = 5;
    y = details.top;
    coords.x = x;
    coords.y = y;
+   
+   
+   // This is brute force and crude, but it works.
+   // Draw the line and record its y position, and record
+   // the y position of the space underneath of it.
+   // We use the 'y' position for pretty much everything that involves
+   // placing things on the screen.
    
    ctx.beginPath();
    
@@ -223,6 +241,12 @@ function testImport() {
   dots.push("!~dbe E_4~~strla E_4~F_4~~dbf Fr_8 El_8");
   dots.push("!~thrd D_4~gstd Dr_8 El_8~thrd D_4 !I");
   
+  // Notation tests
+  dots.push("");
+  dots.push("& sharpf sharpc 4_4 ");
+  dots.push("! ^ts D_4 D_8 ^te ^3s El_8~dbf Fr_8 Dl_8 ^3e ~gg Fr_8 HGl_8");
+  dots.push("");
+
   
   parseBWW(dots);
   plotMusic(score);
@@ -245,69 +269,74 @@ function plotMusic(score)
     ctx.strokeStyle = staff.details.noteColor1;
   }
   
-  
-  score.data.forEach(function(mel) {
-                     //logit(["mel: ", mel]);
+
+  function reFlowAndReDraw(doPaint) {  
+    staff.details.top = staff.details.newTop;
+    
+    score.data.forEach(function(mel) {
+                     logit(["mel: ", mel]);
                      
                      var rect;
-                           var strokeStyle = ctx.strokeStyle; 
+                     var strokeStyle = ctx.strokeStyle; 
                      
                      if (needStaff) {
                        prepNewStaff();
                        needStaff = false;          
                      }
                      
-                     //logit(["Ping:", mel]);
+                     logit(["Ping:", mel]);
                      
+                     //TODO : enable bounding box for gracenotes in a group
                      if (typeof mel.getBoundingRect === "function") {
                        rect = mel.getBoundingRect(staff);
                        if (rect) {
-                         // TODO: cache bounding box for later UI interactions
-                         if (staff.details.uiTracing) {
-                           // ui outline tracing and logging
-                           ctx.strokeStyle = "rgba(0, 0, 200, 0.5)";
-                           logit(["rect: ", rect.x, rect.y, rect.width, rect.height]);
-                           ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
-                           ctx.strokeStyle = strokeStyle;
-                         }
-                           
+                         if (doPaint && staff.details.uiTracing) {
+                         ctx.strokeStyle = "rgba(0, 0, 200, 0.5)";
+                         logit(["rect: ", rect.x, rect.y, rect.width, rect.height]);
+                         ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
+                         ctx.strokeStyle = strokeStyle;
+                         }                         
                        }
                      }
                      
                      switch(mel.type) {
                      case "melody":
-                       mel.paint(staff);
+                       if (doPaint) {mel.paint(staff);};
                        staff.details.x += staff.details.space * 2.5;
                        break;
                      case "embellishment":
-                       mel.paint(staff);
+                       if (doPaint) {mel.paint(staff);};
                        staff.details.x += staff.details.space * 1.25;
                        break;
                      case "graphic":
-                       mel.paint(staff);
+                       if (doPaint) {mel.paint(staff);};
                        staff.details.x += rect.width;
                        break;
-                       
-                       //TJM
-                       //                     case "egrp":
-                       //                       mel.paint(staff);
-                       //                       staff.details.x += staff.details.space * 1.25 * mel.noteCount();
-                       //                       break;
+                     case "staffControl":
+                       if (doPaint) {mel.paint(staff);};
+                       staff.details.x += rect.width;
+                       break;
+                     case "phrasegroup":
+                       if (doPaint) {mel.paint(staff);};
+                       break;
                      }
                      
-                     if (mel.newBar) {
-                       ctx.fillRect(staff.details.x,
-                                    staff.details.noteInfo.f2.y,
-                                    staff.details.barthick,
-                                    staff.details.staffHeight);
-                       
-                       staff.details.x += staff.details.barthick * 2;
-                     }
                      if (mel.staffEnd) {
+                       if (staff.details.x > staff.details.maxX) {
+                         staff.details.maxX = staff.details.x;
+                       }
                        needStaff = true;
                        staff.details.top += staff.details.space * 3;        
                      }
   });
+  }
+  
+  reFlowAndReDraw(false); // Calculate sizes
+  document.getElementById("canvas").width = staff.details.maxX;
+  document.getElementById("canvas").height = staff.details.top;
+  reFlowAndReDraw(true);  // and draw.
+  logit(staff.details);  
+  
 }
 
 function logit(s) {
@@ -318,7 +347,7 @@ function logit(s) {
     //     as a result of having objects reference 
     //     any containing collections
     s = JSON.stringify(s, undefined, 2);
-
+    
   }
   
   var e = document.getElementById("log");

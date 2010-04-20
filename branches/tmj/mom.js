@@ -32,14 +32,18 @@ Score.prototype.buildCollections = function() {
   var c = {}; // Collections
   var i, l = this.data.length;
   var mel, lastType;
-  var beamGroup;
-  var inBeam;
-  var endBeam;
+  var beamGroup, inBeam, endBeam;
+  var tieGroup, inTie, endTie;
+  var tripletGroup, inTriplet, endTriplet;
+  var voltaGroup, inVolta, endVolta;
   
   c.notes = [];
   c.melodyNotes = [];
   c.graceNotes = [];
   c.beams = [];
+  c.ties = {};
+  c.triplets = {};
+  c.voltas = {};
   
   c.findIn = function(mel, collection) {
     var i,j,grp;
@@ -61,25 +65,56 @@ Score.prototype.buildCollections = function() {
     }
   }
   
-  inBeam = false;
-  endBeam = false;
+  inBeam = endBeam = false;
+  inTie = endTie = false;
+  inTriplet = endTriplet = false;
+  inVolta = endVolta = false;
+
   for (i = 0; i < l; i++) {
     mel = this.data[i];
     
-//TJM
-//    if (mel.type === "egrp") {
-//      pushGroup(c.notes, mel.notes);
-//      pushGroup(c.graceNotes, mel.notes);
-//    }
+    if (mel.type === "phrasegroup") {
+      if (mel.name === "tie") {
+        if (mel.start) {
+          tieGroup = [];
+          inTie = true;
+        } else if (mel.end) {
+          inTie = false;
+          c.ties[mel] = tieGroup;
+        }
+      } else if (mel.name === "triplet") {
+        if (mel.start) {
+          tripletGroup = [];
+          inTriplet = true;
+        } else if (mel.end) {
+          inTriplet = false;
+          c.triplets[mel] = tripletGroup;
+        }
+      } else if (mel.name === "volta") {
+        if (mel.start) {
+          voltaGroup = [];
+          inVolta = true;
+        } else if (mel.end) {
+          inVolta = false;
+          c.voltas[mel] = voltaGroup;
+        }
+      }
+    }
 
     if (mel.type === "embellishment") {
       c.notes.push(mel);
       c.graceNotes.push(mel);
+      if (inTie) tieGroup.push(mel);
+      if (inTriplet) tripletGroup.push(mel);
+      if (inVolta) voltaGroup.push(mel);
     }
     
     if (mel.type === "melody") {
       c.notes.push(mel);
       c.melodyNotes.push(mel);
+      if (inTie) tieGroup.push(mel);
+      if (inTriplet) tripletGroup.push(mel);
+      if (inVolta) voltaGroup.push(mel);
     }
     
     // gracenote group immediately followed by melody note group

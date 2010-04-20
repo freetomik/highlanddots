@@ -597,6 +597,32 @@ var z_melody = (function() {
     
 }());
 
+var z_phrasegroup = (function() {
+    
+    var a = {"^ts": {name: "tie", start: true,  end: false},
+             "^te": {name: "tie", start: false,  end: true},
+             "^3s": {name: "triplet", start: true,  end: false},
+             "^3e": {name: "triplet", start: false,  end: true},
+            };
+    
+    function isType(s) {
+      return (typeof a[s] !== "undefined");
+    }
+    
+    function create(s)
+    {
+      var mel = score.createPhraseGroup();
+      meldObjectToObject(a[s], mel);
+      return mel;
+      
+    }
+    return {
+      isType: isType,
+      create: create
+    };
+    
+}());
+
 var z_staffControl = (function() {
     var a = {
       "!": {newBar: true}, 
@@ -674,7 +700,6 @@ function parseBWW(dots) {
       s = b[i];
       
      // List of things to ignore for now.
-//      if (["", "sharpf", "sharpc"].indexOf(s) !== -1) {
       if ([""].indexOf(s) !== -1) {
         continue;
       }
@@ -686,9 +711,10 @@ function parseBWW(dots) {
       // create more than one node.
       // Order kinda matters here.  z_beat has to be before z_staffControl
       [
-        z_graphic,
-        z_timesig,
+      z_graphic,
+      z_timesig,
       z_beat,
+      z_phrasegroup,
       z_melody,
       z_noteDot,
       z_staffControl,
