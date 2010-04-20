@@ -9,15 +9,34 @@
 
 </head>
 
-<body onload="preloadGraphicsList ()">
+<body>
 
 <p id="status">
 &nbsp;
 </p>
 <p>
-<button onclick="testDraw()">Click to test Draw</button>
-
+  <button onclick="testDraw()">Click to test Draw</button>
   <button onclick="testImport()">Import and Engrave</button>
+  <br />
+  <span>
+    Note Color:    <select onChange="staff.details.noteColor1=this.options[this.selectedIndex].value;">
+                     <option value="">Black</option>
+                     <option value="">Red</option>
+                     <option value="">Green</option>
+                     <option value="">Blue</option>
+                   </select>
+    &nbsp; &nbsp; &nbsp; &nbsp;
+    Beaming Style: <select onChange="staff.details.beamStyle=this.options[this.selectedIndex].value;">
+                     <option value="straight">Straight</option>
+                     <option value="sloped">Sloped</option>
+                   </select>
+  </span>
+  &nbsp; &nbsp; &nbsp; &nbsp;
+  <span>
+    <input type="checkbox" onChange="(this.checked)?staff.details.uiTracing=true:staff.details.uiTracing=false;"/> UI Tracing
+    &nbsp; &nbsp; &nbsp; &nbsp;
+    <input type="checkbox" onChange="(this.checked)?staff.details.uiTracing=true:staff.details.uiTracing=false;"/> Logging
+  </span>
 </p>
 
 <canvas style="border: 1px solid black;" id="canvas" width="750" height="1200"></canvas>
