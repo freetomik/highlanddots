@@ -4,9 +4,10 @@
     var THISTYPE = "phrasegroup";
     
     function ThisType() {   
-      this.c = {};                  // Storage area for some commonly used calcuations.
       return this;
     }
+
+    ThisType.inherits(ScoreElement);
     
     ThisType.prototype.type = THISTYPE;
     ThisType.prototype.isPrintable = true;

@@ -5,7 +5,6 @@ function Note() {
   this.scaleFactor = 1.0;
   this.stemDir = "down";
   this.grouped = false;         // note is part of group
-  this.c = {};                  // Storage area for some commonly used calcuations.
   var self = this;
   return this;
 }

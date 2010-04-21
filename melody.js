@@ -5,7 +5,6 @@
     
     function ThisType() {   
       this.stemDir = "down";
-      this.c = {};
       return this;
     }
     
