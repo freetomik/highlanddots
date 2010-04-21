@@ -72,6 +72,8 @@ Note.prototype.calc = function(staff) {
   o.stemx2 = o.stemx1;
   o.stemy1 = c.y;
   o.stemy2 = c.y - c.stemlen;
+  o.topy = o.stemy2;
+  o.bottomy = o.stemy1 + h ;
   c.upStem = o;
   
   o = {};
@@ -79,6 +81,8 @@ Note.prototype.calc = function(staff) {
   o.stemx2 = o.stemx1;
   o.stemy1 = c.y;
   o.stemy2 = c.y + c.stemlen;
+  o.topy = o.stemy1 - h;
+  o.bottomy = o.stemy2;
   c.downStem = o;
   
   
@@ -114,9 +118,9 @@ Note.prototype.getBoundingRect = function(staff) {
   
   var o = {
     x: c.downStem.stemx1,
-    y: c.cp1y1,
-    width: c.upStem.stemx1 - c.downStem.stemx1,
-    height: c.height
+    y: c.topy,
+    width: (c.upStem.stemx1 - c.downStem.stemx1),
+    height: (c.bottomy - c.topy)
   };
 
   if (this.dotCount() !== 0) {
