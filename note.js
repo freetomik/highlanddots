@@ -101,14 +101,21 @@ Note.prototype.getBoundingRect = function(staff) {
 
   var o = {
     x: c.x,
-    y: c.y-(c.height/2),
+    y: c.y,
     width: c.width,
     height: c.height
   };
 
+  if (sdet.noteInfo[this.staffPosition].drawnOnLine) {
+    o.y -= sdet.space/3;
+  } else {
+    o.y -= sdet.space/2;
+  }
+  
   if (this.dotCount() !== 0) {
     o.width += (c.dotGap2);
     o.y += c.dotyOffset;
+    o.height -= c.dotyOffset;
   }
 
   

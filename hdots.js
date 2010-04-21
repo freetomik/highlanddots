@@ -284,10 +284,10 @@ function plotMusic(score)
                          rect = mel.getBoundingRect(staff);
                          if (rect) {
                            if (doPaint && sdet.uiTracing) {
-                             ctx.strokeStyle = "rgba(0, 0, 200, 0.5)";
+                             ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
                              logit(["rect: ", rect.x, rect.y, rect.width, rect.height]);
-                             ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
-                             ctx.strokeStyle = strokeStyle;
+                             ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
+                             ctx.fillStyle = strokeStyle;
                            }                         
                          }
                        }
