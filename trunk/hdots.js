@@ -47,8 +47,8 @@ var staff =
  details.noteColor4 = "red";
  details.logging = false;        // true | false toggles bounding box tracing
  details.uiTracing = false;        // true | false toggles bounding box tracing
-
-
+ 
+ 
  var canvas = document.createElement("canvas");
  var coords = {};
  
@@ -59,17 +59,17 @@ var staff =
  function drawStaff(width) {
    var x, y;
    var halfy;
-
+   
    //Pre-prep the names for the note position lines
    
    function prepData() {
      /*
-      * Figure out all of the notes positions that we can display, and their
-      * location on the staff.
-      */
-      
-      //These are the notes that are on the treble cleff, and therefore
-      // don't need ledger lines.
+     * Figure out all of the notes positions that we can display, and their
+     * location on the staff.
+     */
+     
+     //These are the notes that are on the treble cleff, and therefore
+     // don't need ledger lines.
      var notesOnStaff = "e1 f1 g1 a2 b2 c2 d2 e2 f2".split(" ");
      
      var i, j;
@@ -87,7 +87,7 @@ var staff =
            drawnOnLine: onLine,  // Is this note drawn on the line 'true' or the space 'false'
            needsLedgerLine: notesOnStaff.indexOf(n) === -1 // Do we need a ledger line for this note. 
          };
-       onLine = !onLine;
+         onLine = !onLine;
          logit("prepData: " + n  + o.toSource());
          
          details.noteInfo[n] = o;
@@ -95,9 +95,9 @@ var staff =
      }
    }
    prepData();   
-  logit(details.noteInfo);
-
-
+   logit(details.noteInfo);
+   
+   
    function drawLine() {
      ctx.fillRect(x, y, width, details.thick);
      y += details.space;
@@ -134,7 +134,7 @@ var staff =
    details.noteInfo.e2.y = y + halfy; 
    drawLine();
    
-  details.noteInfo.d2.y = y; 
+   details.noteInfo.d2.y = y; 
    details.noteInfo.c2.y = y + halfy; 
    drawLine();
    
@@ -167,8 +167,6 @@ var staff =
    
    var width = staff.details.barthick;
    var x = staff.details.x;
-   
-   
  }
  
  function prime() {
@@ -250,84 +248,85 @@ function testImport() {
 function plotMusic(score)
 {
   staff.prime();
-  var ctx = staff.details.ctx;
+  var sdet = staff.details;
+  var ctx = sdet.ctx;
   var needStaff = true;
   
-  ctx.fillStyle = staff.details.noteColor1;
-  ctx.strokeStyle = staff.details.noteColor1;
+  ctx.fillStyle = sdet.noteColor1;
+  ctx.strokeStyle = sdet.noteColor1;
   
   function prepNewStaff() {
     staff.drawStaff();
-    staff.details.x = 5;
-    ctx.fillStyle = staff.details.noteColor1;
-    ctx.strokeStyle = staff.details.noteColor1;
+    sdet.x = 5;
+    ctx.fillStyle = sdet.noteColor1;
+    ctx.strokeStyle = sdet.noteColor1;
   }
   
-
+  
   function reFlowAndReDraw(doPaint) {  
-    staff.details.top = staff.details.newTop;
+    sdet.top = sdet.newTop;
     
     score.data.forEach(function(mel) {
-                     logit(["mel: ", mel]);
-                     
-                     var rect;
-                           var strokeStyle = ctx.strokeStyle; 
-                     
-                     if (needStaff) {
-                       prepNewStaff();
-                       needStaff = false;          
-                     }
-                     
-                     logit(["Ping:", mel]);
-                     
-                     //TODO : enable bounding box for gracenotes in a group
-                     if (typeof mel.getBoundingRect === "function") {
-                       rect = mel.getBoundingRect(staff);
-                       if (rect) {
-                         if (doPaint && staff.details.uiTracing) {
-                         ctx.strokeStyle = "rgba(0, 0, 200, 0.5)";
-                         logit(["rect: ", rect.x, rect.y, rect.width, rect.height]);
-                         ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
-                         ctx.strokeStyle = strokeStyle;
-                         }                         
-                       }
-                     }
-                     
-                     switch(mel.type) {
-                     case "melody":
-                       if (doPaint) {mel.paint(staff);};
-                       staff.details.x += staff.details.space * 2.5;
-                       break;
-                     case "embellishment":
-                       if (doPaint) {mel.paint(staff);};
-                       staff.details.x += staff.details.space * 1.25;
-                       break;
-                     case "graphic":
-                       if (doPaint) {mel.paint(staff);};
-                       staff.details.x += rect.width;
-                       break;
-                     case "staffControl":
-                       if (doPaint) {mel.paint(staff);};
-                       staff.details.x += rect.width;
-                       break;
+                       logit(["mel: ", mel]);
                        
-                     }
-                     
-                     if (mel.staffEnd) {
-                       if (staff.details.x > staff.details.maxX) {
-                         staff.details.maxX = staff.details.x;
+                       var rect;
+                       var strokeStyle = ctx.strokeStyle; 
+                       
+                       if (needStaff) {
+                         prepNewStaff();
+                         needStaff = false;          
                        }
-                       needStaff = true;
-                       staff.details.top += staff.details.space * 3;        
-                     }
-  });
+                       
+                       logit(["Ping:", mel]);
+                       
+                       //TODO : enable bounding box for gracenotes in a group
+                       if (typeof mel.getBoundingRect === "function") {
+                         rect = mel.getBoundingRect(staff);
+                         if (rect) {
+                           if (doPaint && sdet.uiTracing) {
+                             ctx.strokeStyle = "rgba(0, 0, 200, 0.5)";
+                             logit(["rect: ", rect.x, rect.y, rect.width, rect.height]);
+                             ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
+                             ctx.strokeStyle = strokeStyle;
+                           }                         
+                         }
+                       }
+                       
+                       switch(mel.type) {
+                       case "melody":
+                         if (doPaint) {mel.paint(staff);};
+                         sdet.x += sdet.space * 2.5;
+                         break;
+                       case "embellishment":
+                         if (doPaint) {mel.paint(staff);};
+                         sdet.x += sdet.space * 1.25;
+                         break;
+                       case "graphic":
+                         if (doPaint) {mel.paint(staff);};
+                         sdet.x += rect.width;
+                         break;
+                       case "staffControl":
+                         if (doPaint) {mel.paint(staff);};
+                         sdet.x += rect.width;
+                         break;
+                         
+                       }
+                       
+                       if (mel.staffEnd) {
+                         if (sdet.x > sdet.maxX) {
+                           sdet.maxX = sdet.x;
+                         }
+                         needStaff = true;
+                         sdet.top += sdet.space * 3;        
+                       }
+    });
   }
   
   reFlowAndReDraw(false); // Calculate sizes
-  document.getElementById("canvas").width = staff.details.maxX;
-  document.getElementById("canvas").height = staff.details.top;
+  document.getElementById("canvas").width = sdet.maxX;
+  document.getElementById("canvas").height = sdet.top;
   reFlowAndReDraw(true);  // and draw.
-  logit(staff.details);  
+  logit(sdet);  
   
 }
 

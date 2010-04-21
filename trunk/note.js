@@ -5,7 +5,6 @@ function Note() {
   this.scaleFactor = 1.0;
   this.stemDir = "down";
   this.grouped = false;         // note is part of group
-  this.c = {};                  // Storage area for some commonly used calcuations.
   var self = this;
   return this;
 }
@@ -33,15 +32,17 @@ Note.prototype.calc = function(staff) {
   var w;
   var h;
 
-  c.width = staff.details.space * this.scaleFactor;
-  c.height = c.width; // what should this be? staff.details.height; 
+  var sdet = staff.details;
+  
+  c.width = sdet.space * this.scaleFactor;
+  c.height = c.width; // what should this be? sdet.height; 
 
   w = c.width/2;
   h = c.height/2;
 
-  c.x = staff.details.x;
-  c.y = staff.details.noteInfo[this.staffPosition].y;
-  c.r = (staff.details.space /2 ) * this.scaleFactor;
+  c.x = sdet.x;
+  c.y = sdet.noteInfo[this.staffPosition].y;
+  c.r = (sdet.space /2 ) * this.scaleFactor;
 
   c.endX = c.x + c.width;
   c.endY = c.y;
@@ -57,48 +58,93 @@ Note.prototype.calc = function(staff) {
   c.cp2y2 = c.y + h;
 
   // calc stem length and direction
-  c.stemlen = staff.details.space * 3.2 * this.scaleFactor;
+  c.stemlen = sdet.space * 3.2 * this.scaleFactor;
   if (c.stemlenDelta == undefined) c.stemlenDelta = 0;
 
-  c.barthick = staff.details.barthick * this.scaleFactor;
+  c.barthick = sdet.barthick * this.scaleFactor;
   if (c.barthick < 1) {c.barthick = 1;}
 
   if (this.stemDirection() == "up") {
-    c.stemx1 = c.x + (c.r*2) + (staff.details.thick/2);
+    c.stemx1 = c.x + (c.r*2) + (sdet.thick/2);
     c.stemx2 = c.stemx1;
     c.stemy1 = c.y;
     c.stemy2 = c.y - c.stemlen;
   } else {
-    c.stemx1 = c.x - (c.r/2) + staff.details.thick;
+    c.stemx1 = c.x - (c.r/2) + sdet.thick;
     c.stemx2 = c.stemx1;
     c.stemy1 = c.y;
     c.stemy2 = c.y + c.stemlen;
   }
 
+  c.dotGap2 = 0;
+  if (this.dotCount() >= 1) {
+    c.dotyOffset = 0
+    if (sdet.noteInfo[this.staffPosition].drawnOnLine) {
+      c.dotyOffset -= c.r*1.2
+    }
+
+    c.dotGap1 = c.r*3;
+    c.dotGap2 = c.dotGap1;
+    c.dotSize = c.r/3;  
+  }
+  if (this.dotCount() >= 2) {
+    c.dotGap2 = c.r*4;
+  }
 }
 
 
 Note.prototype.getBoundingRect = function(staff) {
-  var ctx = staff.details.ctx;
+  var sdet = staff.details;
+  var ctx = sdet.ctx;
   var c = this.c;
-  
   this.calc(staff);  
-  
+
   var o = {
     x: c.x,
     y: c.y-(c.height/2),
     width: c.width,
     height: c.height
   };
+
+  if (this.dotCount() !== 0) {
+    o.width += (c.dotGap2);
+    o.y += c.dotyOffset;
+  }
+
   
   return o;
 }
 
 
+Note.prototype.dotCount = function() {
+    var i = {
+      dot:1,
+      doubledot:2
+    }[this.dotType];
+    if (typeof i === "undefined") {i = 0;}
+    return i;
+};
+
+
 Note.prototype.paint2 = function(staff) {
   var c = this.c;
-  var ctx = staff.details.ctx;
+  var sdet = staff.details;
+  var ctx = sdet.ctx;
   var self = this;
+
+  function drawDot() {
+    var y = c.y + c.dotyOffset;
+    
+    ctx.beginPath();
+    ctx.arc(c.x+c.dotGap1, y, c.dotSize, 0, Math.PI*2, true);
+    if (self.dotCount() === 2) {
+      ctx.arc(c.x+c.dotGap2, y, c.dotSize, 0, Math.PI*2, true);
+    }
+    ctx.closePath();
+    ctx.fill();
+  }
+    
+
   
   function paintStem(grp) {
     
@@ -113,7 +159,7 @@ Note.prototype.paint2 = function(staff) {
     }
 
     // FIXME : scale factor on line width?
-    ctx.lineWidth = staff.details.thick; 
+    ctx.lineWidth = sdet.thick; 
     ctx.beginPath();
     ctx.moveTo(c.stemx1, c.stemy1);
     ctx.lineTo(c.stemx2, c.stemy2+c.stemlenDelta);
@@ -146,7 +192,7 @@ Note.prototype.paint2 = function(staff) {
         ctx.beginPath();
         ctx.moveTo(c.stemx1, taily);
 
-        if (!self.grouped && staff.details.beamStyle == "sloped") {
+        if (!self.grouped && sdet.beamStyle == "sloped") {
           if (self.stemDirection() == "up") {
             ctx.lineTo(tailx, taily+c.width);
           } else {
@@ -174,7 +220,7 @@ Note.prototype.paint2 = function(staff) {
   
   // nice thick line for note outlines :)
   var lw = ctx.lineWidth;
-  ctx.lineWidth = staff.details.thick * 1.5 * this.scaleFactor;
+  ctx.lineWidth = sdet.thick * 1.5 * this.scaleFactor;
   ctx.stroke();
   ctx.lineWidth = lw;
 
@@ -183,19 +229,10 @@ Note.prototype.paint2 = function(staff) {
     ctx.fill();
   }
   
-  if (this.dotType === "dot") {
-    
-    var doty = c.y;
-    if (staff.details.noteInfo[self.staffPosition].drawnOnLine) {
-      doty -= c.r*1.2
-    }
-    
-    ctx.beginPath();
-    ctx.arc(c.x+c.r*3, doty, c.r/3, 0, Math.PI*2, true);
-    ctx.closePath();
-    ctx.fill();
-    
+  if (this.dotType) {
+  drawDot();
   }
+  
   
   if (this.hasStem()) {
     var grp = Note.groupUtils.findGroup (this, "beams");
@@ -211,6 +248,7 @@ Note.prototype.paint2 = function(staff) {
   }
 
 };
+
 
 
 /*
@@ -273,7 +311,7 @@ Note.groupUtils.highest = function(group) {
    var highest = group[0];
    var lowest = group[0];
    for (i=0; i<group.length; i++) {
-     if (staff.details.findNote[group[i].staffPosition] < staff.details.findNote[highest.staffPosition]) {
+     if (sdet.findNote[group[i].staffPosition] < sdet.findNote[highest.staffPosition]) {
        highest = group[i];
      }
    }
@@ -283,7 +321,7 @@ Note.groupUtils.highest = function(group) {
 Note.groupUtils.lowest = function(group) {
    var lowest = group[0];
    for (i=0; i<group.length; i++) {
-     if (staff.details.findNote[group[i].staffPosition] > staff.details.findNote[lowest.staffPosition]) {
+     if (sdet.findNote[group[i].staffPosition] > sdet.findNote[lowest.staffPosition]) {
        lowest = group[i];
      }
    }
@@ -292,7 +330,8 @@ Note.groupUtils.lowest = function(group) {
 
 Note.groupUtils.beam = function(staff, note) {
    var i, note, noteGrp;
-   var details = staff.details;
+   var sdet = staff.details;
+   var details = sdet;
    var deltas = [];
    
    noteGrp = Note.groupUtils.findGroup(note, "beams");
@@ -300,13 +339,13 @@ Note.groupUtils.beam = function(staff, note) {
    
    function straight () {
      // FIXME : this works but really shouldn't be hardcoded!
-     var highestY = staff.details.noteInfo[GHPRef.HA].y;
-     var lowestY = staff.details.noteInfo[GHPRef.LG].y;
+     var highestY = sdet.noteInfo[GHPRef.HA].y;
+     var lowestY = sdet.noteInfo[GHPRef.LG].y;
 
      if (note.stemDirection() == "up") {
-       note.c.stemlenDelta = highestY - staff.details.noteInfo[note.staffPosition].y;
+       note.c.stemlenDelta = highestY - sdet.noteInfo[note.staffPosition].y;
      } else {
-       note.c.stemlenDelta = lowestY - staff.details.noteInfo[note.staffPosition].y;
+       note.c.stemlenDelta = lowestY - sdet.noteInfo[note.staffPosition].y;
      }
      note.c.beamSlope = 0;
    }
@@ -325,20 +364,20 @@ Note.groupUtils.beam = function(staff, note) {
        pivot = lowest;
      }
      
-     firsty = staff.details.noteInfo[first.staffPosition].y;
-     lasty  = staff.details.noteInfo[last.staffPosition].y;
+     firsty = sdet.noteInfo[first.staffPosition].y;
+     lasty  = sdet.noteInfo[last.staffPosition].y;
 
      if (firstY == lastY) {
        note.c.beamSlope = 0;
-       note.c.stemlenDelta = pivoty - (staff.details.noteInfo[note.staffPosition].y);
+       note.c.stemlenDelta = pivoty - (sdet.noteInfo[note.staffPosition].y);
        
      } else {
        // FIXME : X diffs taken from staff layout spacing in hdot.js:238
        //    this is expected to break when staff spacing is re-engineered
-       noteXSpan = staff.details.space * 2.5;
+       noteXSpan = sdet.space * 2.5;
        pivotXSpan = noteXSpan * Note.groupUtils.indexOf(pivot, noteGrp);
        grpXSpan = noteXSpan * noteGrp.length;
-       pivoty = staff.details.noteInfo[pivot.staffPosition].y;
+       pivoty = sdet.noteInfo[pivot.staffPosition].y;
 
        note.c.beamSlope = (firstY - lastY) / grpXSpan;
 
@@ -353,7 +392,6 @@ Note.groupUtils.beam = function(staff, note) {
      sloped();
    } else {
      straight(); 
-   }
-   
+   }   
  };
 

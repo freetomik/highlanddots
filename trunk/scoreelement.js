@@ -1,8 +1,8 @@
 "use strict";
 
 function ScoreElement() {
-  var self=this;
   this.isPrintable = false;
+  this.c = {};                  // Storage area for some commonly used calcuations.
   return this;  
 }
 
