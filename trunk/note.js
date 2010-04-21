@@ -31,7 +31,8 @@ Note.prototype.calc = function(staff) {
   var c = this.c;
   var w;
   var h;
-
+  var o;
+  
   var sdet = staff.details;
   
   c.width = sdet.space * this.scaleFactor;
@@ -40,6 +41,7 @@ Note.prototype.calc = function(staff) {
   w = c.width/2;
   h = c.height/2;
 
+  c.w = w * 2;
   c.x = sdet.x;
   c.y = sdet.noteInfo[this.staffPosition].y;
   c.r = (sdet.space /2 ) * this.scaleFactor;
@@ -64,31 +66,39 @@ Note.prototype.calc = function(staff) {
   c.barthick = sdet.barthick * this.scaleFactor;
   if (c.barthick < 1) {c.barthick = 1;}
 
+  o = {};
+  o.stemx1 = c.x + (c.r*2) + (sdet.thick/2);
+  o.stemx2 = o.stemx1;
+  o.stemy1 = c.y;
+  o.stemy2 = c.y - c.stemlen;
+  c.upStem = o;
+  
+  o = {};
+  o.stemx1 = c.x - (c.r/2) + sdet.thick;
+  o.stemx2 = o.stemx1;
+  o.stemy1 = c.y;
+  o.stemy2 = c.y + c.stemlen;
+  c.downStem = o;
+  
+  
   if (this.stemDirection() == "up") {
-    c.stemx1 = c.x + (c.r*2) + (sdet.thick/2);
-    c.stemx2 = c.stemx1;
-    c.stemy1 = c.y;
-    c.stemy2 = c.y - c.stemlen;
+    meldObjectToObject(c.upStem, this.c);
   } else {
-    c.stemx1 = c.x - (c.r/2) + sdet.thick;
-    c.stemx2 = c.stemx1;
-    c.stemy1 = c.y;
-    c.stemy2 = c.y + c.stemlen;
+    meldObjectToObject(c.downStem, this.c);
   }
-
+  
   c.dotGap2 = 0;
   if (this.dotCount() >= 1) {
     c.dotyOffset = 0
     if (sdet.noteInfo[this.staffPosition].drawnOnLine) {
       c.dotyOffset -= c.r*1.2
     }
-
-    c.dotGap1 = c.r*3;
+    c.dotGap1 = c.barthick*3;
     c.dotGap2 = c.dotGap1;
     c.dotSize = c.r/3;  
   }
   if (this.dotCount() >= 2) {
-    c.dotGap2 = c.r*4;
+    c.dotGap2 = c.dotGap1*2;
   }
 }
 
@@ -99,25 +109,20 @@ Note.prototype.getBoundingRect = function(staff) {
   var c = this.c;
   this.calc(staff);  
 
+  //alert(c.w);
+  
   var o = {
-    x: c.x,
-    y: c.y,
-    width: c.width,
+    x: c.downStem.stemx1,
+    y: c.cp1y1,
+    width: c.upStem.stemx1 - c.downStem.stemx1,
     height: c.height
   };
 
-  if (sdet.noteInfo[this.staffPosition].drawnOnLine) {
-    o.y -= sdet.space/3;
-  } else {
-    o.y -= sdet.space/2;
-  }
-  
   if (this.dotCount() !== 0) {
-    o.width += (c.dotGap2);
+    o.width += c.dotGap2 + c.r;
     o.y += c.dotyOffset;
     o.height -= c.dotyOffset;
   }
-
   
   return o;
 }
@@ -141,11 +146,12 @@ Note.prototype.paint2 = function(staff) {
 
   function drawDot() {
     var y = c.y + c.dotyOffset;
+    var x = c.upStem.stemx1
     
     ctx.beginPath();
-    ctx.arc(c.x+c.dotGap1, y, c.dotSize, 0, Math.PI*2, true);
+    ctx.arc(x+c.dotGap1, y, c.dotSize, 0, Math.PI*2, true);
     if (self.dotCount() === 2) {
-      ctx.arc(c.x+c.dotGap2, y, c.dotSize, 0, Math.PI*2, true);
+      ctx.arc(x+c.dotGap2, y, c.dotSize, 0, Math.PI*2, true);
     }
     ctx.closePath();
     ctx.fill();
@@ -253,7 +259,7 @@ Note.prototype.paint2 = function(staff) {
     }
     paintStem(grp);
   }
-
+  
 };
 
 
