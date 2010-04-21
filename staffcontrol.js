@@ -18,7 +18,7 @@
     ThisType.prototype.calc = function(staff) {
       var c = this.c;
       var sdet = staff.details;
-      
+
       var space = sdet.space;
       var hspace = space/2;
       var x = c.x;
