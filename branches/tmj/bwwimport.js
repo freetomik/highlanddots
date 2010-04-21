@@ -19,7 +19,7 @@ var z_beat = (function() {
     function isType(s) {
       // We don't need a class for this silly thing.
       // Thats the beauty of dynamic languages.
-      var mel = z_staffControl.create();
+      var mel = z_staffControl.create(s);
       
       if (s === "~") {return true;}
       if (mel.newBar) {return true;}
@@ -599,36 +599,6 @@ var z_melody = (function() {
 
 var z_phrasegroup = (function() {
     
-    var a = {"^ts": {name: "tie", start: true,  end: false},
-             "^te": {name: "tie", start: false,  end: true},
-             "^3s": {name: "triplet", start: true,  end: false},
-             "^3e": {name: "triplet", start: false,  end: true}
-            };
-
-
-// BWW Time Lines ie. voltas
-//  '1 '2 '22 '23 '24 '25 '25 '26 '27 '28 '224 'intro _' 
-    
-    function isType(s) {
-      return (typeof a[s] !== "undefined");
-    }
-    
-    function create(s)
-    {
-      var mel = score.createPhraseGroup();
-      meldObjectToObject(a[s], mel);
-      return mel;
-      
-    }
-    return {
-      isType: isType,
-      create: create
-    };
-    
-}());
-
-var z_volta = (function() {
-    
     /* *************************************** */
     /* * Volta, or repeated section            */
     /* * BWW syntax '1      [music]  _'        */
@@ -644,17 +614,22 @@ var z_volta = (function() {
     /* *   current part                        */
     /* *************************************** */
 
-    var a = {"'1": {start: true,  end: false, repeat: 1, part: 0},
-             "'2": {start: true,  end: false, repeat: 1, part: 0},
-             "'23": {start: true,  end: false, repeat: 3, part: 2},
-             "'24": {start: true,  end: false, repeat: 4, part: 2},
-             "'25": {start: true,  end: false, repeat: 5, part: 2},
-             "'26": {start: true,  end: false, repeat: 6, part: 2},
-             "'27": {start: true,  end: false, repeat: 7, part: 2},
-             "'28": {start: true,  end: false, repeat: 8, part: 2},
-             "'224": {start: true,  end: false, repeat: 1, part: 2},
-             "'intro": {start: true,  end: false},
-             "'_": {start: false,  end: true}
+    var a = {"^ts":    {collectionName: "ties", sectionStart: true, style: "arc"},
+             "^te":    {collectionName: "ties", sectionEnd: true},
+             "^3s":    {collectionName: "triplets", sectionStart: true, label: "3", style: "arc"},
+             "^3e":    {collectionName: "triplets", sectionEnd: true},
+             "'bis":   {collectionName: "voltas", sectionStart: true, label: "bis", style: "straight"},
+             "'1":     {collectionName: "voltas", sectionStart: true, label: "1st", style: "straight"},
+             "'2":     {collectionName: "voltas", sectionStart: true, label: "2nd", style: "straight"},
+             "'23":    {collectionName: "voltas", sectionStart: true, label: "3rd of part 2", style: "straight"},
+             "'24":    {collectionName: "voltas", sectionStart: true, label: "4th of part 2", style: "straight"},
+             "'25":    {collectionName: "voltas", sectionStart: true, label: "5th of part 2", style: "straight"},
+             "'26":    {collectionName: "voltas", sectionStart: true, label: "6th of part 2", style: "straight"},
+             "'27":    {collectionName: "voltas", sectionStart: true, label: "7th of part 2", style: "straight"},
+             "'28":    {collectionName: "voltas", sectionStart: true, label: "8th of part 2", style: "straight"},
+             "'224":   {collectionName: "voltas", sectionStart: true, label: "2nd of parts 2 and 4", style: "straight"},
+             "'intro": {collectionName: "voltas", sectionStart: true, label: "Introduction", style: "straight"},
+             "'_":     {collectionName: "voltas", sectionEnd: true}
             };
 
     function isType(s) {
@@ -663,7 +638,7 @@ var z_volta = (function() {
     
     function create(s)
     {
-      var mel = score.createVolta();
+      var mel = score.createPhraseGroup();
       meldObjectToObject(a[s], mel);
       return mel;
       
@@ -767,7 +742,6 @@ function parseBWW(dots) {
       z_timesig,
       z_beat,
       z_phrasegroup,
-      z_volta,
       z_melody,
       z_noteDot,
       z_staffControl,

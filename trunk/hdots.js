@@ -47,8 +47,8 @@ var staff =
  details.noteColor4 = "red";
  details.logging = false;        // true | false toggles bounding box tracing
  details.uiTracing = false;        // true | false toggles bounding box tracing
- 
- 
+
+
  var canvas = document.createElement("canvas");
  var coords = {};
  
@@ -59,7 +59,7 @@ var staff =
  function drawStaff(width) {
    var x, y;
    var halfy;
-   
+
    //Pre-prep the names for the note position lines
    
    function prepData() {
@@ -87,7 +87,7 @@ var staff =
            drawnOnLine: onLine,  // Is this note drawn on the line 'true' or the space 'false'
            needsLedgerLine: notesOnStaff.indexOf(n) === -1 // Do we need a ledger line for this note. 
          };
-         onLine = !onLine;
+       onLine = !onLine;
          logit("prepData: " + n  + o.toSource());
          
          details.noteInfo[n] = o;
@@ -95,9 +95,9 @@ var staff =
      }
    }
    prepData();   
-   logit(details.noteInfo);
-   
-   
+  logit(details.noteInfo);
+
+
    function drawLine() {
      ctx.fillRect(x, y, width, details.thick);
      y += details.space;
@@ -239,6 +239,13 @@ function testImport() {
   dots.push("!~dbe E_4~~strla E_4~F_4~~dbf Fr_8 El_8");
   dots.push("!~thrd D_4~gstd Dr_8 El_8~thrd D_4 !I");
   
+  // Notation tests
+  dots.push("");
+  dots.push("& sharpf sharpc 4_4 ");
+  dots.push("! ^ts D_4 D_8 ^te El_8~dbf ^ts Fr_8 Dl_8 ^te ~gg ^ts Fr_8 HGl_8 ^te");
+  dots.push("! '1 D_4 F_8 '_ El_8~dbf Br_8 '2 Cl_8 ~gg Fr_8 HGl_8 '_ !t");
+  dots.push("");
+
   
   parseBWW(dots);
   plotMusic(score);
@@ -262,21 +269,22 @@ function plotMusic(score)
     ctx.strokeStyle = sdet.noteColor1;
   }
   
-  
+
   function reFlowAndReDraw(doPaint) {  
     sdet.top = sdet.newTop;
     
     score.data.forEach(function(mel) {
+
                        logit(["mel: ", mel]);
-                       
+                     
                        var rect;
                        var strokeStyle = ctx.strokeStyle; 
-                       
+                     
                        if (needStaff) {
                          prepNewStaff();
                          needStaff = false;          
                        }
-                       
+                     
                        logit(["Ping:", mel]);
                        
                        //TODO : enable bounding box for gracenotes in a group
@@ -309,6 +317,9 @@ function plotMusic(score)
                        case "graphic":
                          if (doPaint) {mel.paint(staff);};
                          sdet.x += rect.width;
+                         break;
+                       case "phrasegroup":
+                         if (doPaint) {mel.paint(staff);};
                          break;
                        case "staffControl":
                          if (doPaint) {mel.paint(staff);};

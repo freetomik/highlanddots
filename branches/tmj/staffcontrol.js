@@ -6,8 +6,6 @@
     function ThisType() {     
       this.type = THISTYPE;
       this.isPrintable = true;
-      this.c = {};
-      
       return this;
     }
     
@@ -17,20 +15,20 @@
       return new ThisType();
     };
     
-    
-    
     ThisType.prototype.calc = function(staff) {
       var c = this.c;
-      var space = staff.details.space;
+      var sdet = staff.details;
+
+      var space = sdet.space;
       var hspace = space/2;
       var x = c.x;
       var self=this;
       var dotRadius = 2;  // How big are the dots for the repeat sections?
       
-      c.lineWidth = staff.details.thick;
+      c.lineWidth = sdet.thick;
       
-      c.x = staff.details.x;
-      c.y = staff.details.noteInfo.f2.y;
+      c.x = sdet.x;
+      c.y = sdet.noteInfo.f2.y;
       
       
       /*
@@ -67,7 +65,7 @@
       }
       
       function drawThin() {
-        var width = staff.details.thick;
+        var width = sdet.thick;
         var myx = c.lx;
         c.lx += width;
         return (function(_x) {
@@ -83,8 +81,8 @@
         c.lx += width;
         return (function(_x) {
             return function() {
-              self.drawDot(staff, _x, staff.details.noteInfo.a2.y, dotRadius);
-              self.drawDot(staff, _x, staff.details.noteInfo.c2.y, dotRadius);
+              self.drawDot(staff, _x, sdet.noteInfo.a2.y, dotRadius);
+              self.drawDot(staff, _x, sdet.noteInfo.c2.y, dotRadius);
             }
         }(myx));
       }
@@ -123,35 +121,36 @@
     
     
     ThisType.prototype.getBoundingRect = function(staff) {
-      this.calc(staff);  
+      this.calc(staff);
+      var sdet = staff.details;
       var c = this.c;
       
       var o = {
         x: c.x,
         y: c.y,
         width: c.lineWidth,
-        height: staff.details.staffHeight
+        height: sdet.staffHeight
       };
       return o;
     }
     
-    
     ThisType.prototype.drawDot = function(staff, x, y, r) {
-      var ctx = staff.details.ctx;
+      var sdet = staff.details;
+      var ctx = sdet.ctx;
       var c = this.c;
       //alert([x, y, r, 0, Math.PI*2, true]);
       ctx.beginPath();
       ctx.arc(x, y, r, 0, Math.PI*2, true);
       ctx.closePath();
       ctx.fill();
-      
     };
     
     ThisType.prototype.drawLine = function(staff, x, thickness) {
       // Drawing a line normally centers the thickness along the pixel
       // desired.  Shift the x position to adjust for this so that x
       // is the left-margin of the line.
-      var ctx = staff.details.ctx;
+      var sdet = staff.details;
+      var ctx = sdet.ctx;
       var c = this.c;
       
       x += thickness /2;
@@ -159,20 +158,18 @@
       ctx.lineWidth = thickness;
       ctx.beginPath();
       ctx.moveTo(x, c.y);
-      ctx.lineTo(x, staff.details.noteInfo.e1.y);
+      ctx.lineTo(x, sdet.noteInfo.e1.y);
       ctx.stroke();
       ctx.closePath();
       ctx.lineWidth = lw;
     };
     
-    
-    
-    ThisType.prototype.paint = function(staff) {
-      
+    ThisType.prototype.paint = function(staff) {      
       var c = this.c;
-      var ctx = staff.details.ctx;
+      var sdet = staff.details;
+      var ctx = sdet.ctx;
       this.calc(staff);
-      //alert([c.x, c.y, staff.details.noteInfo.e1.y]);
+      //alert([c.x, c.y, sdet.noteInfo.e1.y]);
       
       c.drawCommands.forEach(function(a) {
           a();
@@ -180,6 +177,5 @@
       
     }
 }
-
 ());
 

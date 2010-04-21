@@ -28,17 +28,16 @@ Score.graphicsList = {
  ThisType.prototype.c = {};
  
  ThisType.prototype.calc = function(staff) {
-   logit([THISTYPE + ":", ""+this.fname]);
-
-   var dx = staff.details.x;
+   var sdet = staff.details;
+   var dx = sdet.x;
 
    // FIXME : this works but really shouldn't be hardcoded!
-   var dy = staff.details.top - (staff.details.staffHeight*1.8);
-   var origin = staff.details.noteInfo[this.staffNote].y;
+   var dy = sdet.top - (sdet.staffHeight*1.8);
+   var origin = sdet.noteInfo[this.staffNote].y;
 
    var ratio, size, width, height;
-   ratio = staff.details.space * 1.8;
-   size = staff.details.staffHeight * 1.8;
+   ratio = sdet.space * 1.8;
+   size = sdet.staffHeight * 1.8;
 
    width = this.glyphInfo[this.name].width;
    height = this.glyphInfo[this.name].height;
@@ -54,10 +53,8 @@ Score.graphicsList = {
    this.c.originy = origin;
    this.c.dw = dw;
    this.c.dh = dh;
-
   
    logit([THISTYPE, size, ratio, dx, dy, dw, dh]);
-   
  }
 
 ThisType.prototype.getBoundingRect = function(staff) {
@@ -285,11 +282,12 @@ ThisType.prototype.trebleclef = [
 ////////////////////////// 
  ThisType.prototype.paint = function(staff) {
    var i, startx, starty, ratio, points;
-   var ctx = staff.details.ctx;
+   var sdet = staff.details;
+   var ctx = sdet.ctx;
    var c = this.c;
    this.calc(staff);
    
-//   staff.details.ctx.drawImage(c.img, c.dx, c.dy, c.dw, c.dh);
+//   sdet.ctx.drawImage(c.img, c.dx, c.dy, c.dw, c.dh);
 
    startx = c.originx;
    starty = c.originy;

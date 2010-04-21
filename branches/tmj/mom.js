@@ -41,9 +41,9 @@ Score.prototype.buildCollections = function() {
   c.melodyNotes = [];
   c.graceNotes = [];
   c.beams = [];
-  c.ties = {};
-  c.triplets = {};
-  c.voltas = {};
+  c.ties = [];
+  c.triplets = [];
+  c.voltas = [];
   
   c.findIn = function(mel, collection) {
     var i,j,grp;
@@ -74,33 +74,37 @@ Score.prototype.buildCollections = function() {
     mel = this.data[i];
     
     if (mel.type === "phrasegroup") {
-      if (mel.name === "tie") {
-        if (mel.start) {
-          tieGroup = [];
+      if (mel.collectionName === "ties") {
+        if (mel.sectionStart) {
+          if (!inTie) {tieGroup = []; tieGroup.push(mel);}
           inTie = true;
-        } else if (mel.end) {
+        } else if (mel.sectionEnd) {
+          tieGroup.push(mel);
+          c.ties.push(tieGroup);
           inTie = false;
-          c.ties[mel] = tieGroup;
         }
-      } else if (mel.name === "triplet") {
-        if (mel.start) {
-          tripletGroup = [];
+      } else if (mel.collectionName === "triplets") {
+        if (mel.sectionStart) {
+          if (!inTriplet) {tripletGroup = []; tripletGroup.push(mel);}
           inTriplet = true;
-        } else if (mel.end) {
+        } else if (mel.sectionEnd) {
+          tripletGroup.push(mel);
+          c.triplets.push(tripletGroup);
           inTriplet = false;
-          c.triplets[mel] = tripletGroup;
+        }
+      } else if (mel.collectionName === "voltas") {
+        if (mel.sectionStart) {
+          if (!inVolta) {voltaGroup = []; voltaGroup.push(mel);}
+          inVolta = true;
+          continue;
+        } else if (mel.sectionEnd) {
+          voltaGroup.push(mel);
+          c.voltas.push(voltaGroup);
+          inVolta = false;
         }
       }
-    }
-
-    if (mel.type === "volta") {
-      if (mel.start) {
-        voltaGroup = [];
-        inVolta = true;
-      } else if (mel.end) {
-        inVolta = false;
-        c.voltas[mel] = voltaGroup;
-      }
+      // nothing more to do with this mel, continue to next mel
+      continue;
     }
 
     if (mel.type === "embellishment") {

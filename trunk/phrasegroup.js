@@ -1,7 +1,7 @@
 "use strict";
 
 (function() {
-    var THISTYPE = "volta";
+    var THISTYPE = "phrasegroup";
     
     function ThisType() {   
       this.c = {};                  // Storage area for some commonly used calcuations.
@@ -16,25 +16,21 @@
     };
 
     ThisType.prototype.calc = function(staff) {  
-      if (this.start) return;         // 'look back' calc strategy
+      if (this.sectionStart) return;         // 'look back' calc strategy
       var c = this.c;
       var originx, originy, endx, endy,cp1x1, cp1y1, cp2x1, cp2y1 = 0;
       var yMult = -1;
 
-      grp = score.collections[this.type+"s"][this];
+      grp = score.collections.findIn(this, score.collections[this.collectionName]);
 
-staff.details.logging = true;
-logit (grp.length);
-staff.details.logging = false;
-
-      if (grp[0].stemDirection() == "up") {
+      if (grp[1].stemDirection() == "up") {
        yMult = 1;
       }
 
-      c.originx = grp[0].c.x + grp[0].c.width/2;
-      c.originy = grp[0].c.y + (grp[0].c.height * yMult);
-      c.endx = grp[grp.length-1].c.x + (grp[grp.length-1].c.width/2);
-      c.endy = grp[grp.length-1].c.y + (grp[grp.length-1].c.height * yMult);
+      c.originx = grp[1].c.x + grp[1].c.width/2;
+      c.originy = grp[1].c.y + (grp[1].c.height * yMult);
+      c.endx = grp[grp.length-2].c.x + (grp[grp.length-2].c.width/2);
+      c.endy = grp[grp.length-2].c.y + (grp[grp.length-2].c.height * yMult);
 
       // FIXME: need proper control points!! should be proportional to tie length
       c.cp1x1 = c.originx + 10;
@@ -48,7 +44,7 @@ staff.details.logging = false;
     }
 
     ThisType.prototype.paint = function(staff) {
-      if (this.start) return;           // 'look back' painting strategy
+      if (this.sectionStart) return;           // 'look back' painting strategy
       var ctx = staff.details.ctx;
       var lw = ctx.lineWidth;
       var c = this.c;
@@ -62,7 +58,7 @@ staff.details.logging = false;
 
     };
     
-    Score.prototype.createVolta = function() {
+    Score.prototype.createPhraseGroup = function() {
       return new ThisType();
     };
 }());
