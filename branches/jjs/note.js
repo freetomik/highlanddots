@@ -76,6 +76,20 @@ Note.prototype.calc = function(staff) {
     c.stemy2 = c.y + c.stemlen;
   }
 
+  c.dotGap2 = 0;
+  if (this.dotCount() >= 1) {
+    c.dotyOffset = 0
+    if (sdet.noteInfo[this.staffPosition].drawnOnLine) {
+      c.dotyOffset -= c.r*1.2
+    }
+
+    c.dotGap1 = c.r*3;
+    c.dotGap2 = c.dotGap1;
+    c.dotSize = c.r/3;  
+  }
+  if (this.dotCount() >= 2) {
+    c.dotGap2 = c.r*4;
+  }
 }
 
 
@@ -83,18 +97,33 @@ Note.prototype.getBoundingRect = function(staff) {
   var sdet = staff.details;
   var ctx = sdet.ctx;
   var c = this.c;
-  
   this.calc(staff);  
-  
+
   var o = {
     x: c.x,
     y: c.y-(c.height/2),
     width: c.width,
     height: c.height
   };
+
+  if (this.dotCount() !== 0) {
+    o.width += (c.dotGap2);
+    o.y += c.dotyOffset;
+  }
+
   
   return o;
 }
+
+
+Note.prototype.dotCount = function() {
+    var i = {
+      dot:1,
+      doubledot:2
+    }[this.dotType];
+    if (typeof i === "undefined") {i = 0;}
+    return i;
+};
 
 
 Note.prototype.paint2 = function(staff) {
@@ -102,6 +131,20 @@ Note.prototype.paint2 = function(staff) {
   var sdet = staff.details;
   var ctx = sdet.ctx;
   var self = this;
+
+  function drawDot() {
+    var y = c.y + c.dotyOffset;
+    
+    ctx.beginPath();
+    ctx.arc(c.x+c.dotGap1, y, c.dotSize, 0, Math.PI*2, true);
+    if (self.dotCount() === 2) {
+      ctx.arc(c.x+c.dotGap2, y, c.dotSize, 0, Math.PI*2, true);
+    }
+    ctx.closePath();
+    ctx.fill();
+  }
+    
+
   
   function paintStem(grp) {
     
@@ -186,19 +229,10 @@ Note.prototype.paint2 = function(staff) {
     ctx.fill();
   }
   
-  if (this.dotType === "dot") {
-    
-    var doty = c.y;
-    if (sdet.noteInfo[self.staffPosition].drawnOnLine) {
-      doty -= c.r*1.2
-    }
-    
-    ctx.beginPath();
-    ctx.arc(c.x+c.r*3, doty, c.r/3, 0, Math.PI*2, true);
-    ctx.closePath();
-    ctx.fill();
-    
+  if (this.dotType) {
+  drawDot();
   }
+  
   
   if (this.hasStem()) {
     var grp = Note.groupUtils.findGroup (this, "beams");
@@ -214,6 +248,7 @@ Note.prototype.paint2 = function(staff) {
   }
 
 };
+
 
 
 /*
