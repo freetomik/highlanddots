@@ -13,7 +13,9 @@ function meldObjectToObject(src, dest, type) {
   for (s in src) {
     if (src.hasOwnProperty(s)) {
       dest[s] = src[s];
-      dest[s].type = type;
+      if (typeof type !== "undefined") {
+        dest[s].type = type;
+      }
     }
   }
 }

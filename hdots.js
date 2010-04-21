@@ -288,6 +288,11 @@ function plotMusic(score)
                              logit(["rect: ", rect.x, rect.y, rect.width, rect.height]);
                              ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
                              ctx.fillStyle = strokeStyle;
+
+                             // Debugging - mark exactly where the center is.
+                             ctx.fillStyle = "red";
+                             ctx.fillRect(rect.x-1, rect.y-1, 2, 2);
+                             ctx.fillStyle = strokeStyle;
                            }                         
                          }
                        }
