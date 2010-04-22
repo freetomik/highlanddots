@@ -276,8 +276,6 @@ function plotMusic(score)
     
     score.data.forEach(function(mel) {
 
-                       logit(["mel: ", mel]);
-                     
                        var rect;
                        var strokeStyle = ctx.strokeStyle; 
                      
@@ -286,12 +284,11 @@ function plotMusic(score)
                          needStaff = false;          
                        }
                      
-                       logit(["Ping:", mel]);
-                       
                        //TODO : enable bounding box for gracenotes in a group
                        if (typeof mel.getBoundingRect === "function") {
                          rect = mel.getBoundingRect(staff);
                          if (rect) {
+                           mel.rect = rect;
                            if (doPaint && sdet.uiTracing) {
                              ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
                              logit(["rect: ", rect.x, rect.y, rect.width, rect.height]);
@@ -326,6 +323,10 @@ function plotMusic(score)
                          if (doPaint) {mel.paint(staff);};
                          sdet.x += rect.width;
                          break;
+                       case "timesig":
+                         if (doPaint) {mel.paint(staff);};
+                         sdet.x += rect.width;
+                         break;
                          
                        }
                        
@@ -340,9 +341,15 @@ function plotMusic(score)
   }
   
   reFlowAndReDraw(false); // Calculate sizes
+  // Setting the canvas to the same dimensions doesn't clear it.
+  document.getElementById("canvas").width = 0; 
   document.getElementById("canvas").width = sdet.maxX;
   document.getElementById("canvas").height = sdet.top;
   reFlowAndReDraw(true);  // and draw.
+  
+  makeImageMap(staff, score);
+
+  
   logit(sdet);  
   
 }

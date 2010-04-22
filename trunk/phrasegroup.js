@@ -41,6 +41,7 @@
 
       grp = score.collections.findIn(this, score.collections[this.collectionName]);
       this.style = grp[0].style;
+
       if(grp[0].label) this.label = grp[0].label;
       
       // FIXME : Technically this is correct because gracenotes can be notatated
@@ -69,16 +70,17 @@
         c.originy = y;//+ c.height;
         c.endx = grp[grp.length-2].c.x + grp[grp.length-2].c.width;
         c.endy = y;
-	c.width = endx - originx;
+	c.width = c.endx - c.originx;
 
         if (this.label) {
-          if (this.collection == "voltas") {
+          if (this.collectionName == "voltas") {
             c.labelx = c.originx + (c.width/5);
           } else {
             c.labelx = c.originx + (c.width/2);
           }
-          c.labely = c.originy + (c.height/2);
+          c.labely = c.originy + (c.height*.75);
         }
+
 
       } else {
         c.originx = grp[1].c.x + grp[1].c.width/2;
@@ -102,7 +104,7 @@
         c.width = c.endx - c.originx;
 
         if (this.label) {
-          if (this.collection == "voltas") {
+          if (this.collectionName == "voltas") {
             c.labelx = c.originx + (c.width/5);
             c.labely = c.originy - (c.height);
           } else {
@@ -119,7 +121,8 @@
 
     ThisType.prototype.paint = function(staff) {
       if (this.sectionStart) return;           // 'look back' painting strategy
-      var ctx = staff.details.ctx;
+      var sdet = staff.details; 
+      var ctx = sdet.ctx;
       var lw = ctx.lineWidth;
       var c = this.c;
 
@@ -142,11 +145,16 @@
       }
 
         if (this.label) {
-          var tmp = ctx.textAlign;
+          var tf = ctx.font;
+          var ta = ctx.textAlign;
+          ctx.font = "" + (sdet.space*1.25) + "px sans-serif bold";
 	  ctx.textAlign = 'start';
-          // FIXME : should use c.labelx
-   	  ctx.fillText(this.label, (c.originx + (c.height/2)), c.labely);
-	  ctx.textAlign = tmp;
+          // TODO : scale font according to staff line space 
+          //        The default font is 10px sans-serif.
+
+   	  ctx.fillText(this.label, c.labelx, c.labely);
+	  ctx.font = tf;
+	  ctx.textAlign = ta;
 	}
 
 
