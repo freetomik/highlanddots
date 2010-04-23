@@ -32,14 +32,18 @@ Score.prototype.buildCollections = function() {
   var c = {}; // Collections
   var i, l = this.data.length;
   var mel, lastType;
-  var beamGroup;
-  var inBeam;
-  var endBeam;
+  var beamGroup, inBeam, endBeam;
+  var tieGroup, inTie, endTie;
+  var tripletGroup, inTriplet, endTriplet;
+  var voltaGroup, inVolta, endVolta;
   
   c.notes = [];
   c.melodyNotes = [];
   c.graceNotes = [];
   c.beams = [];
+  c.ties = [];
+  c.triplets = [];
+  c.voltas = [];
   
   c.findIn = function(mel, collection) {
     var i,j,grp;
@@ -61,25 +65,62 @@ Score.prototype.buildCollections = function() {
     }
   }
   
-  inBeam = false;
-  endBeam = false;
+  inBeam = endBeam = false;
+  inTie = endTie = false;
+  inTriplet = endTriplet = false;
+  inVolta = endVolta = false;
+
   for (i = 0; i < l; i++) {
     mel = this.data[i];
     
-//TJM
-//    if (mel.type === "egrp") {
-//      pushGroup(c.notes, mel.notes);
-//      pushGroup(c.graceNotes, mel.notes);
-//    }
+    if (mel.type === "phrasegroup") {
+      if (mel.collectionName === "ties") {
+        if (mel.sectionStart) {
+          if (!inTie) {tieGroup = []; tieGroup.push(mel);}
+          inTie = true;
+        } else if (mel.sectionEnd) {
+          tieGroup.push(mel);
+          c.ties.push(tieGroup);
+          inTie = false;
+        }
+      } else if (mel.collectionName === "triplets") {
+        if (mel.sectionStart) {
+          if (!inTriplet) {tripletGroup = []; tripletGroup.push(mel);}
+          inTriplet = true;
+        } else if (mel.sectionEnd) {
+          tripletGroup.push(mel);
+          c.triplets.push(tripletGroup);
+          inTriplet = false;
+        }
+      } else if (mel.collectionName === "voltas") {
+        if (mel.sectionStart) {
+          if (!inVolta) {voltaGroup = []; voltaGroup.push(mel);}
+          inVolta = true;
+          continue;
+        } else if (mel.sectionEnd) {
+          voltaGroup.push(mel);
+          c.voltas.push(voltaGroup);
+          inVolta = false;
+        }
+      }
+      // nothing more to do with this mel, continue to next mel
+      continue;
+    }
 
     if (mel.type === "embellishment") {
       c.notes.push(mel);
       c.graceNotes.push(mel);
+      if (inTie) tieGroup.push(mel);
+      if (inTriplet) tripletGroup.push(mel);
+      if (inVolta) voltaGroup.push(mel);
     }
     
     if (mel.type === "melody") {
       c.notes.push(mel);
       c.melodyNotes.push(mel);
+      if (inTie) tieGroup.push(mel);
+      if (inTriplet) tripletGroup.push(mel);
+      if (inVolta) voltaGroup.push(mel);
     }
     
     // gracenote group immediately followed by melody note group

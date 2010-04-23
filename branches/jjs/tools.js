@@ -584,3 +584,81 @@ replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
     }
 }());
 
+
+var domTools = (function() 
+  {
+    function getElementPosition(obj) {
+      var curleft = curtop = 0;
+      if (obj.offsetParent) {
+        curleft = obj.offsetLeft
+        curtop = obj.offsetTop
+        while (obj = obj.offsetParent) {
+          curleft += obj.offsetLeft
+          curtop += obj.offsetTop
+        }       
+      }
+      return [curleft,curtop];
+    }
+    
+    function removeChildren(obj) {
+      while (obj.firstChild) {
+        obj.removeChild(obj.firstChild)
+      } 
+    }
+    
+    
+    function removeElementIfExists(s, doc) {
+      if (!doc) doc = document;
+      var e = doc.getElementById(s);
+      
+      if (e) {
+        var p = e.parentNode;
+        if (p) {
+          e.parentNode.removeChild(e);
+        }
+      }
+    }
+    
+    function getOrMakeDiv(id) {                
+      var div;
+      div = document.getElementById(id);
+      if (!div) {
+        div = document.createElement(id);
+        div.id = id;
+        document.body.appendChild(div);
+      }
+      return div;
+    }
+    
+    function setElementPosition(element, left, top) {
+      if (typeof element === "string") {
+        element = document.getElementById(element);
+      }
+      var elementStyleRef = element.style;
+      elementStyleRef.position = "absolute";
+      
+      var mod = (typeof elementStyleRef.top == 'string')?"px":0
+      elementStyleRef.top = top + mod;
+      elementStyleRef.left = left + mod;
+      
+      //var z = getElementPosition(element);
+      //alert([z, left, top, mod]);
+    }
+    
+    function appendText(el, text) {
+      var tn = document.createTextNode(text);
+      el.appendChild(tn);
+    }
+    
+    return {
+      appendText: appendText,
+      getElementPosition: getElementPosition,   
+      removeChildren: removeChildren,
+      getOrMakeDiv: getOrMakeDiv,
+      setElementPosition: setElementPosition,
+      removeElementIfExists: removeElementIfExists
+    };
+    
+  }
+  )
+();

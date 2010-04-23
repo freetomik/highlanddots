@@ -5,6 +5,8 @@
 
  function ThisType() {  
    this.stemDir = "up";
+  this.paddingRight = 0;  // Override the parent 
+
    return this;
  }
  

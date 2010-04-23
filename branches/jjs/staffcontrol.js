@@ -18,7 +18,7 @@
     ThisType.prototype.calc = function(staff) {
       var c = this.c;
       var sdet = staff.details;
-      
+
       var space = sdet.space;
       var hspace = space/2;
       var x = c.x;
@@ -115,6 +115,7 @@
         c.drawCommands.push(drawThin());
       } else if (this.newBar | this.staffEnd) {
         c.drawCommands.push(drawThin());
+	c.lx += hspace;  // Skip a bit of space.
       };
       c.lineWidth = c.lx - c.x;
     };
