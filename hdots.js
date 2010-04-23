@@ -88,8 +88,6 @@ var staff =
            needsLedgerLine: notesOnStaff.indexOf(n) === -1 // Do we need a ledger line for this note. 
          };
        onLine = !onLine;
-         logit("prepData: " + n  + o.toSource());
-         
          details.noteInfo[n] = o;
        }
      }
