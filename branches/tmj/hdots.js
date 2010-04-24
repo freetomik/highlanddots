@@ -242,9 +242,9 @@ function testImport() {
   // Notation tests
   dots.push("");
   dots.push("& sharpf sharpc 4_4 ");
-  dots.push("! ^ts D_4 D_8 ^te E_8~dbf ^ts Fr_8 Dl_8 ^te ~gg ^ts Fr_8 HGl_8 ^te");
-  dots.push("! ^3s D_4 D_8 E_8 ^3e ~dbf ^3s Fr_8 Dl_8 ~gg Fr_8 ^3e HGl_8");
-  dots.push("! '1 D_4 F_8 '_ E_8~dbf Br_8 '2 Cl_8 ~gg Fr_8 HGl_8 '_ !t");
+  dots.push("! ^ts D_4 D_8 ^te El_8~dbf ^ts Fr_8 Dl_8 ^te ~gg ^ts Fr_8 HGl_8 ^te");
+  dots.push("! ^3s D_4 D_8 El_8 ^3e ~dbf ^3s Fr_8 Dl_8 ~gg Fr_8 ^3e HGl_8");
+  dots.push("! '1 D_4 F_8 '_ El_8~dbf Br_8 '2 Cl_8 ~gg Fr_8 HGl_8 '_ !t");
   dots.push("");
 
   
@@ -276,8 +276,6 @@ function plotMusic(score)
     
     score.data.forEach(function(mel) {
 
-                       logit(["mel: ", mel]);
-                     
                        var rect;
                        var strokeStyle = ctx.strokeStyle; 
                      
@@ -286,12 +284,11 @@ function plotMusic(score)
                          needStaff = false;          
                        }
                      
-                       logit(["Ping:", mel]);
-                       
                        //TODO : enable bounding box for gracenotes in a group
                        if (typeof mel.getBoundingRect === "function") {
                          rect = mel.getBoundingRect(staff);
                          if (rect) {
+                           mel.rect = rect;
                            if (doPaint && sdet.uiTracing) {
                              ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
                              logit(["rect: ", rect.x, rect.y, rect.width, rect.height]);
@@ -315,6 +312,9 @@ function plotMusic(score)
                          if (doPaint) {mel.paint(staff);};
                          sdet.x += sdet.space * 1.25;
                          break;
+                       case "beamgroup":
+                       //  if (doPaint) {mel.paint(staff);};
+                         break;
                        case "graphic":
                          if (doPaint) {mel.paint(staff);};
                          sdet.x += rect.width;
@@ -323,6 +323,10 @@ function plotMusic(score)
                          if (doPaint) {mel.paint(staff);};
                          break;
                        case "staffControl":
+                         if (doPaint) {mel.paint(staff);};
+                         sdet.x += rect.width;
+                         break;
+                       case "timesig":
                          if (doPaint) {mel.paint(staff);};
                          sdet.x += rect.width;
                          break;
@@ -340,9 +344,15 @@ function plotMusic(score)
   }
   
   reFlowAndReDraw(false); // Calculate sizes
+  // Setting the canvas to the same dimensions doesn't clear it.
+  document.getElementById("canvas").width = 0; 
   document.getElementById("canvas").width = sdet.maxX;
   document.getElementById("canvas").height = sdet.top;
   reFlowAndReDraw(true);  // and draw.
+  
+  makeImageMap(staff, score);
+
+  
   logit(sdet);  
   
 }
