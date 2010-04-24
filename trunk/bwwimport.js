@@ -94,7 +94,9 @@ var z_timesig = (function() {
     function create(s)
     {
       var mel = score.createTimeSig();
-      mel.timeSig = s.split("_").join("/");
+      var s1 = s.split("_");
+      mel.beatsPerBar = s1[0];
+      mel.beatUnit = s1[1];      
       return mel;
       
     }
@@ -496,10 +498,6 @@ var z_ghbgrace = (function() {
       "gstla": {category: "EMBELISHMENTS", dots: "Gag"},
       "tste": {category: "EMBELISHMENTS", dots: "Aea"}
     };
-    var bgdef = { "start":    {sectionStart: true},
-                  "end":    {sectionEnd: true}
-                };
- 
     
     
     function isType(s) {
@@ -507,12 +505,15 @@ var z_ghbgrace = (function() {
     }
     
     function create(s) {
+      //TJM                    var grp = score.createEmbellishmentGroup();
       var note;
       var notes;
       var b = a[s];
-      var mel, bg;
+      var mel;
       var mels = [];
       var i;
+      
+      //                    meldObjectToObject(a[s], grp);
       
       notes = b.dots.match(/[aA-zZ]/g);
       for (i = 0; i < notes.length; i++) {
@@ -527,19 +528,11 @@ var z_ghbgrace = (function() {
         if (!note) {note =notes[i].toUpperCase();}
         mel = score.createEmbellishment();
         mel.note = note;
-        mel.note = note.toUpperCase();
         mel.staffPosition = GHPRef[mel.note];
         if (notes.length > 1) mel.grouped = true;
+        //TJM                      grp.appendNode(mel);
         mels.push(mel);
         
-      }
-      if (mels.length > 1) {
-        bg = score.createBeamGroup();
-        meldObjectToObject(bgdef["start"], bg);
-        mels.splice(0,0,bg);
-        bg = score.createBeamGroup();
-        meldObjectToObject(bgdef["end"], bg);
-        mels.push(bg); 
       }
       return (mels);
     }
@@ -569,10 +562,7 @@ var z_melody = (function() {
     "Fr_8", "HAl_16", "HAl_32", "HAl_8", "HAr_16", "HAr_32", "HAr_8", "B_2",
     "B_32", "B_4"
     ];
-    var bgdef = { "start":    {sectionStart: true},
-                  "end":    {sectionEnd: true}
-                };
- 
+    
     function isType(s) {
       return (a.indexOf(s) !== -1);
     }
@@ -581,7 +571,6 @@ var z_melody = (function() {
     {
       
       var s, chunk;
-      var bg;
       var mel = score.createMelodyNote();
       
       chunk = note.split("_");
@@ -598,14 +587,6 @@ var z_melody = (function() {
       if (s) {
         mel.tail = s[0]; 
         mel.grouped = true;
-        bg = score.createBeamGroup();
-        if (s === "r") {
-          meldObjectToObject(bgdef["start"], bg);
-          mel = [bg, mel];
-        } else if (s === "l") {
-          meldObjectToObject(bgdef["end"], bg);
-          mel = [mel, bg];
-        }
       } 
       
       return mel;
@@ -784,11 +765,11 @@ function parseBWW(dots) {
   for (i = 0; i < l; i++) {
     s = dots[i];
     bits = s.split(/\s|~/);
-    logit(bits);
+    //logit(bits);
     parseBits(bits);
   }
   
   score.buildCollections();
-  logit(score);
+  //logit(score);
 }
 
