@@ -122,7 +122,29 @@ Score.prototype.buildCollections = function() {
       if (inTriplet) tripletGroup.push(mel);
       if (inVolta) voltaGroup.push(mel);
     }
+
+    if (mel.grouped) {
+      beamGroup.push(mel);
+    }
+
+    if (mel.type === "beamgroup") {
+      if(mel.sectionStart) {
+        if (!inBeam) {beamGroup = [];}
+        inBeam = true;
+        beamGroup.push(mel);
+      }
+      if(mel.sectionEnd) {
+        if (inBeam) {
+          beamGroup.push(mel);
+          c.beams.push(beamGroup);
+          inBeam = false;
+        }
+      }
+    }
+
+
     
+/*
     // gracenote group immediately followed by melody note group
     // push beamGroup, create empty beamGroup
     // set inBeam to false so the next conditional will cat on this mel
@@ -149,7 +171,7 @@ Score.prototype.buildCollections = function() {
     }
 
     lastType = mel.type;
-    
+*/
   }
   this.collections = c;
 }

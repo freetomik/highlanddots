@@ -5,26 +5,23 @@
 
  function ThisType() {  
    this.stemDir = "up";
-  this.paddingRight = 0;  // Override the parent 
-
+   this.c = {};
    return this;
  }
  
  ThisType.inherits(Note);
  
+ 
  ThisType.prototype.isPrintable = true;
  ThisType.prototype.scaleFactor = 0.6;
  ThisType.prototype.duration = 32;
  ThisType.prototype.type = THISTYPE;
- 
- ThisType.prototype.paint = function(staff) {
-   this.note = this.note.toUpperCase();
-   this.staffPosition = GHPRef[this.note];
-   this.paint2(staff);
- };
+   
 
  Score.prototype.createEmbellishment = function() {
-   return new ThisType();
+   var o = new ThisType();
+   o.paddingRight = 0;
+   return o;
  };
 
 }
