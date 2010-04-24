@@ -51,7 +51,7 @@ function beautifyScore(score) {
           
           w = mel.c.x - lastx; 
           lastMel.paddingRight +=  beatWidth - w;
-          //logit(["Beauty " + mel.note + ":" + mel.duration ,  beatWidth, mel.beatFraction, lastMel.paddingRight, beatWidth, w]);
+          logit(["Beauty " + mel.note + ":" + mel.duration ,  beatWidth, mel.beatFraction, lastMel.paddingRight, beatWidth, w]);
           
         }
         lastMel = mel;
@@ -59,13 +59,11 @@ function beautifyScore(score) {
         
       case "timesig":
         beatUnit = mel.beatUnit; 
-        //logit(["Beauty Beat Unit", beatUnit]);
+        logit(["Beauty Beat Unit", beatUnit]);
         break;
       }
       
       if (mel.staffEnd) {
-        // Last element on the line -- no need for padding.
-        mel.paddingRight = 0;
         lastMel = undefined;
       }
       
