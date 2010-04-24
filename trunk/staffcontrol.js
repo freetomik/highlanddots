@@ -115,6 +115,7 @@
         c.drawCommands.push(drawThin());
       } else if (this.newBar | this.staffEnd) {
         c.drawCommands.push(drawThin());
+	c.lx += hspace;  // Skip a bit of space.
       };
       c.lineWidth = c.lx - c.x;
     };

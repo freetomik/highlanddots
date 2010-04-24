@@ -147,7 +147,7 @@
         if (this.label) {
           var tf = ctx.font;
           var ta = ctx.textAlign;
-          ctx.font = "" + (sdet.space*1.25) + "px sans-serif bold";
+          ctx.font = "bold " + (sdet.space*1.25) + "px sans-serif";
 	  ctx.textAlign = 'start';
           // TODO : scale font according to staff line space 
           //        The default font is 10px sans-serif.
