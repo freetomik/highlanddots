@@ -88,6 +88,8 @@ var staff =
            needsLedgerLine: notesOnStaff.indexOf(n) === -1 // Do we need a ledger line for this note. 
          };
        onLine = !onLine;
+         logit("prepData: " + n  + o.toSource());
+         
          details.noteInfo[n] = o;
        }
      }
@@ -309,6 +311,9 @@ function plotMusic(score)
                        case "embellishment":
                          if (doPaint) {mel.paint(staff);};
                          sdet.x += sdet.space * 1.25;
+                         break;
+                       case "beamgroup":
+                       //  if (doPaint) {mel.paint(staff);};
                          break;
                        case "graphic":
                          if (doPaint) {mel.paint(staff);};
