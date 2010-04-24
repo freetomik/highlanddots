@@ -1,6 +1,15 @@
 "use strict";
 
 function makeImageMap(staff, score) {
+function getInfo(mel) {
+  return {"Note" : mel.note,
+    "Dur" : mel.duration,
+    "bF" : mel.beatFraction,
+    "padding" : mel.paddingRight
+  };
+}
+
+
   var sdet = staff.details;
   
   var el = document.getElementById("canvas");  
@@ -22,7 +31,7 @@ function makeImageMap(staff, score) {
   
   API.positionElement(imgEl, canvasPos[0], canvasPos[1]);
   
-  API.sizeElement(imgEl, sdet.maxX, sdet.top);
+  API.sizeElement(imgEl, sdet.top, sdet.maxX);
   
   domTools.removeChildren(map);
   
@@ -41,18 +50,19 @@ function makeImageMap(staff, score) {
         
         area.href = "#";
         area.shape = "rect";
-        logit(["C:", x1, y1, x2, y2]);
+        //logit(["ImageMap", x1, y1, x2, y2]);
         area.coords = [x1, y1, x2, y2].join(",");
         
         
         //ctx.fillStyle = "red";
         //ctx.fillRect(x1, y1, 2, 2);
         
-        area.title = "Element: " + JSON.stringify(mel);
+        area.title = "Element: " + JSON.stringify(getInfo(mel), undefined, " ");
         map.appendChild(area);
         
       }                         
   }
   );
 }
+
 
