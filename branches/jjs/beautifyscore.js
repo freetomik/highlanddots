@@ -3,6 +3,8 @@
 
 var BASEPULSE = 78125;
 var beatFixRate = {
+  /*
+  For right now, we are going to pretend these don't exist for melody notes 
   128: 1 * BASEPULSE,
   64: 2 * BASEPULSE,
   32: 3 * BASEPULSE,
@@ -11,15 +13,81 @@ var beatFixRate = {
   4: 16 * BASEPULSE,
   2: 32 * BASEPULSE,
   1: 64 * BASEPULSE
+  */
+  
+  16: 1 * BASEPULSE,
+  8: 2 * BASEPULSE,
+  4: 4 * BASEPULSE,
+  2: 8 * BASEPULSE,
+  1: 16 * BASEPULSE
+  
 };
 
 
+
+
 function beautifyScore(score) {
-// The smallest unit of sound that is ever used is a 1/128th note.
-// In decimal:  1 / 128 = 0.0078125
+  var beatInPixels = 200;
+  var i, l, data;
+  var mel, mel2, measureList, melodyNoteList;
+  var beatUnit, beatsPerBar;
+  var beatCount = 0;
+  var t;
+  
+  data = score.data;
+  l = data.length;
+  
+  measureList = [];
+  melodyNoteList = [];
+  
+  for (i = 0; i < l; i++) {
+    mel = data[i];
+    mel.b = {};
+    
+    if (mel.newBar) {
+      if (melodyNoteList.length > 0) {
+        measureList.push(melodyNoteList);
+      }
+      melodyNoteList = [];
+    }
+    
+    
+    switch(mel.type) {
+    case "melody":
+      t = beatUnit / mel.duration;
+      if (mel.dotType === "dot") { t *= 1.5;  }
+      if (mel.dotType === "doubledot") { t *= 1.75; }
+      
+      
+      mel.b.beatWeight = t;
+      beatCount += t;
+      melodyNoteList.push(mel);
+      //logit(["BW",mel.b.beatWeight]); 
+      break;
+    case "timesig":
+      beatUnit = mel.beatUnit;
+      beatsPerBar = mel.beatsPerBar;
+      //logit(["Beauty Beat Unit", beatUnit]);
+      break;
+    }
+    
+    if (mel.type === "staffControl") {
+      mel.b.beatWeight = beatCount;
+      beatCount = 0;
+    }
+    
+    
+  }
+  
+  //logit(["measurelist", measureList]);
+}
 
-
-
+function beautifyScore2(score) {
+  // The smallest unit of sound that is ever used is a 1/128th note.
+  // In decimal:  1 / 128 = 0.0078125
+  
+  
+  
 	// FIXME: This number pulled out of thin air.  It should come from the timesig.
 	var beatInPixels = 200;  
   
@@ -44,7 +112,7 @@ function beautifyScore(score) {
                          
                          currentBeatCount = beatFixRate[lastMel.duration];                         
                          lastMel.beatFraction = beatUnit/lastMel.duration; 
-                   
+                         
                          
                          if (lastMel.dotType === "dot") {
                            lastMel.beatFraction *= 1.5;

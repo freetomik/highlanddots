@@ -181,8 +181,8 @@ var z_timesig = (function() {
                  {
                    var mel = score.createTimeSig();
                    var s1 = s.split("_");
-                   mel.beatsPerBar = s1[0];
-                   mel.beatUnit = s1[1];      
+                   mel.beatsPerBar = +s1[0];
+                   mel.beatUnit = +s1[1];      
                    return mel;
                    
                  }

@@ -4,19 +4,12 @@ function makeImageMap(staff, score) {
 function getInfo(mel) {
   var o ={"Note" : mel.note,
     "Dur" : mel.duration,
-    "bF" : mel.beatFraction,
     "padding" : mel.paddingRight,
     "x": mel.rect.x
   };  
   
-  if (typeof mel.beatCount !== "undefined") {
-    o.beatCount = mel.beatCount;
-    o.beatCountFixed = mel.beatCount / BASEPULSE;
-  }
-
-  if (typeof mel.currentBeatCount !== "undefined") {
-    o.currentBeatCount = mel.currentBeatCount;
-    o.currentBeatCountFixed = mel.currentBeatCount / BASEPULSE;
+  if (mel.b.beatWeight) {
+    o.beatWeight = mel.b.beatWeight;
   }
   
   return o; 
