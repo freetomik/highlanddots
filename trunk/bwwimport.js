@@ -14,6 +14,91 @@ var GHPRef = {
 
 
 
+function importException (message)
+{
+  this.message=message;
+  this.name="BWW Import Exception";
+}
+
+
+/*
+"Layout Tester",(T,L,0,0,Times New Roman,16,700,0,0,18,0,0,0)
+"Crap",(Y,C,0,0,Times New Roman,14,400,0,0,18,0,0,0)
+"Jeremy J Starcher",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)
+
+"It just is",(F,R,0,0,Times New Roman,10,400,0,0,18,0,0,0)
+*/
+
+var grok_metaData = (function() {
+                     var a = {
+                     MIDINoteMappings: {ignore: true},
+                     FrequencyMappings: {ignore: true},
+                     InstrumentMappings: {ignore: true},
+                     GracenoteDurations: {ignore: true},
+                     FontSizes: {ignore: true},
+                     TuneFormat: {ignore: true},
+                     TuneTempo: {ignore: true}
+                     };
+                     
+                     function isType(s) {
+                       // Look for things that start with a quote.
+                       if (s.substring(0,1) === '"') {
+                         return true;
+                       }
+
+                       var l = s.split(",")[0];
+                       // Handle the things on the list.
+                       if (typeof a[l] !== "undefined") {
+                         return true;
+                       }
+                       return false;
+                     }
+                     
+                     function setData(data, s) {
+                       var i, mode;
+                       var l, name, val;
+                       
+                       // If it is one of those that starts in a quote
+                       // handle it.
+                       if (s.substring(0,1) === '"') {
+                         i = s.indexOf(',(');
+                         mode = s.substring(i+2, i+3);
+                         
+                         name = {
+                           T: "Title",
+                           Y: "Genre",
+                           M: "Composer",
+                           F: "Footer"
+                         }[mode];
+                         
+                         if (name) {
+                           val = s.split(",")[0].replace(/"/g, '')
+                           data[name] = val;
+                         } else {
+                           throw importException("Unknown type in text string");
+                         }
+                         return;
+                       }
+                       
+                       
+                       l = s.split(",");
+                        name = l[0];
+                       
+                       l.splice(0,1);
+                        val = l.join(" , ");
+                       
+                       data[name] = val;
+                     }
+                     return {
+                       isType: isType,
+                       setData: setData
+                     };
+}());
+
+
+
+
+
 // Is this a beat? Which would end a beam?
 var z_beat = (function() {
     function isType(s) {
@@ -615,7 +700,7 @@ var z_phrasegroup = (function() {
     /* *   where missing part # implies        */
     /* *   current part                        */
     /* *************************************** */
-
+                     
     var a = {"^ts":    {collectionName: "ties", sectionStart: true, style: "arc"},
              "^te":    {collectionName: "ties", sectionEnd: true},
              "^3s":    {collectionName: "triplets", sectionStart: true, label: "3", style: "arc"},
@@ -633,7 +718,7 @@ var z_phrasegroup = (function() {
              "'intro": {collectionName: "voltas", sectionStart: true, label: "Introduction", style: "straight"},
              "'_":     {collectionName: "voltas", sectionEnd: true}
             };
-
+                     
     function isType(s) {
       return (typeof a[s] !== "undefined");
     }
@@ -722,6 +807,7 @@ var z_noteDot = (function() {
 
 function parseBWW(dots) {
   
+  
   function parseBits(b) {
     var i, l = b.length;
     var s, mel;
@@ -760,16 +846,26 @@ function parseBWW(dots) {
   }
   
   
+  score.metaData = {};  
   var i, l = dots.length;
   var s, bits;
   for (i = 0; i < l; i++) {
     s = dots[i];
+    if (s === "") {continue;}
+    
+    if (grok_metaData.isType(s)) {
+      grok_metaData.setData(score.metaData, s)
+      continue;
+    }
+    
     bits = s.split(/\s|~/);
     //logit(bits);
     parseBits(bits);
   }
   
   score.buildCollections();
+  //alert(score.metaData.toSource());
   //logit(score);
 }
+
 

@@ -12,14 +12,14 @@ function getInfo(mel) {
 
   var sdet = staff.details;
   
-  var el = document.getElementById("canvas");  
+  var el = sdet.canvas // document.getElementById("canvas");  
   var canvasPos = API.getElementPosition(el);
   var imgEl, map, area;
   
   map = document.getElementById("hDotsMap");
   
   
-  imagEl = document.getElementById("mapImage");
+  imgEl = document.getElementById("mapImage");
   if (!imgEl) {
     imgEl = new Image();
     imgEl.src = "pics/transparent.png";
