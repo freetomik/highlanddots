@@ -185,6 +185,51 @@ var staff =
 
 function testImport() {
   var dots = [];
+
+dots.push('Bagpipe Reader:1.0');
+dots.push('MIDINoteMappings,(55,57,59,60,62,64,65,67,69,57,59,61,62,64,66,67,69,71,56,58,60,61,63,65,66,68,70)');
+dots.push('FrequencyMappings,(392,440,494,523,587,659,699,784,880,440,494,554,587,659,740,784,880,988,415,466,523,554,622,699,740,831,932)');
+dots.push('InstrumentMappings,(61,71,46,34,1000,60,70)');
+dots.push('GracenoteDurations,(42,40,30,50,100,200,800,1200,250,250,250,500,200)');
+dots.push('FontSizes,(90,100,100,80,0)');
+dots.push('TuneFormat,(1,0,M,L,500,500,500,500,P,0,0)');
+dots.push('TuneTempo,90');
+dots.push('');
+dots.push('"Layout Tester",(T,L,0,0,Times New Roman,16,700,0,0,18,0,0,0)');
+dots.push('"Crap",(Y,C,0,0,Times New Roman,14,400,0,0,18,0,0,0)');
+dots.push('"Jeremy J Starcher",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)');
+dots.push('"It just is",(F,R,0,0,Times New Roman,10,400,0,0,18,0,0,0)');
+dots.push('');
+dots.push('& sharpf sharpc 4_4');
+dots.push('!	 E_1');
+dots.push('!	 E_1');
+dots.push('!	 E_1');
+dots.push('!	 E_1');
+dots.push('!t');
+dots.push('');
+dots.push('');
+dots.push('& sharpf sharpc 4_4');
+dots.push('!	 E_2				E_2');
+dots.push('!	 E_2				E_2');
+dots.push('!	 E_2				E_2');
+dots.push('!	 E_2				E_2');
+dots.push('!t');
+dots.push('');
+dots.push('& sharpf sharpc 4_4');
+dots.push('!	 E_4				E_4			E_4				E_4');
+dots.push('!	 E_4				E_4			E_4				E_4');
+dots.push('!	 E_4				E_4			E_4				E_4');
+dots.push('!	 E_4				E_4			E_4				E_4');
+dots.push('!t');
+dots.push('');
+dots.push('& sharpf sharpc 4_4');
+dots.push('!	 E_8				E_8			E_8				E_8	 E_8				E_8			E_8				E_8');
+dots.push('!	 E_8				E_8			E_8				E_8	 E_8				E_8			E_8				E_8');
+dots.push('!	 E_8				E_8			E_8				E_8	 E_8				E_8			E_8				E_8');
+dots.push('!	 E_8				E_8			E_8				E_8	 E_8				E_8			E_8				E_8');
+dots.push('!t');
+dots.push('');
+
   
   // Greensleeves
   dots.push("");
