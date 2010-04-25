@@ -1,25 +1,30 @@
 "use strict";
 
+
+var BASEPULSE = 78125;
+var beatFixRate = {
+  128: 1 * BASEPULSE,
+  64: 2 * BASEPULSE,
+  32: 3 * BASEPULSE,
+  16: 4 * BASEPULSE,
+  8: 8 * BASEPULSE,
+  4: 16 * BASEPULSE,
+  2: 32 * BASEPULSE,
+  1: 64 * BASEPULSE
+};
+
+
 function beautifyScore(score) {
-	/*
-	We are going to switch from floating point math to integer math
-	to keep calculations sane and simple.
-	
-	A 1/32 note is the shortest note we'll find in bagpipe music, so
-	multiply all of our beat information by 100000.  This keeps us
-	well within the range of integer numbers Javascript can handle.
-	
-	If we ever need smaller note lengths, this section will need reworked.
-	*/
-	
-	var beatFix = 100000;
-	
+// The smallest unit of sound that is ever used is a 1/128th note.
+// In decimal:  1 / 128 = 0.0078125
+
+
+
 	// FIXME: This number pulled out of thin air.  It should come from the timesig.
-	var beatInPixels = 50;  
-	
+	var beatInPixels = 200;  
+  
 	var beatUnit;	// What length note takes one beat...
-	var beatCount = -1; // Count up parts of a beat...
-	var dir;
+	var beatCount = 0; // Count up parts of a beat...
 	
 	var beatFraction;
   
@@ -31,42 +36,56 @@ function beautifyScore(score) {
   
   var lastMel;	
 	score.data.forEach(function(mel) {
-			switch(mel.type) {
-			case "melody":
-				if (lastMel) {
-          
-          dir = lastMel.duration;
-          lastMel.beatFraction = beatUnit/lastMel.duration; 
-          if (lastMel.dotType === "dot") {
-            lastMel.beatFraction *= 1.5;
-          }
-          if (lastMel.dotType === "doubledot") {
-            lastMel.beatFraction *= 1.75;
-          }
-          
-          // mel.beatLength = Math.round(mel.beatFraction *beatFix);
-          
-          beatWidth = (beatInPixels * lastMel.beatFraction); 
-          lastx = lastMel.c.x + lastMel.rect.width + lastMel.paddingRight;
-          
-          w = mel.c.x - lastx; 
-          lastMel.paddingRight +=  beatWidth - w;
-          logit(["Beauty " + mel.note + ":" + mel.duration ,  beatWidth, mel.beatFraction, lastMel.paddingRight, beatWidth, w]);
-          
-        }
-        lastMel = mel;
-        break;
-        
-      case "timesig":
-        beatUnit = mel.beatUnit; 
-        logit(["Beauty Beat Unit", beatUnit]);
-        break;
-      }
-      
-      if (mel.staffEnd) {
-        lastMel = undefined;
-      }
-      
+                     var currentBeatCount;
+                     
+                     switch(mel.type) {
+                     case "melody":
+                       if (lastMel) {
+                         
+                         currentBeatCount = beatFixRate[lastMel.duration];                         
+                         lastMel.beatFraction = beatUnit/lastMel.duration; 
+                   
+                         
+                         if (lastMel.dotType === "dot") {
+                           lastMel.beatFraction *= 1.5;
+                           currentBeatCount *= 1.5;
+                         }
+                         if (lastMel.dotType === "doubledot") {
+                           lastMel.beatFraction *= 1.75;
+                           currentBeatCount *= 1.75;
+                         }
+                         
+                         beatWidth = (beatInPixels * lastMel.beatFraction); 
+                         lastx = lastMel.c.x /* + lastMel.rect.width  + lastMel.paddingRight */;
+                         
+                         w = mel.c.x - lastx; 
+                         lastMel.paddingRight +=  beatWidth - w;
+                         
+                         beatCount += currentBeatCount;
+                         lastMel.beatCount = beatCount;
+                         lastMel.currentBeatCount = currentBeatCount;
+                         
+                         logit(["Beauty " + mel.note + ":" + mel.duration ,  beatWidth, mel.beatFraction, lastMel.paddingRight, beatWidth, w]);
+                         
+                       }
+                       lastMel = mel;
+                       break;
+                       
+                     case "timesig":
+                       beatUnit = mel.beatUnit; 
+                       logit(["Beauty Beat Unit", beatUnit]);
+                       break;
+                     }
+                     
+                     if (mel.newBar) {
+                       mel.beatCount = beatCount;
+                       beatCount = 0;
+                     }
+                     
+                     if (mel.staffEnd) {
+                       lastMel = undefined;
+                     }
+                     
   }
   );
 }

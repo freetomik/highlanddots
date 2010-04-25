@@ -2,11 +2,24 @@
 
 function makeImageMap(staff, score) {
 function getInfo(mel) {
-  return {"Note" : mel.note,
+  var o ={"Note" : mel.note,
     "Dur" : mel.duration,
     "bF" : mel.beatFraction,
-    "padding" : mel.paddingRight
-  };
+    "padding" : mel.paddingRight,
+    "x": mel.rect.x
+  };  
+  
+  if (typeof mel.beatCount !== "undefined") {
+    o.beatCount = mel.beatCount;
+    o.beatCountFixed = mel.beatCount / BASEPULSE;
+  }
+
+  if (typeof mel.currentBeatCount !== "undefined") {
+    o.currentBeatCount = mel.currentBeatCount;
+    o.currentBeatCountFixed = mel.currentBeatCount / BASEPULSE;
+  }
+  
+  return o; 
 }
 
 

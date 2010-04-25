@@ -12,6 +12,7 @@ var GHPRef = {
   HA: "a3"
 };
 
+function parseBWW(dots) {
 
 
 function importException (message)
@@ -805,7 +806,6 @@ var z_noteDot = (function() {
 
 
 
-function parseBWW(dots) {
   
   
   function parseBits(b) {
