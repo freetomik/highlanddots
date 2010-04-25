@@ -2,12 +2,16 @@
 
 <html>
 <head>
+<!-- Oh it pains me to do this, but excanvas don't work properly unless this
+is active.  Seems to be a "feature" of adding the canvas element on the fly
+as opposed to having it static on the page.-->
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7"> 
+
 <title>Highland Dots</title>
   <link rel="stylesheet" type="text/css" href="layout.css">
   
 <!--[if IE]>
 <script src="jslib/excanvas.js"></script>
-
 <![endif]-->
 
 <script src="jslib/canvas.text.js"></script>
@@ -22,7 +26,6 @@
 &nbsp;
 </p>
 <p>
-  <button onclick="testDraw()">Click to test Draw</button>
   <button onclick="testImport()">Import and Engrave</button>
   <br />
   <span>
@@ -47,7 +50,8 @@
 </p>
 
 
-<canvas id="canvas" width="1" height="1"></canvas>
+<div id="canvas_div"><p id="hdots_canvas">The music goes here</p></div>
+
 
 <script type='text/javascript' src='tools.js'></script>
 <script type='text/javascript' src='mylib.js'></script>

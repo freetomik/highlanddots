@@ -5,26 +5,29 @@ function Score(){
 }
 
 Score.prototype = {
-    appendNode: function(mel) {
-      if (mel instanceof Array) {
-	var o;
-	for (o in mel) {
-          this.data.push(mel[o]);
-        }	
-      } else {
-        this.data.push(mel);
-      }
-    },
-    getLastElementByType: function(type) {
-      var i = 0, l = this.data.length;
-      var mel;
-      for (i = 0; i < l; i++) {
-        mel = this.data[l-i];
-        if (mel && mel.type === type) {
-          return mel;
-        }
+  removeAllNodes: function() {
+    this.data = [];
+  },
+  appendNode: function(mel) {
+    if (mel instanceof Array) {
+      var o;
+      for (o in mel) {
+        this.data.push(mel[o]);
+      }	
+    } else {
+      this.data.push(mel);
+    }
+  },
+  getLastElementByType: function(type) {
+    var i = 0, l = this.data.length;
+    var mel;
+    for (i = 0; i < l; i++) {
+      mel = this.data[l-i];
+      if (mel && mel.type === type) {
+        return mel;
       }
     }
+  }
 };
 var score = new Score();
 
@@ -69,7 +72,7 @@ Score.prototype.buildCollections = function() {
   inTie = endTie = false;
   inTriplet = endTriplet = false;
   inVolta = endVolta = false;
-
+  
   for (i = 0; i < l; i++) {
     mel = this.data[i];
     
@@ -106,7 +109,7 @@ Score.prototype.buildCollections = function() {
       // nothing more to do with this mel, continue to next mel
       continue;
     }
-
+    
     if (mel.type === "embellishment") {
       c.notes.push(mel);
       c.graceNotes.push(mel);
@@ -132,7 +135,7 @@ Score.prototype.buildCollections = function() {
         inBeam = false;
       }
     }
-
+    
     // This whole beam code is patterned, of course, after the BWW format.
     // Eventually, I'd love to see the option to fix beaming and group
     // noting based on beat count.
@@ -142,12 +145,12 @@ Score.prototype.buildCollections = function() {
       inBeam = true;
       beamGroup.push(mel);
     }
-
+    
     if (mel.type === "beat" && inBeam || !mel.grouped && inBeam) {
       c.beams.push(beamGroup);
       inBeam = false;
     }
-
+    
     lastType = mel.type;
     
   }

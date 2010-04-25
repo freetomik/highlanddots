@@ -864,7 +864,7 @@ function parseBWW(dots) {
   }
   
   score.buildCollections();
-  alert(score.metaData.toSource());
+  //alert(score.metaData.toSource());
   //logit(score);
 }
 
