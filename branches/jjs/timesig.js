@@ -1,4 +1,3 @@
-
 "use strict";
 
 (function() {
@@ -19,7 +18,6 @@
    c.x = sdet.x;
    c.y = sdet.noteInfo.f2.y;
 
-
    c.bigNum = Math.max(this.beatsPerBar, this.beatUnit);
    
    c.font = "" + (sdet.space*2.5) + "px sans-serif";
@@ -27,7 +25,7 @@
    c.height = sdet.noteInfo.e1.y - sdet.noteInfo.f2.y; 
    c.width = 0;
    if (API.isHostMethod(ctx, 'measureText')) {
-     c.width = ctx.measureText(c.bigNum).width;
+     c.width = ctx.measureText("" + c.bigNum).width;
    }
    
    // Alas, not all canvas have a measureText that actually works.
@@ -58,22 +56,15 @@
    var ctx = sdet.ctx;
    var c = this.c;
    
-   
    var tf = ctx.font;
    var ta = ctx.textAlign;
    ctx.font = c.font;
    ctx.textAlign = 'start';
 
-   
-   if (API.isHostMethod(ctx, 'fillText')) { 
-   ctx.fillText(this.beatsPerBar, c.x, sdet.noteInfo.b2.y, c.width);
-   ctx.fillText(this.beatUnit, c.x, sdet.noteInfo.e1.y, c.width);
-   } else {
-     //FIXME:  Handle text on other systems (ie *cough*)
-   }
+   ctx.fillText(""+this.beatsPerBar, c.x, sdet.noteInfo.b2.y, c.width);
+   ctx.fillText(""+this.beatUnit, c.x, sdet.noteInfo.e1.y, c.width);
    ctx.font = tf;
-   ctx.textAlign = ta;
-   
+   ctx.textAlign = ta;   
  }
  
  Score.prototype.createTimeSig = function() {

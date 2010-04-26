@@ -5,6 +5,15 @@ var G_vmlCanvasManager; // so non-IE won't freak out in canvasInit
 //  G_vmlCanvasManager.initElement(document.getElementById("canvas"));
 //}
 
+
+function testImport2() {
+  var startTime = new Date();
+  testImport();
+  var endTime = new Date();
+  var total = (endTime - startTime) / 1000;
+  document.getElementById("timeinfo").innerHTML = "Time spent rendering: " + total + " seconds.";
+}
+
 var staff = 
 (
  

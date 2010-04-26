@@ -57,8 +57,7 @@ function beautifyScore(score) {
       t = beatUnit / mel.duration;
       if (mel.dotType === "dot") { t *= 1.5;  }
       if (mel.dotType === "doubledot") { t *= 1.75; }
-      
-      
+            
       mel.b.beatWeight = t;
       beatCount += t;
       melodyNoteList.push(mel);
@@ -75,8 +74,6 @@ function beautifyScore(score) {
       mel.b.beatWeight = beatCount;
       beatCount = 0;
     }
-    
-    
   }
   
   //logit(["measurelist", measureList]);
