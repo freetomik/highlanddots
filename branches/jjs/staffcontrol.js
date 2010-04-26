@@ -6,6 +6,8 @@
     function ThisType() {     
       this.type = THISTYPE;
       this.isPrintable = true;
+        this.c = {};                  // Storage area for some commonly used calcuations.
+
       return this;
     }
     
@@ -23,13 +25,17 @@
       var hspace = space/2;
       var x = c.x;
       var self=this;
-      var dotRadius = 2;  // How big are the dots for the repeat sections?
+      var dotRadius = sdet.space/4;  // How big are the dots for the repeat sections?
       
       c.lineWidth = sdet.thick;
       
       c.x = sdet.x;
       c.y = sdet.noteInfo.f2.y;
-      
+      c.y2 = sdet.noteInfo.e1.y;
+
+      c.dotY1 = sdet.noteInfo.a2.y;
+      c.dotY2 = sdet.noteInfo.c2.y;
+
       
       /*
       * Ok, this section I know might seem a bit strange.  Let me describe what I
@@ -81,8 +87,8 @@
         c.lx += width;
         return (function(_x) {
             return function() {
-              self.drawDot(staff, _x, sdet.noteInfo.a2.y, dotRadius);
-              self.drawDot(staff, _x, sdet.noteInfo.c2.y, dotRadius);
+              self.drawDot(staff, _x, c.dotY1, dotRadius);
+              self.drawDot(staff, _x, c.dotY2, dotRadius);
             }
         }(myx));
       }
@@ -159,7 +165,7 @@
       ctx.lineWidth = thickness;
       ctx.beginPath();
       ctx.moveTo(x, c.y);
-      ctx.lineTo(x, sdet.noteInfo.e1.y);
+      ctx.lineTo(x, c.y2);
       ctx.stroke();
       ctx.closePath();
       ctx.lineWidth = lw;
@@ -169,7 +175,7 @@
       var c = this.c;
       var sdet = staff.details;
       var ctx = sdet.ctx;
-      this.calc(staff);
+      // Already been calced -- no need to do it again this.calc(staff);
       //alert([c.x, c.y, sdet.noteInfo.e1.y]);
       
       c.drawCommands.forEach(function(a) {

@@ -4,6 +4,7 @@
  var THISTYPE = "timesig";
  function ThisType() {
    this.type = THISTYPE;
+     this.c = {};                  // Storage area for some commonly used calcuations.
    return this;
  }
  
@@ -31,7 +32,9 @@
    // Alas, not all canvas have a measureText that actually works.
    if (!c.width) {c.width = c.height * 0.5;} 
    ctx.font = tf;
-   
+
+   c.y1 = sdet.noteInfo.b2.y;
+   c.y2 = sdet.noteInfo.e1.y;
  }
  
  ThisType.prototype.getBoundingRect = function(staff) {
@@ -51,7 +54,7 @@
  
  
  ThisType.prototype.paint = function(staff) {
-   this.calc(staff);
+   // this.calc(staff); Already been calced -- no need to do it again
    var sdet = staff.details;
    var ctx = sdet.ctx;
    var c = this.c;
@@ -61,8 +64,8 @@
    ctx.font = c.font;
    ctx.textAlign = 'start';
 
-   ctx.fillText(""+this.beatsPerBar, c.x, sdet.noteInfo.b2.y, c.width);
-   ctx.fillText(""+this.beatUnit, c.x, sdet.noteInfo.e1.y, c.width);
+   ctx.fillText(""+this.beatsPerBar, c.x, c.y1, c.width);
+   ctx.fillText(""+this.beatUnit, c.x, c.y2, c.width);
    ctx.font = tf;
    ctx.textAlign = ta;   
  }

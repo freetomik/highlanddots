@@ -371,6 +371,24 @@ function plotMusic(score)
     ctx.fillStyle = sdet.noteColor1;
     ctx.strokeStyle = sdet.noteColor1;
     
+    var delay = [];
+    function delayMel(mel, staff) {
+      // Currently there are some things broken that can't be delayed
+      // But I am working on that
+      //mel.paint(staff);
+      //return;
+      
+      
+      var f = (function(_mel, _staff) {
+               return function() {
+               _mel.paint(_staff);
+               };
+      }(mel, staff));
+      delay.push(f);
+    }
+    
+                       
+    
     score.data.forEach(function(mel) {
                        var rect;
                        var strokeStyle = ctx.strokeStyle; 
@@ -402,26 +420,26 @@ function plotMusic(score)
                        
                        switch(mel.type) {
                        case "melody":
-                         if (doPaint) {mel.paint(staff);};
+                         if (doPaint) {delayMel(mel, staff);}
                          sdet.x += sdet.space * 2.5;
                          break;
                        case "embellishment":
-                         if (doPaint) {mel.paint(staff);};
+                         if (doPaint) {delayMel(mel, staff);}
                          sdet.x += sdet.space * 1.25;
                          break;
                        case "graphic":
-                         if (doPaint) {mel.paint(staff);};
+                         if (doPaint) {delayMel(mel, staff);}
                          sdet.x += rect.width;
                          break;
                        case "phrasegroup":
-                         if (doPaint) {mel.paint(staff);};
+                         if (doPaint) {delayMel(mel, staff);}
                          break;
                        case "staffControl":
-                         if (doPaint) {mel.paint(staff);};
+                         if (doPaint) {delayMel(mel, staff);}
                          sdet.x += rect.width;
                          break;
                        case "timesig":
-                         if (doPaint) {mel.paint(staff);};
+                         if (doPaint) {delayMel(mel, staff);}
                          sdet.x += rect.width;
                          break;
                          
@@ -438,6 +456,10 @@ function plotMusic(score)
                          sdet.top += sdet.space * 3;        
                        }
     });
+    
+    for (var i = 0; i < delay.length; i++) {
+      delay[i]();
+    }
   }
   
   reFlowAndReDraw(false); // Calculate sizes

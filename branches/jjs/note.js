@@ -230,7 +230,7 @@ Note.prototype.paint2 = function(staff) {
     }
   }
   
-  this.calc(staff);  
+  // this.calc(staff); -- Already been calculated.  NO need to do it again.  
   ctx.beginPath();
   ctx.moveTo(c.x, c.y);
   ctx.bezierCurveTo(c.cp1x1, c.cp1y1, c.cp2x1, c.cp2y1, c.endX, c.endY);
