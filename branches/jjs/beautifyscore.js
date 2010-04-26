@@ -30,28 +30,21 @@ function beautifyScore(score) {
   var beatInPixels = 200;
   var i, l, data;
   var mel, mel2, measureList, melodyNoteList;
+  var measureNumber;
   var beatUnit, beatsPerBar;
   var beatCount = 0;
-  var t;
+  var t, tmp;
   
   data = score.data;
   l = data.length;
   
   measureList = [];
   melodyNoteList = [];
-  
+  measureNumber = 0;
   for (i = 0; i < l; i++) {
     mel = data[i];
     mel.b = {};
-    
-    if (mel.newBar) {
-      if (melodyNoteList.length > 0) {
-        measureList.push(melodyNoteList);
-      }
-      melodyNoteList = [];
-    }
-    
-    
+       
     switch(mel.type) {
     case "melody":
       t = beatUnit / mel.duration;
@@ -69,6 +62,20 @@ function beautifyScore(score) {
       //logit(["Beauty Beat Unit", beatUnit]);
       break;
     }
+ 
+    if (mel.newBar) {
+      if (melodyNoteList.length > 0) {
+        tmp = {
+          melodyNoteList: melodyNoteList,
+          beatCount: beatCount,
+          beatsPerBar: beatsPerBar
+        };
+        mel.measureNumber = measureList.length;
+        measureList.push(tmp);
+      }
+      melodyNoteList = [];
+    }
+    
     
     if (mel.type === "staffControl") {
       mel.b.beatWeight = beatCount;
@@ -76,6 +83,23 @@ function beautifyScore(score) {
     }
   }
   
+  
+  
+  l = measureList.length;  
+  var ss,j;
+  for (i = 0; i < l; i++) {
+    tmp = measureList[i];
+    ss = "";
+    for (j = 0; j < tmp.melodyNoteList.length; j++) {
+      mel = tmp.melodyNoteList[j];
+      ss += " " + mel.bww;
+      beatCount += mel.b.beatWeight;
+    }
+    if (tmp.beatCount !== tmp.beatsPerBar) {
+      logit(["Measure: " + i, "BC: have " + tmp.beatCount + "(need " + tmp.beatsPerBar + ")", ss, tmp.melodyNoteList.length]);
+    }
+  }
+ 
   //logit(["measurelist", measureList]);
 }
 

@@ -660,7 +660,7 @@ var z_melody = (function() {
                   var mel = score.createMelodyNote();
                   
                   chunk = note.split("_");
-                  
+                  mel.bww = note;
                   mel.duration = +chunk[1];
                   
                   s = chunk[0].match(/^(LG|LA|B|C|D|E|F|HG|HA)/);
@@ -743,10 +743,10 @@ var z_staffControl = (function() {
                       "!": {newBar: true}, 
                       "I!''": {newBar: true, sectionStart: true, repeatStart: true},
                       "I!": {newBar: true, sectionStart: true},
-                      "!I": {sectionEnd: true,staffEnd: true},
-                      "!t": {staffEnd: true},
-                      "''!I": {sectionEnd: true, repeatEnd: true, staffEnd: true},
-                      "!!": {sectionEnd: true, staffEnd: true}
+                      "!I": {sectionEnd: true,staffEnd: true, newBar: true},
+                      "!t": {staffEnd: true, newBar: true},
+                      "''!I": {sectionEnd: true, repeatEnd: true, staffEnd: true, newBar: true},
+                      "!!": {sectionEnd: true, staffEnd: true, newBar: true}
                       };
                       
                       
