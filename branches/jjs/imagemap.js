@@ -7,10 +7,29 @@ function getInfo(mel) {
     "padding" : mel.paddingRight,
     "x": mel.rect.x
   };  
+
+  o.idx = score.data.indexOf(mel);
+  
   
   if (mel.b.beatWeight) {
     o.beatWeight = mel.b.beatWeight;
   }
+  
+  if (mel.b.beatCountOnLine) {
+    o.beatCountOnLine = mel.b.beatCountOnLine;
+  }
+
+  
+  if (mel.b.isLeadIn) {
+    o.extra = "lead in";
+  }
+  if (mel.b.isLeadOut) {
+    o.extra = "lead out";
+  }    
+
+  if (mel.b.newX) {
+    o.newX = mel.b.newX;
+  }    
   
   return o; 
 }

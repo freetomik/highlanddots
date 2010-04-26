@@ -29,10 +29,14 @@ var beatFixRate = {
 function beautifyScore(score) {
   var beatInPixels = 200;
   var i, l, data;
-  var mel, mel2, measureList, melodyNoteList;
+  var mel, measureList, melodyNoteList;
+  var lastBarMel;
   var measureNumber;
+  var lineNumber, lineMeasureNumber;
   var beatUnit, beatsPerBar;
+  var maxMeasuresInLine = 0;
   var beatCount = 0;
+  var beatCountOnLine = 1;
   var t, tmp;
   
   data = score.data;
@@ -41,19 +45,25 @@ function beautifyScore(score) {
   measureList = [];
   melodyNoteList = [];
   measureNumber = 0;
+  lineNumber = 1;
+  lineMeasureNumber = 0;
+  
+  
   for (i = 0; i < l; i++) {
     mel = data[i];
     mel.b = {};
-       
+    
     switch(mel.type) {
     case "melody":
       t = beatUnit / mel.duration;
       if (mel.dotType === "dot") { t *= 1.5;  }
       if (mel.dotType === "doubledot") { t *= 1.75; }
-            
+      
       mel.b.beatWeight = t;
       beatCount += t;
-      melodyNoteList.push(mel);
+            mel.b.beatCountOnLine = beatCountOnLine;
+      beatCountOnLine += t;
+            melodyNoteList.push(mel);
       //logit(["BW",mel.b.beatWeight]); 
       break;
     case "timesig":
@@ -62,7 +72,7 @@ function beautifyScore(score) {
       //logit(["Beauty Beat Unit", beatUnit]);
       break;
     }
- 
+    
     if (mel.newBar) {
       if (melodyNoteList.length > 0) {
         tmp = {
@@ -70,36 +80,147 @@ function beautifyScore(score) {
           beatCount: beatCount,
           beatsPerBar: beatsPerBar
         };
-        mel.measureNumber = measureList.length;
+        
+        if (beatCount !== beatsPerBar) {
+          if (lineMeasureNumber === 0) {
+            lastBarMel.b.isLeadIn = true;
+          } else {
+            lastBarMel.b.isLeadOut = true;
+          }
+        }
+        
+        lineMeasureNumber++;
+        lastBarMel.b.str = lineNumber + ":" + lineMeasureNumber;
+        lastBarMel.b.lineNumber = lineNumber;
+        lastBarMel.b.lineMeasureNumber = lineMeasureNumber;
+lastBarMel.b.beatsPerBar = beatsPerBar;
+        lastBarMel.b.measureNumber = measureList.length;
+        lastBarMel.b.beatWeight = beatCount;
+        maxMeasuresInLine = Math.max(maxMeasuresInLine, lineMeasureNumber);
+        beatCount = 0;
         measureList.push(tmp);
       }
       melodyNoteList = [];
-    }
-    
-    
-    if (mel.type === "staffControl") {
-      mel.b.beatWeight = beatCount;
-      beatCount = 0;
+      lastBarMel = mel;
+      
+      if (mel.staffEnd) {
+        lineNumber++;
+        lineMeasureNumber = 0;
+        beatCountOnLine = 1;
+      }
     }
   }
-  
   
   
   l = measureList.length;  
   var ss,j;
   for (i = 0; i < l; i++) {
     tmp = measureList[i];
-    ss = "";
-    for (j = 0; j < tmp.melodyNoteList.length; j++) {
-      mel = tmp.melodyNoteList[j];
-      ss += " " + mel.bww;
-      beatCount += mel.b.beatWeight;
+    
+    if (0) {  // Debugging
+      ss = "";
+      for (j = 0; j < tmp.melodyNoteList.length; j++) {
+        mel = tmp.melodyNoteList[j];
+        ss += " " + mel.bww;
+        beatCount += mel.b.beatWeight;
+      }
     }
+   
     if (tmp.beatCount !== tmp.beatsPerBar) {
-      logit(["Measure: " + i, "BC: have " + tmp.beatCount + "(need " + tmp.beatsPerBar + ")", ss, tmp.melodyNoteList.length]);
+    //logit(["Measure: " + i, "BC: have " + tmp.beatCount + "(need " + tmp.beatsPerBar + ")", ss, tmp.melodyNoteList.length]);
     }
+    }
+  
+  
+  function dumpNotes(a) {
+    var o;
+    var i;
+    var mel;
+    var s = [];
+    for (i = 0; i < a.length; i++) {
+      s.push(a[i].bww);
+    }
+    return s.join(" ");
   }
- 
+  
+    function setSpacing() {
+      var FORCEWIDTH = 2000;
+      var FORCELEFT = 150;
+      var BEATLENGTH;
+      
+      var idx = 0;
+      var len = data.length;
+      var a;
+      var mel, prevMel, staffMel;
+      var newX;
+      
+      function getMeasureStart() {
+        var mel;
+        while (idx < len) {
+          mel = data[idx];
+          idx++;
+          if (mel.newBar && mel.b.beatWeight) {return mel; }
+        }
+      }
+      
+      function getLineNotes() {
+        var mel;
+        var a = [];
+        var i;
+        
+        while (idx < len) {
+          mel = data[idx];
+          idx++;
+          if (mel.type === "melody") {a.push(mel);}
+          if (mel.staffEnd) {idx--; break;}
+        }
+        return a;
+      }
+      
+      
+      function adjustPadding(prevMel, mel, toX) {
+        mel.forceToX = toX;
+        prevMel.paddingRight = 0;
+        var diff = toX - mel.c.x;
+        //alert([toX, mel.c.x, diff]);
+        //prevMel.paddingRight += diff;
+      }
+      
+      var offSet;
+      // Start collecting data
+      while (((staffMel = getMeasureStart()) !== undefined)) {
+          BEATLENGTH = FORCEWIDTH/(staffMel.b.beatsPerBar*maxMeasuresInLine);
+        offSet = FORCELEFT;
+        
+        a = getLineNotes();
+        logit(dumpNotes(a));
+        
+        for (i = 0; i < a.length; i++) {
+          mel = a[i];
+          if (i === 0) {
+            prevMel = data[data.indexOf(mel)-1];
+          } else {
+            prevMel = a[i-1];
+          }
+          
+          //alert(prevMel);
+          
+          newX = offSet;
+          offSet += BEATLENGTH * mel.b.beatWeight;
+          adjustPadding(prevMel, mel, newX);
+          mel.b.newX = newX;
+          
+          //logit(["DB1", FORCELEFT, staffMel.b.str, mel.bww, BEATLENGTH, newX]);
+        }
+        
+        //logit(["C2", staffMel, a.length]);
+        
+      };
+    }
+    setSpacing();
+    
+  
+  
   //logit(["measurelist", measureList]);
 }
 
@@ -154,7 +275,7 @@ function beautifyScore2(score) {
                          lastMel.beatCount = beatCount;
                          lastMel.currentBeatCount = currentBeatCount;
                          
-                         logit(["Beauty " + mel.note + ":" + mel.duration ,  beatWidth, mel.beatFraction, lastMel.paddingRight, beatWidth, w]);
+                         //logit(["Beauty " + mel.note + ":" + mel.duration ,  beatWidth, mel.beatFraction, lastMel.paddingRight, beatWidth, w]);
                          
                        }
                        lastMel = mel;
@@ -162,7 +283,7 @@ function beautifyScore2(score) {
                        
                      case "timesig":
                        beatUnit = mel.beatUnit; 
-                       logit(["Beauty Beat Unit", beatUnit]);
+                       //logit(["Beauty Beat Unit", beatUnit]);
                        break;
                      }
                      

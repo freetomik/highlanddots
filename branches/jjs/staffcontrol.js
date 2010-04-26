@@ -183,18 +183,19 @@
                           a();
                           });
    
-   var tf = ctx.font;
-   var ta = ctx.textAlign;
-   var fc = ctx.fillStyle;
-   ctx.fillStyle = "blue";
-   ctx.font = " " + (sdet.space * 1.5) + "px sans-serif";
-   ctx.textAlign = 'center';
-   if (typeof this.measureNumber !== "undefined") {
-     ctx.fillText("" + this.measureNumber, c.x, c.textY);
+   if (typeof this.b.measureNumber !== "undefined") {
+     var tf = ctx.font;
+     var ta = ctx.textAlign;
+     var fc = ctx.fillStyle;
+     ctx.fillStyle = "blue";
+     ctx.font = " " + (sdet.space * 1.5) + "px sans-serif";
+     ctx.textAlign = 'center';
+     ctx.fillText("" + this.b.measureNumber, c.x, c.textY);
+     ctx.fillText("" + this.b.str, c.x, c.textY - (sdet.space * 1.5));     
+     ctx.font = tf;
+     ctx.textAlign = ta;
+     ctx.fillStyle = fc; 
    }
-   ctx.font = tf;
-   ctx.textAlign = ta;
-   ctx.fillStyle = fc; 
    
    
  }

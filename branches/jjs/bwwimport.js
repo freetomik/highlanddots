@@ -156,7 +156,13 @@ var z_graphic = (function() {
                  function create(s) {
                    var mel = score.createGraphic(a[s].name);
                    meldObjectToObject(a[s], mel);
+                   
+                   // HACK: All new lines start off with a staff bar
+                   if (s === '&') {
+                     return [z_staffControl.create("!"), mel]; // Special handling
+                   } else {
                    return mel;
+                   }
                  }
                  return {
                    isType: isType,

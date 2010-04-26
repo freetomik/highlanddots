@@ -26,7 +26,7 @@ var staff =
    width: 700,  // The width of the staff
    thick: 1,    // Thickness of staff line segment
    space: 10,   // The thickness of each space
-   
+   leftMargin: 10, // Margin for a new staff line
    newTop: 50,   // Top of a new score
    top: -1,     // Where to draw the top line of the CURRENT line of music
    x: 0,        // Cursor postion
@@ -91,7 +91,7 @@ var staff =
    
    width = width || details.maxX;
    
-   x = 5;
+   x = details.leftMargin;
    y = details.top;
    coords.x = x;
    coords.y = y;
@@ -206,18 +206,18 @@ dots.push('"Jeremy J Starcher",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)');
 dots.push('"It just is",(F,R,0,0,Times New Roman,10,400,0,0,18,0,0,0)');
 dots.push('');
 dots.push('& sharpf sharpc 4_4');
-dots.push('!	 E_1');
-dots.push('!	 E_1');
-dots.push('!	 E_1');
-dots.push('!	 E_1');
+dots.push('!	 LG_1');
+dots.push('!	 LA_1');
+dots.push('!	 B_1');
+dots.push('!	 C_1');
 dots.push('!t');
 dots.push('');
 dots.push('');
 dots.push('& sharpf sharpc 4_4');
-dots.push('!	 E_2				E_2');
-dots.push('!	 E_2				E_2');
-dots.push('!	 E_2				E_2');
-dots.push('!	 E_2				E_2');
+dots.push('!	 D_2				E_2');
+dots.push('!	 F_2				HA_2');
+dots.push('!	 HA_2				LG_2');
+dots.push('!	 LA_2				B_2');
 dots.push('!t');
 dots.push('');
 dots.push('& sharpf sharpc 4_4');
@@ -343,7 +343,7 @@ function plotMusic(score)
   
   function prepNewStaff() {
     staff.drawStaff();
-    sdet.x = 5;
+    sdet.x = sdet.leftMargin;
     ctx.fillStyle = sdet.noteColor1;
     ctx.strokeStyle = sdet.noteColor1;
   }
@@ -375,8 +375,8 @@ function plotMusic(score)
     function delayMel(mel, staff) {
       // Currently there are some things broken that can't be delayed
       // But I am working on that
-      //mel.paint(staff);
-      //return;
+      mel.paint(staff);
+      return;
       
       
       var f = (function(_mel, _staff) {
@@ -397,6 +397,11 @@ function plotMusic(score)
                          prepNewStaff();
                          needStaff = false;          
                        }
+
+                       if (mel.forceToX) {
+                         sdet.x = mel.forceToX;
+                       }
+
                        
                        //TODO : enable bounding box for gracenotes in a group
                        if (typeof mel.getBoundingRect === "function") {
@@ -417,6 +422,8 @@ function plotMusic(score)
                            }                         
                          }
                        }
+                       
+                                              
                        
                        switch(mel.type) {
                        case "melody":
