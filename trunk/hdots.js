@@ -2,6 +2,15 @@
 
 var G_vmlCanvasManager; // so non-IE won't freak out in canvasInit
 
+
+function testImport2() {
+  var startTime = new Date();
+  testImport();
+  var endTime = new Date();
+  var total = (endTime - startTime) / 1000;
+  document.getElementById("timeinfo").innerHTML = "Time spent rendering: " + total + " seconds.";
+}
+
 var staff = 
 (
  
@@ -14,7 +23,7 @@ var staff =
    width: 700,  // The width of the staff
    thick: 1,    // Thickness of staff line segment
    space: 10,   // The thickness of each space
-   
+   leftMargin: 10, // Margin for a new staff line
    newTop: 50,   // Top of a new score
    top: -1,     // Where to draw the top line of the CURRENT line of music
    x: 0,        // Cursor postion
@@ -79,7 +88,7 @@ var staff =
    
    width = width || details.maxX;
    
-   x = 5;
+   x = details.leftMargin;
    y = details.top;
    coords.x = x;
    coords.y = y;
@@ -178,52 +187,101 @@ var staff =
 
 function testImport() {
   var dots = [];
+/*
+dots.push('& sharpf sharpc 4_4');
+dots.push('!	 gg E_2				gg E_2');
+dots.push('!	 gg E_2				gg E_2');
+dots.push('!	 gg E_2				gg E_2');
+dots.push('!	 gg E_2				gg E_2  !t');
+//*/
+
+//*
+
   
-  dots.push('Bagpipe Reader:1.0');
-  dots.push('MIDINoteMappings,(55,57,59,60,62,64,65,67,69,57,59,61,62,64,66,67,69,71,56,58,60,61,63,65,66,68,70)');
-  dots.push('FrequencyMappings,(392,440,494,523,587,659,699,784,880,440,494,554,587,659,740,784,880,988,415,466,523,554,622,699,740,831,932)');
-  dots.push('InstrumentMappings,(61,71,46,34,1000,60,70)');
-  dots.push('GracenoteDurations,(42,40,30,50,100,200,800,1200,250,250,250,500,200)');
-  dots.push('FontSizes,(90,100,100,80,0)');
-  dots.push('TuneFormat,(1,0,M,L,500,500,500,500,P,0,0)');
-  dots.push('TuneTempo,90');
-  dots.push('');
-  dots.push('"Layout Tester",(T,L,0,0,Times New Roman,16,700,0,0,18,0,0,0)');
-  dots.push('"Crap",(Y,C,0,0,Times New Roman,14,400,0,0,18,0,0,0)');
-  dots.push('"Jeremy J Starcher",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)');
-  dots.push('"It just is",(F,R,0,0,Times New Roman,10,400,0,0,18,0,0,0)');
-  dots.push('');
-  dots.push('& sharpf sharpc 4_4');
-  dots.push('!	 E_1');
-  dots.push('!	 E_1');
-  dots.push('!	 E_1');
-  dots.push('!	 E_1');
-  dots.push('!t');
-  dots.push('');
-  dots.push('');
-  dots.push('& sharpf sharpc 4_4');
-  dots.push('!	 E_2				E_2');
-  dots.push('!	 E_2				E_2');
-  dots.push('!	 E_2				E_2');
-  dots.push('!	 E_2				E_2');
-  dots.push('!t');
-  dots.push('');
-  dots.push('& sharpf sharpc 4_4');
-  dots.push('!	 E_4				E_4			E_4				E_4');
-  dots.push('!	 E_4				E_4			E_4				E_4');
-  dots.push('!	 E_4				E_4			E_4				E_4');
-  dots.push('!	 E_4				E_4			E_4				E_4');
-  dots.push('!t');
-  dots.push('');
-  dots.push('& sharpf sharpc 4_4');
-  dots.push('!	 E_8				E_8			E_8				E_8	 E_8				E_8			E_8				E_8');
-  dots.push('!	 E_8				E_8			E_8				E_8	 E_8				E_8			E_8				E_8');
-  dots.push('!	 E_8				E_8			E_8				E_8	 E_8				E_8			E_8				E_8');
-  dots.push('!	 E_8				E_8			E_8				E_8	 E_8				E_8			E_8				E_8');
-  dots.push('!t');
-  dots.push('');
+dots.push('Bagpipe Reader:1.0');
+dots.push('MIDINoteMappings,(55,57,59,60,62,64,65,67,69,57,59,61,62,64,66,67,69,71,56,58,60,61,63,65,66,68,70)');
+dots.push('FrequencyMappings,(392,440,494,523,587,659,699,784,880,440,494,554,587,659,740,784,880,988,415,466,523,554,622,699,740,831,932)');
+dots.push('InstrumentMappings,(61,71,46,34,1000,60,70)');
+dots.push('GracenoteDurations,(42,40,30,50,100,200,800,1200,250,250,250,500,200)');
+dots.push('FontSizes,(90,100,100,80,0)');
+dots.push('TuneFormat,(1,0,M,L,500,500,500,500,P,0,0)');
+dots.push('TuneTempo,90');
+dots.push('');
+dots.push('"Layout Tester",(T,L,0,0,Times New Roman,16,700,0,0,18,0,0,0)');
+dots.push('"Crap",(Y,C,0,0,Times New Roman,14,400,0,0,18,0,0,0)');
+dots.push('"Jeremy J Starcher",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)');
+dots.push('"It just is",(F,R,0,0,Times New Roman,10,400,0,0,18,0,0,0)');
+dots.push('');
+dots.push('& sharpf sharpc 4_4');
+dots.push('!	 LG_1');
+dots.push('!	 LA_1');
+dots.push('!	 B_1');
+dots.push('!	 C_1');
+dots.push('!t');
+dots.push('');
+dots.push('');
+dots.push('& sharpf sharpc 4_4');
+dots.push('!	 D_2				E_2');
+dots.push('!	 F_2				HA_2');
+dots.push('!	 HA_2				LG_2');
+dots.push('!	 LA_2				B_2');
+dots.push('!t');
+dots.push('');
+dots.push('& sharpf sharpc 4_4');
+dots.push('!	 E_4				E_4			E_4				E_4');
+dots.push('!	 E_4				E_4			E_4				E_4');
+dots.push('!	 E_4				E_4			E_4				E_4');
+dots.push('!	 E_4				E_4			E_4				E_4');
+dots.push('!t');
+dots.push('');
+dots.push('& sharpf sharpc 4_4');
+dots.push('!	 E_8				E_8			E_8				E_8	 E_8				E_8			E_8				E_8');
+dots.push('!	 E_8				E_8			E_8				E_8	 E_8				E_8			E_8				E_8');
+dots.push('!	 E_8				E_8			E_8				E_8	 E_8				E_8			E_8				E_8');
+dots.push('!	 E_8				E_8			E_8				E_8	 E_8				E_8			E_8				E_8');
+dots.push('!t');
+dots.push('');
+dots.push('& sharpf sharpc 4_4');
+dots.push('!	 thrd E_4				thrd E_4			thrd E_4				thrd E_4');
+dots.push('!	 gg E_4				gg E_4			gg E_4				gg E_4');
+dots.push('!	 dbha E_4				dbha E_4			dbha E_4				dbha E_4');
+dots.push('!	 E_4				E_4			E_4				E_4');
+dots.push('!t');
   
-  
+
+dots.push('');
+dots.push('& sharpf sharpc 4_4');
+dots.push('!	 gg E_1');
+dots.push('!	 gg E_1');
+dots.push('!	 gg E_1');
+dots.push('!	 gg E_1');
+dots.push('!t');
+dots.push('');
+dots.push('');
+dots.push('& sharpf sharpc 4_4');
+dots.push('!	 gg E_2				gg E_2');
+dots.push('!	 gg E_2				gg E_2');
+dots.push('!	 gg E_2				gg E_2');
+dots.push('!	 gg E_2				gg E_2');
+dots.push('!t');
+dots.push('');
+dots.push('& sharpf sharpc 4_4');
+dots.push('!	 gg E_4				gg E_4			gg E_4				gg E_4');
+dots.push('!	 gg E_4				gg E_4			gg E_4				gg E_4');
+dots.push('!	 gg E_4				gg E_4			gg E_4				gg E_4');
+dots.push('!	 gg E_4				gg E_4			gg E_4				gg E_4');
+dots.push('!t');
+dots.push('');
+dots.push('& sharpf sharpc 4_4');
+dots.push('!	 gg E_8				gg E_8			gg E_8				gg E_8	 gg E_8				gg E_8			gg E_8				gg E_8');
+dots.push('!	 gg E_8				gg E_8			gg E_8				gg E_8	 gg E_8				gg E_8			gg E_8				gg E_8');
+dots.push('!	 gg E_8				gg E_8			gg E_8				gg E_8	 gg E_8				gg E_8			gg E_8				gg E_8');
+dots.push('!	 gg E_8				gg E_8			gg E_8				gg E_8	 gg E_8				gg E_8			gg E_8				gg E_8');
+dots.push('!t');
+dots.push('');
+
+
+
   // Greensleeves
   dots.push("");
   dots.push("& sharpf sharpc  6_8  I!''~B_8");
@@ -282,6 +340,7 @@ function testImport() {
   dots.push("! ^3s D_4 D_8 El_8 ^3e ~dbf ^3s Fr_8 Dl_8 ~gg Fr_8 ^3e HGl_8");
   dots.push("! '1 D_4 F_8 '_ El_8~dbf Br_8 '2 Cl_8 ~gg Fr_8 HGl_8 '_ !t");
   dots.push("");
+  //*/
   
   score.removeAllNodes();
   parseBWW(dots);
@@ -298,7 +357,7 @@ function plotMusic(score)
   
   function prepNewStaff() {
     staff.drawStaff();
-    sdet.x = 5;
+    sdet.x = sdet.leftMargin;
     ctx.fillStyle = sdet.noteColor1;
     ctx.strokeStyle = sdet.noteColor1;
   }
@@ -326,6 +385,24 @@ function plotMusic(score)
     ctx.fillStyle = sdet.noteColor1;
     ctx.strokeStyle = sdet.noteColor1;
     
+    var delay = [];
+    function delayMel(mel, staff) {
+      // Currently there are some things broken that can't be delayed
+      // But I am working on that
+      mel.paint(staff);
+      return;
+      
+      
+      var f = (function(_mel, _staff) {
+               return function() {
+               _mel.paint(_staff);
+               };
+      }(mel, staff));
+      delay.push(f);
+    }
+    
+                       
+    
     score.data.forEach(function(mel) {
                        var rect;
                        var strokeStyle = ctx.strokeStyle; 
@@ -334,6 +411,11 @@ function plotMusic(score)
                          prepNewStaff();
                          needStaff = false;          
                        }
+
+                       if (mel.forceToX) {
+                         sdet.x = mel.forceToX;
+                       }
+
                        
                        //TODO : enable bounding box for gracenotes in a group
                        if (typeof mel.getBoundingRect === "function") {
@@ -355,28 +437,30 @@ function plotMusic(score)
                          }
                        }
                        
+                                              
+                       
                        switch(mel.type) {
                        case "melody":
-                         if (doPaint) {mel.paint(staff);};
+                         if (doPaint) {delayMel(mel, staff);}
                          sdet.x += sdet.space * 2.5;
                          break;
                        case "embellishment":
-                         if (doPaint) {mel.paint(staff);};
+                         if (doPaint) {delayMel(mel, staff);}
                          sdet.x += sdet.space * 1.25;
                          break;
                        case "graphic":
-                         if (doPaint) {mel.paint(staff);};
+                         if (doPaint) {delayMel(mel, staff);}
                          sdet.x += rect.width;
                          break;
                        case "phrasegroup":
-                         if (doPaint) {mel.paint(staff);};
+                         if (doPaint) {delayMel(mel, staff);}
                          break;
                        case "staffControl":
-                         if (doPaint) {mel.paint(staff);};
+                         if (doPaint) {delayMel(mel, staff);}
                          sdet.x += rect.width;
                          break;
                        case "timesig":
-                         if (doPaint) {mel.paint(staff);};
+                         if (doPaint) {delayMel(mel, staff);}
                          sdet.x += rect.width;
                          break;
                          
@@ -393,6 +477,10 @@ function plotMusic(score)
                          sdet.top += sdet.space * 3;        
                        }
     });
+    
+    for (var i = 0; i < delay.length; i++) {
+      delay[i]();
+    }
   }
   
   reFlowAndReDraw(false); // Calculate sizes
@@ -409,7 +497,7 @@ function plotMusic(score)
 }
 
 function logit(s) {
-  if (!staff.details.logging) return;
+  //if (!staff.details.logging) return;
   if (typeof s === "object") { // Yes, it catches arrays.  That is good.
     //s = "" + s.toSource();
     // TJM line below causes too much recursion error
@@ -425,4 +513,5 @@ function logit(s) {
   e1.appendChild(t);
   e.appendChild(e1);
 }
+
 

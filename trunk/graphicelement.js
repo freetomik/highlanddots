@@ -12,6 +12,7 @@ Score.graphicsList = {
  var THISTYPE = "graphic";
  function ThisType(name) {
    this.name = name;
+     this.c = {};                  // Storage area for some commonly used calcuations.
    return this;
  }
  
@@ -171,7 +172,7 @@ ThisType.prototype.trebleclef = [[[-1, 52]], [[-1, 52], [-1, 103], [45, 176]], [
    var sdet = staff.details;
    var ctx = sdet.ctx;
    var c = this.c;
-   this.calc(staff);
+   //this.calc(staff);
    
 //   sdet.ctx.drawImage(c.img, c.dx, c.dy, c.dw, c.dh);
 
