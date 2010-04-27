@@ -8,26 +8,26 @@ Score.prototype = {
   removeAllNodes: function() {
     this.data = [];
   },
-  appendNode: function(mel) {
-    if (mel instanceof Array) {
-      var o;
-      for (o in mel) {
-        this.data.push(mel[o]);
-      }	
-    } else {
-      this.data.push(mel);
-    }
-  },
-  getLastElementByType: function(type) {
-    var i = 0, l = this.data.length;
-    var mel;
-    for (i = 0; i < l; i++) {
-      mel = this.data[l-i];
-      if (mel && mel.type === type) {
-        return mel;
+    appendNode: function(mel) {
+      if (mel instanceof Array) {
+	var o;
+	for (o in mel) {
+          this.data.push(mel[o]);
+        }	
+      } else {
+        this.data.push(mel);
+      }
+    },
+    getLastElementByType: function(type) {
+      var i = 0, l = this.data.length;
+      var mel;
+      for (i = 0; i < l; i++) {
+        mel = this.data[l-i];
+        if (mel && mel.type === type) {
+          return mel;
+        }
       }
     }
-  }
 };
 var score = new Score();
 
@@ -126,6 +126,26 @@ Score.prototype.buildCollections = function() {
       if (inVolta) voltaGroup.push(mel);
     }
     
+   if (mel.grouped) {
+      beamGroup.push(mel);
+    }
+
+    if (mel.type === "beamgroup") {
+      if(mel.sectionStart) {
+        if (!inBeam) {beamGroup = [];}
+        inBeam = true;
+        beamGroup.push(mel);
+      }
+      if(mel.sectionEnd) {
+        if (inBeam) {
+          beamGroup.push(mel);
+          c.beams.push(beamGroup);
+          inBeam = false;
+        }
+      }
+    }
+
+
     // gracenote group immediately followed by melody note group
     // push beamGroup, create empty beamGroup
     // set inBeam to false so the next conditional will cat on this mel

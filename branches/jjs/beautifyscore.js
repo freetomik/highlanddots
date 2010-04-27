@@ -3,7 +3,7 @@
 
 var BASEPULSE = 78125;
 var beatFixRate = {
-  /*
+	/*
   For right now, we are going to pretend these don't exist for melody notes 
   128: 1 * BASEPULSE,
   64: 2 * BASEPULSE,
@@ -14,13 +14,13 @@ var beatFixRate = {
   2: 32 * BASEPULSE,
   1: 64 * BASEPULSE
   */
-  
+	
   16: 1 * BASEPULSE,
   8: 2 * BASEPULSE,
   4: 4 * BASEPULSE,
   2: 8 * BASEPULSE,
   1: 16 * BASEPULSE
-  
+	
 };
 
 
@@ -38,10 +38,10 @@ function beautifyScore(score) {
   var beatCount = 0;
   var beatCountOnLine = 1;
   var t, tmp;
-  
+	
   data = score.data;
   l = data.length;
-  
+	
   measureList = [];
   melodyNoteList = [];
   measureNumber = 0;
@@ -259,7 +259,7 @@ function beautifyScore2(score) {
   
 	// FIXME: This number pulled out of thin air.  It should come from the timesig.
 	var beatInPixels = 200;  
-  
+	
 	var beatUnit;	// What length note takes one beat...
 	var beatCount = 0; // Count up parts of a beat...
 	
@@ -275,54 +275,54 @@ function beautifyScore2(score) {
 	score.data.forEach(function(mel) {
                      var currentBeatCount;
                      
-                     switch(mel.type) {
-                     case "melody":
-                       if (lastMel) {
-                         
+			switch(mel.type) {
+			case "melody":
+				if (lastMel) {
+          
                          currentBeatCount = beatFixRate[lastMel.duration];                         
-                         lastMel.beatFraction = beatUnit/lastMel.duration; 
+          lastMel.beatFraction = beatUnit/lastMel.duration; 
                          
                          
-                         if (lastMel.dotType === "dot") {
-                           lastMel.beatFraction *= 1.5;
+          if (lastMel.dotType === "dot") {
+            lastMel.beatFraction *= 1.5;
                            currentBeatCount *= 1.5;
-                         }
-                         if (lastMel.dotType === "doubledot") {
-                           lastMel.beatFraction *= 1.75;
+          }
+          if (lastMel.dotType === "doubledot") {
+            lastMel.beatFraction *= 1.75;
                            currentBeatCount *= 1.75;
-                         }
-                         
-                         beatWidth = (beatInPixels * lastMel.beatFraction); 
+          }
+          
+          beatWidth = (beatInPixels * lastMel.beatFraction); 
                          lastx = lastMel.c.x /* + lastMel.rect.width  + lastMel.paddingRight */;
-                         
-                         w = mel.c.x - lastx; 
-                         lastMel.paddingRight +=  beatWidth - w;
-                         
+          
+          w = mel.c.x - lastx; 
+          lastMel.paddingRight +=  beatWidth - w;
+          
                          beatCount += currentBeatCount;
                          lastMel.beatCount = beatCount;
                          lastMel.currentBeatCount = currentBeatCount;
                          
                          //logit(["Beauty " + mel.note + ":" + mel.duration ,  beatWidth, mel.beatFraction, lastMel.paddingRight, beatWidth, w]);
                          
-                       }
-                       lastMel = mel;
-                       break;
-                       
-                     case "timesig":
-                       beatUnit = mel.beatUnit; 
+        }
+        lastMel = mel;
+        break;
+        
+      case "timesig":
+        beatUnit = mel.beatUnit; 
                        //logit(["Beauty Beat Unit", beatUnit]);
-                       break;
-                     }
-                     
+        break;
+      }
+      
                      if (mel.newBar) {
                        mel.beatCount = beatCount;
                        beatCount = 0;
                      }
                      
-                     if (mel.staffEnd) {
-                       lastMel = undefined;
-                     }
-                     
+      if (mel.staffEnd) {
+        lastMel = undefined;
+      }
+      
   }
   );
 }
