@@ -2,7 +2,6 @@
 
 function ScoreElement() {
   this.isPrintable = false;
-  this.c = {};                  // Storage area for some commonly used calcuations.
   this.paddingRight = staff.details.space/2;
   return this;  
 }
