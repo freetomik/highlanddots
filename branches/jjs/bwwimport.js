@@ -666,7 +666,6 @@ var z_melody = (function() {
                   var mel = score.createMelodyNote();
                   
                   chunk = note.split("_");
-                  mel.bww = note;
                   mel.duration = +chunk[1];
                   
                   s = chunk[0].match(/^(LG|LA|B|C|D|E|F|HG|HA)/);
@@ -844,6 +843,7 @@ var z_noteDot = (function() {
                 if (f.isType(s)) {
                 mel = f.create(s);
                 if (mel) {
+                  mel.bww = s;
                   score.appendNode(mel);
                 }
                 }

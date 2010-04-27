@@ -27,9 +27,10 @@ function getInfo(mel) {
     o.extra = "lead out";
   }    
 
-  if (mel.b.newX) {
-    o.newX = mel.b.newX;
+  if (mel.forceToX2) {
+    o.forceToX2 = mel.forceToX2;
   }    
+  
   
   return o; 
 }

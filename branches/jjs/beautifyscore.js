@@ -29,7 +29,7 @@ var beatFixRate = {
 function beautifyScore(score) {
   var beatInPixels = 200;
   var i, l, data;
-  var mel, measureList, melodyNoteList;
+  var mel, mel2, measureList, melodyNoteList;
   var lastBarMel;
   var measureNumber;
   var lineNumber, lineMeasureNumber;
@@ -216,7 +216,38 @@ lastBarMel.b.beatsPerBar = beatsPerBar;
         //logit(["C2", staffMel, a.length]);
         
       };
+      
+      // Walk throughbackwards and adjust things.
+      
+      var offSet = 0;
+      for (i = 0; i < l; i++) {
+        mel = data[l-i];
+        
+        //if (mel.type === "embellishment") {
+          alert(mel.bww + " " + typeof mel.length);
+        //}
+        
+        if (!mel.c) {continue;}      
+        if (mel.type === "melody") {
+          mel2 = mel;
+          offSet = mel.c.x - mel.forceToX;
+        } else if (mel.type === "embellishment"){
+          alert(mel.toSource());
+          
+        } else  {
+          logit(mel.type + " offset = " + offSet);
+          mel.forceToX = mel.c.x - offSet
+        }
+        
+        if (mel.staffEnd) {
+          mel.forceToX  = FORCEWIDTH + FORCELEFT;
+        }
+        
+      }
+      
     }
+    
+    
     setSpacing();
     
   
