@@ -871,7 +871,7 @@ var z_noteDot = (function() {
   
   score.buildCollections();
   //alert(score.metaData.toSource());
-  //logit(score);
+  logit(score);
 }
 
 

@@ -61,9 +61,9 @@ function beautifyScore(score) {
       
       mel.b.beatWeight = t;
       beatCount += t;
-            mel.b.beatCountOnLine = beatCountOnLine;
+      mel.b.beatCountOnLine = beatCountOnLine;
       beatCountOnLine += t;
-            melodyNoteList.push(mel);
+      melodyNoteList.push(mel);
       //logit(["BW",mel.b.beatWeight]); 
       break;
     case "timesig":
@@ -93,7 +93,7 @@ function beautifyScore(score) {
         lastBarMel.b.str = lineNumber + ":" + lineMeasureNumber;
         lastBarMel.b.lineNumber = lineNumber;
         lastBarMel.b.lineMeasureNumber = lineMeasureNumber;
-lastBarMel.b.beatsPerBar = beatsPerBar;
+        lastBarMel.b.beatsPerBar = beatsPerBar;
         lastBarMel.b.measureNumber = measureList.length;
         lastBarMel.b.beatWeight = beatCount;
         maxMeasuresInLine = Math.max(maxMeasuresInLine, lineMeasureNumber);
@@ -125,11 +125,11 @@ lastBarMel.b.beatsPerBar = beatsPerBar;
         beatCount += mel.b.beatWeight;
       }
     }
-   
+    
     if (tmp.beatCount !== tmp.beatsPerBar) {
-    //logit(["Measure: " + i, "BC: have " + tmp.beatCount + "(need " + tmp.beatsPerBar + ")", ss, tmp.melodyNoteList.length]);
+      //logit(["Measure: " + i, "BC: have " + tmp.beatCount + "(need " + tmp.beatsPerBar + ")", ss, tmp.melodyNoteList.length]);
     }
-    }
+  }
   
   
   function dumpNotes(a) {
@@ -143,113 +143,109 @@ lastBarMel.b.beatsPerBar = beatsPerBar;
     return s.join(" ");
   }
   
-    function setSpacing() {
-      var FORCEWIDTH = 2000;
-      var FORCELEFT = 150;
-      var BEATLENGTH;
+  function setSpacing() {
+    var FORCEWIDTH = 2000;
+    var FORCELEFT = 150;
+    var BEATLENGTH;
+    
+    var idx = 0;
+    var len = data.length;
+    var a;
+    var mel, prevMel, staffMel;
+    var newX;
+    
+    function getMeasureStart() {
+      var mel;
+      while (idx < len) {
+        mel = data[idx];
+        idx++;
+        if (mel.newBar && mel.b.beatWeight) {return mel; }
+      }
+    }
+    
+    function getLineNotes() {
+      var mel;
+      var a = [];
+      var i;
       
-      var idx = 0;
-      var len = data.length;
-      var a;
-      var mel, prevMel, staffMel;
-      var newX;
+      while (idx < len) {
+        mel = data[idx];
+        idx++;
+        if (mel.type === "melody") {a.push(mel);}
+        if (mel.staffEnd) {idx--; break;}
+      }
+      return a;
+    }
+    
+    
+    function adjustPadding(prevMel, mel, toX) {
+      mel.forceToX = toX;
+      prevMel.paddingRight = 0;
+      var diff = toX - mel.c.x;
+      //alert([toX, mel.c.x, diff]);
+      //prevMel.paddingRight += diff;
+    }
+    
+    var offSet;
+    // Start collecting data
+    while (((staffMel = getMeasureStart()) !== undefined)) {
+      BEATLENGTH = FORCEWIDTH/(staffMel.b.beatsPerBar*maxMeasuresInLine);
+      offSet = FORCELEFT;
       
-      function getMeasureStart() {
-        var mel;
-        while (idx < len) {
-          mel = data[idx];
-          idx++;
-          if (mel.newBar && mel.b.beatWeight) {return mel; }
+      a = getLineNotes();
+      logit(dumpNotes(a));
+      
+      for (i = 0; i < a.length; i++) {
+        mel = a[i];
+        if (i === 0) {
+          prevMel = data[data.indexOf(mel)-1];
+        } else {
+          prevMel = a[i-1];
         }
+        
+        //alert(prevMel);
+        
+        newX = offSet;
+        offSet += BEATLENGTH * mel.b.beatWeight;
+        adjustPadding(prevMel, mel, newX);
+        mel.b.newX = newX;
+        
+        //logit(["DB1", FORCELEFT, staffMel.b.str, mel.bww, BEATLENGTH, newX]);
       }
       
-      function getLineNotes() {
-        var mel;
-        var a = [];
-        var i;
-        
-        while (idx < len) {
-          mel = data[idx];
-          idx++;
-          if (mel.type === "melody") {a.push(mel);}
-          if (mel.staffEnd) {idx--; break;}
-        }
-        return a;
+      //logit(["C2", staffMel, a.length]);
+      
+    };
+    
+    // Walk throughbackwards and adjust things.
+    
+    l = data.length;      
+    var offSet = 0;
+    for (i = 0; i < l; i++) {
+      mel = data[l-i];
+      
+      if (!mel) {continue;}
+      if (!mel.c) {continue;}      
+      
+      if (mel.type === "melody") {
+        mel2 = mel;
+        offSet = mel.c.x - mel.forceToX;        
+      } else  {
+        logit(mel.type + " offset = " + offSet);
+        mel.forceToX = mel.c.x - offSet
       }
       
-      
-      function adjustPadding(prevMel, mel, toX) {
-        mel.forceToX = toX;
-        prevMel.paddingRight = 0;
-        var diff = toX - mel.c.x;
-        //alert([toX, mel.c.x, diff]);
-        //prevMel.paddingRight += diff;
-      }
-      
-      var offSet;
-      // Start collecting data
-      while (((staffMel = getMeasureStart()) !== undefined)) {
-          BEATLENGTH = FORCEWIDTH/(staffMel.b.beatsPerBar*maxMeasuresInLine);
-        offSet = FORCELEFT;
-        
-        a = getLineNotes();
-        logit(dumpNotes(a));
-        
-        for (i = 0; i < a.length; i++) {
-          mel = a[i];
-          if (i === 0) {
-            prevMel = data[data.indexOf(mel)-1];
-          } else {
-            prevMel = a[i-1];
-          }
-          
-          //alert(prevMel);
-          
-          newX = offSet;
-          offSet += BEATLENGTH * mel.b.beatWeight;
-          adjustPadding(prevMel, mel, newX);
-          mel.b.newX = newX;
-          
-          //logit(["DB1", FORCELEFT, staffMel.b.str, mel.bww, BEATLENGTH, newX]);
-        }
-        
-        //logit(["C2", staffMel, a.length]);
-        
-      };
-      
-      // Walk throughbackwards and adjust things.
-      
-      var offSet = 0;
-      for (i = 0; i < l; i++) {
-        mel = data[l-i];
-        
-        //if (mel.type === "embellishment") {
-          alert(mel.bww + " " + typeof mel.length);
-        //}
-        
-        if (!mel.c) {continue;}      
-        if (mel.type === "melody") {
-          mel2 = mel;
-          offSet = mel.c.x - mel.forceToX;
-        } else if (mel.type === "embellishment"){
-          alert(mel.toSource());
-          
-        } else  {
-          logit(mel.type + " offset = " + offSet);
-          mel.forceToX = mel.c.x - offSet
-        }
-        
-        if (mel.staffEnd) {
-          mel.forceToX  = FORCEWIDTH + FORCELEFT;
-        }
-        
+      if (mel.staffEnd) {
+        mel.forceToX  = FORCEWIDTH + FORCELEFT;
       }
       
     }
     
-    
-    setSpacing();
-    
+  }
+  
+  
+  setSpacing();
+  
   
   
   //logit(["measurelist", measureList]);

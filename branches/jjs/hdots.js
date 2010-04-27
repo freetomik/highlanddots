@@ -190,6 +190,16 @@ var staff =
 
 function testImport() {
   var dots = [];
+/*
+dots.push('& sharpf sharpc 4_4');
+dots.push('!	 gg E_2				gg E_2');
+dots.push('!	 gg E_2				gg E_2');
+dots.push('!	 gg E_2				gg E_2');
+dots.push('!	 gg E_2				gg E_2  !t');
+//*/
+
+//*
+
   
 dots.push('Bagpipe Reader:1.0');
 dots.push('MIDINoteMappings,(55,57,59,60,62,64,65,67,69,57,59,61,62,64,66,67,69,71,56,58,60,61,63,65,66,68,70)');
@@ -234,6 +244,12 @@ dots.push('!	 E_8				E_8			E_8				E_8	 E_8				E_8			E_8				E_8');
 dots.push('!	 E_8				E_8			E_8				E_8	 E_8				E_8			E_8				E_8');
 dots.push('!t');
 dots.push('');
+dots.push('& sharpf sharpc 4_4');
+dots.push('!	 thrd E_4				thrd E_4			thrd E_4				thrd E_4');
+dots.push('!	 gg E_4				gg E_4			gg E_4				gg E_4');
+dots.push('!	 dbha E_4				dbha E_4			dbha E_4				dbha E_4');
+dots.push('!	 E_4				E_4			E_4				E_4');
+dots.push('!t');
   
 
 dots.push('');
@@ -327,6 +343,7 @@ dots.push('');
   dots.push("! ^3s D_4 D_8 El_8 ^3e ~dbf ^3s Fr_8 Dl_8 ~gg Fr_8 ^3e HGl_8");
   dots.push("! '1 D_4 F_8 '_ El_8~dbf Br_8 '2 Cl_8 ~gg Fr_8 HGl_8 '_ !t");
   dots.push("");
+  //*/
   
   score.removeAllNodes();
   parseBWW(dots);

@@ -4,6 +4,7 @@
  var THISTYPE = "embellishment";
  
  function ThisType() {  
+   this.type = THISTYPE;
    this.stemDir = "up";
    this.paddingRight = 0;  // Override the parent 
    this.c = {};
@@ -15,7 +16,6 @@
  ThisType.prototype.isPrintable = true;
  ThisType.prototype.scaleFactor = 0.6;
  ThisType.prototype.duration = 32;
- ThisType.prototype.type = THISTYPE;
  
  ThisType.prototype.paint = function(staff) {
    this.note = this.note.toUpperCase();
