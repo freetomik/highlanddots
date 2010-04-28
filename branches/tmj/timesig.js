@@ -31,7 +31,6 @@
     }
     
     ThisType.prototype.getBoundingRect = function(staff) {
-      this.calc(staff);
       var sdet = staff.details;
       var c = this.c;
       

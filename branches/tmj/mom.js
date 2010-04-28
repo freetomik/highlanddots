@@ -10,9 +10,11 @@ Score.prototype = {
 	var o;
 	for (o in mel) {
           this.data.push(mel[o]);
+          mel.scoreIndex = this.data.length-1;
         }	
       } else {
         this.data.push(mel);
+        mel.scoreIndex = this.data.length-1;
       }
     },
     getLastElementByType: function(type) {
@@ -24,7 +26,18 @@ Score.prototype = {
           return mel;
         }
       }
+    },
+    getNextElementByType: function(type) {
+      var i = 0, l = this.data.length;
+      var mel;
+      for (i = 0; i < l; i++) {
+        mel = this.data[i];
+        if (mel && mel.type === type) {
+          return mel;
+        }
+      }
     }
+
 };
 var score = new Score();
 
@@ -32,7 +45,6 @@ Score.prototype.buildCollections = function() {
   var c = {}; // Collections
   var i, l = this.data.length;
   var mel, lastType;
-  var beamGroup, inBeam, endBeam;
   var tieGroup, inTie, endTie;
   var tripletGroup, inTriplet, endTriplet;
   var voltaGroup, inVolta, endVolta;
@@ -40,7 +52,6 @@ Score.prototype.buildCollections = function() {
   c.notes = [];
   c.melodyNotes = [];
   c.graceNotes = [];
-  c.beams = [];
   c.ties = [];
   c.triplets = [];
   c.voltas = [];
@@ -65,7 +76,6 @@ Score.prototype.buildCollections = function() {
     }
   }
   
-  inBeam = endBeam = false;
   inTie = endTie = false;
   inTriplet = endTriplet = false;
   inVolta = endVolta = false;
@@ -122,56 +132,36 @@ Score.prototype.buildCollections = function() {
       if (inTriplet) tripletGroup.push(mel);
       if (inVolta) voltaGroup.push(mel);
     }
-
-    if (mel.grouped) {
-      beamGroup.push(mel);
-    }
-
-    if (mel.type === "beamgroup") {
-      if(mel.sectionStart) {
-        if (!inBeam) {beamGroup = [];}
-        inBeam = true;
-        beamGroup.push(mel);
-      }
-      if(mel.sectionEnd) {
-        if (inBeam) {
-          beamGroup.push(mel);
-          c.beams.push(beamGroup);
-          inBeam = false;
-        }
-      }
-    }
-
-
-    
-/*
-    // gracenote group immediately followed by melody note group
-    // push beamGroup, create empty beamGroup
-    // set inBeam to false so the next conditional will cat on this mel
-    if (mel.grouped && mel.type != lastType) {
-      if (inBeam) {
-        c.beams.push(beamGroup);
-        inBeam = false;
-      }
-    }
-
-    // This whole beam code is patterned, of course, after the BWW format.
-    // Eventually, I'd love to see the option to fix beaming and group
-    // noting based on beat count.
-    
-    if (mel.grouped) {
-      if (!inBeam) {beamGroup = [];}
-      inBeam = true;
-      beamGroup.push(mel);
-    }
-
-    if (mel.type === "beat" && inBeam || !mel.grouped && inBeam) {
-      c.beams.push(beamGroup);
-      inBeam = false;
-    }
-
-    lastType = mel.type;
-*/
   }
   this.collections = c;
 }
+
+
+Score.prototype.find = function(mel) {
+  var i = -1;
+  if (mel.scoreIndex) {
+    i = mel.scoreIndex;
+  } else {
+    var j = 0;
+    var l = this.data.length;
+    var o;
+    for (j = 0; j < l; j++) {
+      if (mel == this.data[j]) {
+        mel.scoreIndex = j;
+        i = j;
+        break;
+      }
+    }
+  }
+  return i;
+
+};
+
+Score.prototype.get = function(scoreIndex) {
+  return (score.data[scoreIndex]);
+}
+
+/* 
+mel.c
+mel.c.scoreIndex
+*/

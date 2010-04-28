@@ -5,7 +5,8 @@
 
  function ThisType() {  
    this.stemDir = "up";
-   this.c = {};
+   this.b = {};                  // Storage area beaming calcuations.
+   this.c = {};                  // Storage area for co-ords and dimensions
    return this;
  }
  

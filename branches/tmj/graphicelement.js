@@ -58,7 +58,6 @@ Score.graphicsList = {
  }
 
 ThisType.prototype.getBoundingRect = function(staff) {
-  this.calc(staff);  
   var c = this.c;
   
   var o = {

@@ -14,59 +14,108 @@
     ThisType.prototype.isPrintable = true;
         
     ThisType.prototype.getBoundingRect = function(staff) {
-      this.calc(staff);  
       return null;
 
     };
 
+    ThisType.prototype.getNoteGroup = function() {
+      var mel;
+      var grp = [];
+      var pos = score.find(this);
+      if (!pos) {
+        return;
+      }
+        
+      while (--pos >= 0) {
+        mel = score.get(pos);
+// FIXME : nested groups; endSection
+        if (mel.type === this.type) {
+          break;
+        } else {
+          grp.push(mel);
+        }
+      }
+      grp.reverse();
+      return grp;
+    }
+
+
+
     ThisType.prototype.calc = function(staff) {  
       if (this.sectionStart) return;         // 'look back' calc strategy
+
       var i, o, note, highest, lowest, grp;
       var sdet = staff.details;
       var c = this.c;
+      var self = this;
 
-      function straight () {
-        for (i=1; i<grp.length-1; i++) {
 
+      function calcBoundingNotes() {
+        highest = grp[0];
+        for (i=0; i<grp.length; i++) {
+          note = grp[i];
+          if (note.c.y < highest.c.y) {
+            highest = note;
+          }
+        }
+        lowest = grp[0];
+        for (i=0; i<grp.length; i++) {
+          note = grp[i];
+          if (note.c.y > lowest.c.y) {
+            lowest = note;
+          }
+        }
+      }
+
+      function beamStraight () {
+        var hd = 0;
+        var ld = 0;
+        if (arguments.length == 2) {
+          hd = arguments[0];
+          ld = arguments[1];
+        }
+
+        // set stem lengths
+        for (i=0; i<grp.length; i++) {
           note = grp[i];
 
           o = {};
-          o.stemlen = highest.c.stemlen + Math.abs((highest.c.y - note.c.y));
-          o.stemy2 = c.y - o.stemlen;
+          o.stemlen = highest.c.stemlen + Math.abs((highest.c.y - note.c.y)) + hd;
+          o.stemy2 = note.c.y - o.stemlen;
           o.topy = o.stemy2;
           o.bottomy = note.c.stemy1 + note.c.h ;
           c.upStem = o;
   
           o = {};
-          o.stemlen = highest.c.stemlen + Math.abs(highest.c.y - note.c.y);
-          o.stemy2 = c.y + o.stemlen;
+          o.stemlen = highest.c.stemlen + Math.abs(lowest.c.y - note.c.y) + ld;
+          o.stemy2 = note.c.y + o.stemlen;
           o.topy = o.stemy2;
           o.bottomy = note.c.stemy1 - note.c.h ;
           c.downStem = o;
          
-          if (this.stemUp) {
+sdet.logging = true;
+logit(note);
+sdet.logging = false;
+
+          if (note.stemDirection() === "up") {
             meldObjectToObject(c.upStem, note.c);
           } else {
             meldObjectToObject(c.downStem, note.c);
           }
-
-          o = {};
-          o.slope = 0;
-          if (i == grp.length-2) {
-            o.last = true;
-            // FIXME : more pleasing beam/tail width for last in group
-            o.width = note.width;
-          } else {
-            o.last = false;
-            // FIXME : more pleasing beam/tail width for last in group
-            o.width = grp[i+1].c.x - note.c.x;
-          }
-          note.c.beam = o;
-          note.c.beamed = true;
         }
       }
-   
-      function sloped () {
+      
+      function beamBww () {
+      	var deltas = [0, 0];
+//      	deltas[0] = highest.c.y - sdet.noteInfo.a3.y;
+//      	deltas[1] = sdet.noteInfo.g1.y - lowest.c.y;
+      
+      	beamStraight(deltas[0],deltas[1]);
+      
+      }
+
+      function beamSloped () {
+/*
         var pivot, slope, pivoty, firsty, lasty, xspan;
         var first = grp[1];
         var last = grp[grp.length-2];
@@ -105,54 +154,77 @@
           note.c.beam = o;
           note.c.beamed = true;
         }
+*/
       }
 
+
+      if (this.sectionStart) return;         // 'look back' paint strategy
+      
+      grp = this.getNoteGroup();
+
+      if (grp.length == 0) {
+          logit("Error: Start : Calc cannot find mel in score.");
+          logit(self);
+          logit("Error: End");
+          return;
+      }
+
+      calcBoundingNotes();
+
+      // set up group's bounding rectangle
       c.rect = {};
       o = {};
-
-      grp = score.collections.findIn(this, score.collections.beams);
-      c.stemUp = (grp[1].stemDirection() == "up");
-      c.sloped = (sdet.beamStyle == "sloped");
-
-      highest = grp[1];
-      for (i=1; i<grp.length-1; i++) {
-        note = grp[i];
-        if (note.c.y < highest.c.y) {
-          highest = note;
-        }
-      }
-      lowest = grp[1];
-      for (i=1; i<grp.length-1; i++) {
-        note = grp[i];
-        if (note.c.y > lowest.c.y) {
-          lowest = note;
-        }
-      }
-
-      o.x = grp[1].c.y;
+      o.x = grp[0].c.y;
       o.y = highest.c.y;
-      o.width = grp[grp.length-2].c.x - grp[1].c.x;
+      o.width = grp[grp.length-1].c.x - grp[0].c.x;
+// FIXME : should include stems
+//      o.height = lowest.getBoundingRect(staff).y + 
+//                   lowest.getBoundingRect(staff).height - 
+//                   highest.getBoundingRect(staff).y;
       o.height = lowest.c.y - highest.c.y;
 
       meldObjectToObject(o, c.rect);
 
-      if (c.sloped) {
-        sloped();
+
+      if (sdet.beamStyle == "straight") {
+        beamStraight();
+      } else if (sdet.beamStyle == "bww") {
+        beamBww();
       } else {
-        straight();
+        beamSloped();
       }
 
-    }
+      // request each note calc it's own beams
+      //   once again this is a 'look back' strategy
+      for (i=0; i<grp.length; i++) {
+        note = grp[i];
+
+        if (i == grp.length-1) {
+          note.c.lastInGroup = true;
+          note.calcBeams(grp[grp.length-2]);
+
+        } else {
+          if (i == 0) {
+            note.c.firstInGroup = true;
+          } else {
+            note.c.firstInGroup = false;
+          }
+
+          note.c.lastInGroup = false;
+          note.calcBeams(grp[i+1]);
+        }
+      
+      }
+    };
 
 
     ThisType.prototype.paint = function(staff) {
       if (this.sectionStart) return;         // 'look back' paint strategy
-      grp = score.collections.findIn(this, score.collections.beams);
-      for (i=1; i<grp.length-1; i++) {
-        note = grp[i];
-        note.paint(staff);
+      var i;
+      var grp = this.getNoteGroup();
+      for (i=0; i < grp.length; i++) {
+        grp[i].paint2(staff);
       }
-
     };
     
     Score.prototype.createBeamGroup = function() {

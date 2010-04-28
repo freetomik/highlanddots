@@ -12,7 +12,12 @@ var GHPRef = {
   HA: "a3"
 };
 
+var beamGroupProps = { 
+  start: {sectionStart: true},
+  end:   {sectionEnd: true}
+};
 
+var inBeam = false;
 
 // Is this a beat? Which would end a beam?
 var z_beat = (function() {
@@ -30,8 +35,16 @@ var z_beat = (function() {
     function create(s) {
       var mel = new ScoreElement();
       mel.type = "beat";
+//      if (inBeam) {
+//        inBeam = false;
+//        var bg = score.createBeamGroup();
+//        bg.noteType = "melody";
+//        meldObjectToObject(beamGroupProps.end, bg);
+//        mel = [bg, mel];
+//      }
       return mel;
     }
+
     return {
       isType: isType,
       create: create
@@ -496,11 +509,6 @@ var z_ghbgrace = (function() {
       "gstla": {category: "EMBELISHMENTS", dots: "Gag"},
       "tste": {category: "EMBELISHMENTS", dots: "Aea"}
     };
-    var bgdef = { "start":    {sectionStart: true},
-                  "end":    {sectionEnd: true}
-                };
- 
-    
     
     function isType(s) {
       return (typeof a[s] !== "undefined");
@@ -535,10 +543,12 @@ var z_ghbgrace = (function() {
       }
       if (mels.length > 1) {
         bg = score.createBeamGroup();
-        meldObjectToObject(bgdef["start"], bg);
+        bg.noteType = mels[0].type;
+        meldObjectToObject(beamGroupProps.start, bg);
         mels.splice(0,0,bg);
         bg = score.createBeamGroup();
-        meldObjectToObject(bgdef["end"], bg);
+        bg.noteType = mels[0].type;
+        meldObjectToObject(beamGroupProps.end, bg);
         mels.push(bg); 
       }
       return (mels);
@@ -598,19 +608,27 @@ var z_melody = (function() {
       if (s) {
         mel.tail = s[0]; 
         mel.grouped = true;
-        bg = score.createBeamGroup();
-        if (s === "r") {
-          meldObjectToObject(bgdef["start"], bg);
+/*
+        if (!inBeam) {
+          inBeam = true;
+          bg = score.createBeamGroup();
+          bg.noteType = mel.type;
+          meldObjectToObject(beamGroupProps.start, bg);
           mel = [bg, mel];
-        } else if (s === "l") {
-          meldObjectToObject(bgdef["end"], bg);
-          mel = [mel, bg];
         }
-      } 
-      
+      } else {
+        if (inBeam) {
+          inBeam = false;
+          bg = score.createBeamGroup();
+          bg.noteType = mel.type;
+          meldObjectToObject(beamGroupProps.end, bg);
+          mel = [bg, mel];
+        }
+*/
+      }
       return mel;
-      
     }
+
     return {
       isType: isType,
       create: create
@@ -690,6 +708,13 @@ var z_staffControl = (function() {
     function create(s) {
       var mel = score.createStaffControl();
       meldObjectToObject(a[s], mel);
+//      if (inBeam) {
+//        inBeam = false;
+//        var bg = score.createBeamGroup();
+//        bg.noteType = "melody";
+//        meldObjectToObject(beamGroupProps.end, bg);
+//        mel = [bg, mel];
+//      }
       return mel;
     }
     return {
