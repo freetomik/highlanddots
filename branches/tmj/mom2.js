@@ -153,9 +153,8 @@
 97=REST_4 (CAT_REST,,N,) melody d4
 98=REST_8 (CAT_REST,,N,) melody d8
 99=REST_16 (CAT_REST,,N,) melody d16
+103=REST_32 (CAT_REST,,N,) melody d32
 
-
-36=& (CAT_G_CLEF,,N,) no_sound
 
 37='1 (CAT_START_TIMELINE,,N,) no_sound
 38='2 (CAT_START_TIMELINE,,N,) no_sound
@@ -220,24 +219,6 @@
 147=^te (CAT_TIES_END,,N,) no_sound
 
 
-86=sharplg (CAT_NOTE_CHANGE,LG,N,1) no_sound #g1
-115=naturallg (CAT_NOTE_CHANGE,LG,N,1) no_sound ^g
-116=naturalla (CAT_NOTE_CHANGE,LA,N,1) no_sound ^a
-117=naturalb (CAT_NOTE_CHANGE,B,N,1) no_sound ^b
-118=naturalc (CAT_NOTE_CHANGE,C,N,1) no_sound ^c
-119=naturald (CAT_NOTE_CHANGE,D,N,1) no_sound ^d
-120=naturale (CAT_NOTE_CHANGE,E,N,1) no_sound ^e
-121=naturalf (CAT_NOTE_CHANGE,F,N,1) no_sound ^f
-122=naturalhg (CAT_NOTE_CHANGE,HG,N,1) no_sound ^G
-123=naturalha (CAT_NOTE_CHANGE,HA,N,1) no_sound ^A
-67=sharpla (CAT_NOTE_CHANGE,LA,N,1) no_sound #a1
-68=sharpb (CAT_NOTE_CHANGE,B,N,1) no_sound #b1
-69=sharpc (CAT_NOTE_CHANGE,C,N,1) no_sound #c1
-70=sharpd (CAT_NOTE_CHANGE,D,N,1) no_sound #d1
-71=sharpe (CAT_NOTE_CHANGE,E,N,1) no_sound #e1
-72=sharpf (CAT_NOTE_CHANGE,F,N,1) no_sound #f1
-73=sharphg (CAT_NOTE_CHANGE,HG,N,1) no_sound #G1
-74=sharpha (CAT_NOTE_CHANGE,HA,N,1) no_sound #A1
 
 36=flatlg (CAT_NOTE_CHANGE,LG,N,1) no_sound $g1
 37=flatla (CAT_NOTE_CHANGE,LA,N,1) no_sound $a1
@@ -267,7 +248,6 @@ x55=fermatlg (CAT_FERMATA,,N,) fermata g
 
 79=segno (CAT_SIGN,,N,) no_sound
 
-103=REST_32 (CAT_REST,,N,) melody d32
 71=fine  (CAT_SIGN_REPEAT,,N,) no_sound
 72=dacapoalfine  (CAT_SIGN_REPEAT,,N,) no_sound
 

@@ -5,6 +5,9 @@ function Score(){
 }
 
 Score.prototype = {
+  removeAllNodes: function() {
+    this.data = [];
+  },
     appendNode: function(mel) {
       if (mel instanceof Array) {
 	var o;

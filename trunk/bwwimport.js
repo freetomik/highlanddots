@@ -591,50 +591,57 @@ var z_ghbgrace = (function() {
                   "tste": {category: "EMBELISHMENTS", dots: "Aea"}
                   };
                   
-                  
-                  function isType(s) {
-                    return (typeof a[s] !== "undefined");
+    var bgdef = { "start":    {sectionStart: true},
+                  "end":    {sectionEnd: true}
+                };
+ 
+
+                function isType(s) {
+                  return (typeof a[s] !== "undefined");
+                }
+    
+                function create(s) {
+                  var note;
+                  var notes;
+                  var b = a[s];
+                  var mel, bg;
+                  var mels = [];
+                  var i;
+      
+                  notes = b.dots.match(/[aA-zZ]/g);
+                  for (i = 0; i < notes.length; i++) {
+                    note = notes[i];
+                    note = {
+                      G: "HG",
+                      A: "HA",
+                      g: "LG",
+                      a: "LA"
+                    }[notes[i]];
+        
+                    if (!note) {note =notes[i].toUpperCase();}
+                    mel = score.createEmbellishment();
+                    mel.note = note;
+                    mel.note = note.toUpperCase();
+                    mel.staffPosition = GHPRef[mel.note];
+                    if (notes.length > 1) mel.grouped = true;
+                    mels.push(mel);
+
                   }
-                  
-                  function create(s) {
-                    //TJM                    var grp = score.createEmbellishmentGroup();
-                    var note;
-                    var notes;
-                    var b = a[s];
-                    var mel;
-                    var mels = [];
-                    var i;
-                    
-                    //                    meldObjectToObject(a[s], grp);
-                    
-                    notes = b.dots.match(/[aA-zZ]/g);
-                    for (i = 0; i < notes.length; i++) {
-                      note = notes[i];
-                      note = {
-                        G: "HG",
-                        A: "HA",
-                        g: "LG",
-                        a: "LA"
-                      }[notes[i]];
-                      
-                      if (!note) {note =notes[i].toUpperCase();}
-                      mel = score.createEmbellishment();
-                      mel.note = note;
-                      mel.staffPosition = GHPRef[mel.note];
-                      if (notes.length > 1) mel.grouped = true;
-                      //TJM                      grp.appendNode(mel);
-                      mels.push(mel);
-                      
-                    }
-                    return (mels);
+                  if (mels.length > 1) {
+                    bg = score.createBeamGroup();
+                    meldObjectToObject(bgdef["start"], bg);
+                    mels.splice(0,0,bg);
+                    bg = score.createBeamGroup();
+                    meldObjectToObject(bgdef["end"], bg);
+                    mels.push(bg); 
                   }
-                  
-                  
-                  return {
-                    isType: isType,
-                    create: create
-                  };
-                  
+                  return (mels);
+                }
+
+                return {
+                  isType: isType,
+                  create: create
+                };                  
 }());
 
 

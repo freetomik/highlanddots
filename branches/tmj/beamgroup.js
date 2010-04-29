@@ -93,10 +93,6 @@
           o.bottomy = note.c.stemy1 - note.c.h ;
           c.downStem = o;
          
-sdet.logging = true;
-logit(note);
-sdet.logging = false;
-
           if (note.stemDirection() === "up") {
             meldObjectToObject(c.upStem, note.c);
           } else {

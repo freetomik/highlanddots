@@ -55,11 +55,10 @@ Score.graphicsList = {
    this.c.dw = dw;
    this.c.dh = dh;
   
-   //logit([THISTYPE, size, ratio, dx, dy, dw, dh]);
+   logit([THISTYPE, size, ratio, dx, dy, dw, dh]);
  }
 
 ThisType.prototype.getBoundingRect = function(staff) {
-  this.calc(staff);  
   var c = this.c;
   
   var o = {
@@ -205,7 +204,7 @@ ThisType.prototype.trebleclef = [[[-1, 52]], [[-1, 52], [-1, 103], [45, 176]], [
      } else if (points[i].length == 4) {
        ctx.bezierCurveTo(      startx+(points[i][1][0])/ratio, starty+(points[i][1][1]*-1)/ratio, // CP1 XY
                                startx+(points[i][2][0])/ratio, starty+(points[i][2][1]*-1)/ratio, // CP2 XY
-      startx+(points[i][3][0])/ratio, starty+(points[i][3][1]*-1)/ratio); // end XY
+						startx+(points[i][3][0])/ratio, starty+(points[i][3][1]*-1)/ratio); // end XY
 
      } else if (points[i].length == 0) {
        ctx.fill();

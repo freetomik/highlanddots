@@ -1,30 +1,20 @@
 "use strict";
 
 var G_vmlCanvasManager; // so non-IE won't freak out in canvasInit
-if (G_vmlCanvasManager !== undefined) { // ie IE
-  G_vmlCanvasManager.initElement(document.getElementById("canvas"));
-}
 
-function testDraw() {
-  staff.prime();
-  staff.drawStaff();
-  
-  var canvas = document.getElementById("canvas");  
-  var ctx = canvas.getContext("2d");  
-  
-  ctx.fillStyle = "rgb(200,0,0)";  
-  ctx.fillRect (10, 10, 55, 50);  
-  
-  ctx.fillStyle = "rgba(0, 0, 200, 0.5)";  
-  ctx.fillRect (30, 30, 55, 50);  
-}
 
+function testImport2() {
+  var startTime = new Date();
+  testImport();
+  var endTime = new Date();
+  var total = (endTime - startTime) / 1000;
+  document.getElementById("timeinfo").innerHTML = "Time spent rendering: " + total + " seconds.";
+}
 
 var staff = 
 (
  
  function() {
- var ctx;
  
  var HIDDEN_LINE_COLOR = "rgb(200, 200, 200)";
  
@@ -33,7 +23,7 @@ var staff =
    width: 700,  // The width of the staff
    thick: 1,    // Thickness of staff line segment
    space: 10,   // The thickness of each space
-   
+   leftMargin: 10, // Margin for a new staff line
    newTop: 50,   // Top of a new score
    top: -1,     // Where to draw the top line of the CURRENT line of music
    x: 0,        // Cursor postion
@@ -47,19 +37,14 @@ var staff =
  details.noteColor4 = "red";
  details.logging = false;        // true | false toggles bounding box tracing
  details.uiTracing = false;        // true | false toggles bounding box tracing
-
-
- var canvas = document.createElement("canvas");
+ 
  var coords = {};
  
- function canDraw() {
-   return !!canvas.getContext;              
- }
- 
  function drawStaff(width) {
+   var ctx = details.ctx;
    var x, y;
    var halfy;
-
+   
    //Pre-prep the names for the note position lines
    
    function prepData() {
@@ -87,17 +72,15 @@ var staff =
            drawnOnLine: onLine,  // Is this note drawn on the line 'true' or the space 'false'
            needsLedgerLine: notesOnStaff.indexOf(n) === -1 // Do we need a ledger line for this note. 
          };
-       onLine = !onLine;
-         logit("prepData: " + n  + o.toSource());
-         
+         onLine = !onLine;
          details.noteInfo[n] = o;
        }
      }
    }
    prepData();   
-  logit(details.noteInfo);
-
-
+   //logit(details.noteInfo);
+   
+   
    function drawLine() {
      ctx.fillRect(x, y, width, details.thick);
      y += details.space;
@@ -105,7 +88,7 @@ var staff =
    
    width = width || details.maxX;
    
-   x = 5;
+   x = details.leftMargin;
    y = details.top;
    coords.x = x;
    coords.y = y;
@@ -170,16 +153,33 @@ var staff =
  }
  
  function prime() {
-   var cv = document.getElementById("canvas");
-   if (cv.getContext) {
-     ctx = cv.getContext("2d");
+   function init() {
+     if (typeof G_vmlCanvasManager !== 'undefined') {
+       G_vmlCanvasManager.initElement(details.canvas);
+     }
    }
+   
+   var canvasName = "hdots_canvas";
+   if (details.ctx) {
+     init();
+     details.ctx.fillStyle = "#0c0";
+     details.ctx.fillRect(0, 0, details.canvas.width, details.canvas.height);
+     return;
+   } 
+   
+   domTools.removeElementIfExists(canvasName);
+   details.canvas = document.createElement("canvas");
+   init();
+   details.canvas.id = canvasName;
+ 
+   var ctx = details.canvas.getContext("2d");
    details.ctx = ctx;
+   details.canvas.style.border = "5px solid red";
+   document.getElementById("canvas_div").appendChild(details.canvas);
  }
  
  return {
    prime: prime,
-   canDraw: canDraw,
    drawStaff: drawStaff,
    details: details
  };
@@ -187,7 +187,101 @@ var staff =
 
 function testImport() {
   var dots = [];
+/*
+dots.push('& sharpf sharpc 4_4');
+dots.push('!	 gg E_2				gg E_2');
+dots.push('!	 gg E_2				gg E_2');
+dots.push('!	 gg E_2				gg E_2');
+dots.push('!	 gg E_2				gg E_2  !t');
+//*/
+
+//*
+
   
+dots.push('Bagpipe Reader:1.0');
+dots.push('MIDINoteMappings,(55,57,59,60,62,64,65,67,69,57,59,61,62,64,66,67,69,71,56,58,60,61,63,65,66,68,70)');
+dots.push('FrequencyMappings,(392,440,494,523,587,659,699,784,880,440,494,554,587,659,740,784,880,988,415,466,523,554,622,699,740,831,932)');
+dots.push('InstrumentMappings,(61,71,46,34,1000,60,70)');
+dots.push('GracenoteDurations,(42,40,30,50,100,200,800,1200,250,250,250,500,200)');
+dots.push('FontSizes,(90,100,100,80,0)');
+dots.push('TuneFormat,(1,0,M,L,500,500,500,500,P,0,0)');
+dots.push('TuneTempo,90');
+dots.push('');
+dots.push('"Layout Tester",(T,L,0,0,Times New Roman,16,700,0,0,18,0,0,0)');
+dots.push('"Crap",(Y,C,0,0,Times New Roman,14,400,0,0,18,0,0,0)');
+dots.push('"Jeremy J Starcher",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)');
+dots.push('"It just is",(F,R,0,0,Times New Roman,10,400,0,0,18,0,0,0)');
+dots.push('');
+dots.push('& sharpf sharpc 4_4');
+dots.push('!	 LG_1');
+dots.push('!	 LA_1');
+dots.push('!	 B_1');
+dots.push('!	 C_1');
+dots.push('!t');
+dots.push('');
+dots.push('');
+dots.push('& sharpf sharpc 4_4');
+dots.push('!	 D_2				E_2');
+dots.push('!	 F_2				HA_2');
+dots.push('!	 HA_2				LG_2');
+dots.push('!	 LA_2				B_2');
+dots.push('!t');
+dots.push('');
+dots.push('& sharpf sharpc 4_4');
+dots.push('!	 E_4				E_4			E_4				E_4');
+dots.push('!	 E_4				E_4			E_4				E_4');
+dots.push('!	 E_4				E_4			E_4				E_4');
+dots.push('!	 E_4				E_4			E_4				E_4');
+dots.push('!t');
+dots.push('');
+dots.push('& sharpf sharpc 4_4');
+dots.push('!	 E_8				E_8			E_8				E_8	 E_8				E_8			E_8				E_8');
+dots.push('!	 E_8				E_8			E_8				E_8	 E_8				E_8			E_8				E_8');
+dots.push('!	 E_8				E_8			E_8				E_8	 E_8				E_8			E_8				E_8');
+dots.push('!	 E_8				E_8			E_8				E_8	 E_8				E_8			E_8				E_8');
+dots.push('!t');
+dots.push('');
+dots.push('& sharpf sharpc 4_4');
+dots.push('!	 thrd E_4				thrd E_4			thrd E_4				thrd E_4');
+dots.push('!	 gg E_4				gg E_4			gg E_4				gg E_4');
+dots.push('!	 dbha E_4				dbha E_4			dbha E_4				dbha E_4');
+dots.push('!	 E_4				E_4			E_4				E_4');
+dots.push('!t');
+  
+
+dots.push('');
+dots.push('& sharpf sharpc 4_4');
+dots.push('!	 gg E_1');
+dots.push('!	 gg E_1');
+dots.push('!	 gg E_1');
+dots.push('!	 gg E_1');
+dots.push('!t');
+dots.push('');
+dots.push('');
+dots.push('& sharpf sharpc 4_4');
+dots.push('!	 gg E_2				gg E_2');
+dots.push('!	 gg E_2				gg E_2');
+dots.push('!	 gg E_2				gg E_2');
+dots.push('!	 gg E_2				gg E_2');
+dots.push('!t');
+dots.push('');
+dots.push('& sharpf sharpc 4_4');
+dots.push('!	 gg E_4				gg E_4			gg E_4				gg E_4');
+dots.push('!	 gg E_4				gg E_4			gg E_4				gg E_4');
+dots.push('!	 gg E_4				gg E_4			gg E_4				gg E_4');
+dots.push('!	 gg E_4				gg E_4			gg E_4				gg E_4');
+dots.push('!t');
+dots.push('');
+dots.push('& sharpf sharpc 4_4');
+dots.push('!	 gg E_8				gg E_8			gg E_8				gg E_8	 gg E_8				gg E_8			gg E_8				gg E_8');
+dots.push('!	 gg E_8				gg E_8			gg E_8				gg E_8	 gg E_8				gg E_8			gg E_8				gg E_8');
+dots.push('!	 gg E_8				gg E_8			gg E_8				gg E_8	 gg E_8				gg E_8			gg E_8				gg E_8');
+dots.push('!	 gg E_8				gg E_8			gg E_8				gg E_8	 gg E_8				gg E_8			gg E_8				gg E_8');
+dots.push('!t');
+dots.push('');
+
+
+
   // Greensleeves
   dots.push("");
   dots.push("& sharpf sharpc  6_8  I!''~B_8");
@@ -246,8 +340,9 @@ function testImport() {
   dots.push("! ^3s D_4 D_8 El_8 ^3e ~dbf ^3s Fr_8 Dl_8 ~gg Fr_8 ^3e HGl_8");
   dots.push("! '1 D_4 F_8 '_ El_8~dbf Br_8 '2 Cl_8 ~gg Fr_8 HGl_8 '_ !t");
   dots.push("");
-
+  //*/
   
+  score.removeAllNodes();
   parseBWW(dots);
   plotMusic(score);
 }
@@ -255,49 +350,88 @@ function testImport() {
 
 function plotMusic(score)
 {
-  staff.prime();
   var sdet = staff.details;
-  var ctx = sdet.ctx;
   var needStaff = true;
   
-  ctx.fillStyle = sdet.noteColor1;
-  ctx.strokeStyle = sdet.noteColor1;
+  var ctx;  
   
   function prepNewStaff() {
     staff.drawStaff();
-    sdet.x = 5;
+    sdet.x = sdet.leftMargin;
     ctx.fillStyle = sdet.noteColor1;
     ctx.strokeStyle = sdet.noteColor1;
   }
   
-
-  function reFlowAndReDraw(doPaint) {  
+  
+  function reFlowAndReDraw(doPaint) {
+    var cd = {
+      w: sdet.maxX,
+      h: sdet.top
+    };
+    
     sdet.top = sdet.newTop;
+    staff.prime();
+    if (doPaint) {
+      sdet.canvas.width = cd.w;
+      sdet.canvas.height = cd.h;
+      //sdet.canvas.setAttribute("width", cd.w); 
+      //sdet.canvas.setAttribute("height", cd.h);
+    } else {
+      sdet.canvas.width = 1000;
+      sdet.canvas.height = 1000;
+    }
+    
+    ctx = sdet.ctx;
+    ctx.fillStyle = sdet.noteColor1;
+    ctx.strokeStyle = sdet.noteColor1;
+    
+    var delay = [];
+    function delayMel(mel, staff) {
+      // Currently there are some things broken that can't be delayed
+      // But I am working on that
+      mel.paint(staff);
+      return;
+      
+      
+      var f = (function(_mel, _staff) {
+               return function() {
+               _mel.paint(_staff);
+               };
+      }(mel, staff));
+      delay.push(f);
+    }
+    
+                       
     
     score.data.forEach(function(mel) {
-
                        var rect;
                        var strokeStyle = ctx.strokeStyle; 
-                     
+                       
                        if (needStaff) {
                          prepNewStaff();
                          needStaff = false;          
                        }
 
+                       if (mel.forceToX) {
+                         sdet.x = mel.forceToX;
+                       }
+
+                       
                        if (typeof mel.calc === "function") {
                          mel.calc(staff);
                        }
-                     
+                       //TODO : enable bounding box for gracenotes in a group
                        if (typeof mel.getBoundingRect === "function") {
                          rect = mel.getBoundingRect(staff);
+                         
                          if (rect) {
+                           //logit([mel.type, "rect: ", rect.x, rect.y, rect.width, rect.height, mel.paddingRight]);
                            mel.rect = rect;
                            if (doPaint && sdet.uiTracing) {
                              ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
-                             logit(["rect: ", rect.x, rect.y, rect.width, rect.height]);
                              ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
                              ctx.fillStyle = strokeStyle;
-
+                             
                              // Debugging - mark exactly where the center is.
                              ctx.fillStyle = "red";
                              ctx.fillRect(rect.x-1, rect.y-1, 2, 2);
@@ -306,62 +440,70 @@ function plotMusic(score)
                          }
                        }
                        
+                                              
+                       
                        switch(mel.type) {
                        case "melody":
-                         if (doPaint) {mel.paint(staff);};
+                         if (doPaint) {delayMel(mel, staff);}
                          sdet.x += sdet.space * 2.5;
                          break;
                        case "embellishment":
-                         if (doPaint) {mel.paint(staff);};
+                         if (doPaint) {delayMel(mel, staff);}
                          sdet.x += sdet.space * 1.25;
                          break;
-                       case "beamgroup":
-                         if (doPaint) {mel.paint(staff);};
-                         break;
                        case "graphic":
-                         if (doPaint) {mel.paint(staff);};
+                         if (doPaint) {delayMel(mel, staff);}
                          sdet.x += rect.width;
                          break;
+                       case "beamgroup":
+                         if (doPaint) {delayMel(mel, staff);}
+                         break;
                        case "phrasegroup":
-                         if (doPaint) {mel.paint(staff);};
+                         if (doPaint) {delayMel(mel, staff);}
                          break;
                        case "staffControl":
-                         if (doPaint) {mel.paint(staff);};
+                         if (doPaint) {delayMel(mel, staff);}
                          sdet.x += rect.width;
                          break;
                        case "timesig":
-                         if (doPaint) {mel.paint(staff);};
+                         if (doPaint) {delayMel(mel, staff);}
                          sdet.x += rect.width;
                          break;
                          
                        }
                        
+                       if (typeof mel.paddingRight === "number") {
+                         sdet.x += mel.paddingRight;
+                       }
+                       
+                       sdet.maxX = Math.max(sdet.x, sdet.maxX);
+                       
                        if (mel.staffEnd) {
-                         if (sdet.x > sdet.maxX) {
-                           sdet.maxX = sdet.x;
-                         }
                          needStaff = true;
                          sdet.top += sdet.space * 3;        
                        }
     });
+    
+    for (var i = 0; i < delay.length; i++) {
+      delay[i]();
+    }
   }
   
   reFlowAndReDraw(false); // Calculate sizes
-  // Setting the canvas to the same dimensions doesn't clear it.
-  document.getElementById("canvas").width = 0; 
-  document.getElementById("canvas").width = sdet.maxX;
-  document.getElementById("canvas").height = sdet.top;
-  reFlowAndReDraw(true);  // and draw.
+  beautifyScore(score);  
   
-  makeImageMap(staff, score);
+  reFlowAndReDraw(false); // Calculate sizes
 
+  reFlowAndReDraw(true);  // and draw.
+  makeImageMap(staff, score);
   
-  logit(sdet);  
+  
+  //logit(sdet);  
   
 }
 
 function logit(s) {
-  if (!staff.details.logging) return;
+  //if (!staff.details.logging) return;
   if (typeof s === "object") { // Yes, it catches arrays.  That is good.
     //s = "" + s.toSource();
     // TJM line below causes too much recursion error
@@ -377,3 +519,5 @@ function logit(s) {
   e1.appendChild(t);
   e.appendChild(e1);
 }
+
+

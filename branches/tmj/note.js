@@ -149,7 +149,7 @@ Note.prototype.calc = function(staff) {
   c.downStem = o;
   
   
-  if (this.stemDir == "up") {
+  if (this.stemDirection() == "up") {
     meldObjectToObject(c.upStem, this.c);
   } else {
     meldObjectToObject(c.downStem, this.c);
@@ -464,94 +464,3 @@ TAIL co-ords at 0,0 based on note.width == 10
 
 */
 
-/*
-  function paintBeam() {
-    
-  b.xMult = (this.lastInGroup) ? -1 : 1;
-  b.yMult = (this.stemDirection() == "down") ? -1 : 1; 
-  b.yInc = (c.height/2) + c.barthick;			// amount to increment Y between tails
-
-
-  o.width = Math.abs(this.c.x - noteTo.c.x);
-  o.height = c.height/3; 				// should be 1/2 space, but llooks better as 1/3rd
-  o.slope = slope;
-  o.startx = c.stemx2;
-  o.starty = c.stemy2;
-  o.endx = toNote.c.stemx2;
-  o.endy = toNotec.stemy2;
-
-
-
-    var tails = self.countTails();
-    var lw = ctx.lineWidth;
-    var i,tailx,taily;
-    var yInc, yMult = -1;
-
-    if (tails < 1) return;
-
-    yInc = (c.height/2) + c.barthick;		// amount to increment Y between tails
-    if (self.stemDirection() == "up") {
-      yMult = 1;
-    }
-
-
-    tailx = c.stemx1 + c.width;
-
-    taily = c.stemy2;
-
-    // FIXME : line width should be 1/2 ... but 1/3 looks better
-    ctx.lineWidth = c.height/3;
-
-    for (i = 0; i < tails; i++) {
-      ctx.beginPath();
-      ctx.moveTo(c.stemx2, taily);
-      if (self.stemDir === "up") {
-
-	if (i == tails-1) {
-          ctx.bezierCurveTo(c.stemx2, taily+(c.width), 
-                            c.stemx2+(c.width*1.5), taily+(c.width*0.5),
-                            c.stemx2+(c.width*0.83), taily+(c.width*2.33));
-
-          ctx.bezierCurveTo(c.stemx2+(c.width*0.83), taily+(c.width*2.3), 
-                            c.stemx2+(c.width*1.33), taily+(c.width*0.83),
-                            c.stemx2, taily+(c.width*0.63));
-        
-        } else {
-          ctx.bezierCurveTo(c.stemx2, taily+(c.width),
-                            c.stemx2+(c.width), taily+(c.width*0.5),
-                            c.stemx2+(c.width), taily+(c.width*1.5));
-
-          ctx.bezierCurveTo(c.stemx2+(c.width*0.83), taily+(c.width*0.83),
-                            c.stemx2+(c.width*0.33), taily+(c.width*0.83),
-                            c.stemx2, taily+(c.width*0.66));
-        }
-
-      } else {
-
-	if (i == tails-1) {
-          ctx.bezierCurveTo(c.stemx2, taily-(c.width), 
-                            c.stemx2+(c.width*1.5), taily-(c.width*0.5),
-                            c.stemx2+(c.width*0.83), taily-(c.width*2.33));
-
-          ctx.bezierCurveTo(c.stemx2+(c.width*0.83), taily-(c.width*2.3), 
-                            c.stemx2+(c.width*1.33), taily-(c.width*0.83),
-                            c.stemx2, taily-(c.width*0.63));
-        
-        } else {
-          ctx.bezierCurveTo(c.stemx2, taily-(c.width),
-                            c.stemx2+(c.width), taily-(c.width*0.5),
-                            c.stemx2+(c.width), taily-(c.width*1.5));
-
-          ctx.bezierCurveTo(c.stemx2+(c.width*0.83), taily-(c.width*0.83),
-                            c.stemx2+(c.width*0.33), taily-(c.width*0.83),
-                            c.stemx2, taily-(c.width*0.66));
-        }
-
-      }
-      ctx.closePath();
-      ctx.fill();
-      taily += yInc * yMult;
-    }
-  }
-
-*/
