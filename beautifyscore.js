@@ -212,7 +212,7 @@ function beautifyScore(score) {
            isMeasureStart = false;
       }
          if (inLeadIn) {mel.noForceX = true};
-         if (mel.type === "embellishment") { isMeasureStart = false; }
+         if (mel.type === "gracenote") { isMeasureStart = false; }
          if (mel.staffEnd) { isMeasureStart = true;}
          if (isMeasureStart) { mel.noForceX = true;}
        }

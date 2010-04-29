@@ -212,6 +212,7 @@ dots.push('"Crap",(Y,C,0,0,Times New Roman,14,400,0,0,18,0,0,0)');
 dots.push('"Jeremy J Starcher",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)');
 dots.push('"It just is",(F,R,0,0,Times New Roman,10,400,0,0,18,0,0,0)');
 dots.push('');
+
 dots.push('& sharpf sharpc 4_4');
 dots.push('!	 LG_1');
 dots.push('!	 LA_1');
@@ -279,7 +280,6 @@ dots.push('!	 gg E_8				gg E_8			gg E_8				gg E_8	 gg E_8				gg E_8			gg E_8				
 dots.push('!	 gg E_8				gg E_8			gg E_8				gg E_8	 gg E_8				gg E_8			gg E_8				gg E_8');
 dots.push('!t');
 dots.push('');
-
 
 
   // Greensleeves
@@ -447,7 +447,7 @@ function plotMusic(score)
                          if (doPaint) {delayMel(mel, staff);}
                          sdet.x += sdet.space * 2.5;
                          break;
-                       case "embellishment":
+                       case "gracenote":
                          if (doPaint) {delayMel(mel, staff);}
                          sdet.x += sdet.space * 1.25;
                          break;
