@@ -14,9 +14,16 @@ function doIt() {
 var hdots_prefs = (function() {
                    var hdConfigData = [];
                    
+                   function getOptionByName(n) {
+                     var o;
+                     for(var i = 0, l = hdConfigData.length; i < l; i++) {
+                       o = hdConfigData[i];
+                       if (o.name === n) {return o}
+                     }
+                   }
                    
                    function getValueOf(n) {
-                     var o = hdConfigData[n];
+                     o = getOptionByName(n);
                      if (o) {
                        if (o.value) {return o.value;}
                        return o.def;
@@ -25,8 +32,7 @@ var hdots_prefs = (function() {
                    
                    
                    function addConfigOption(o) {
-                     var n = o.name;
-                     hdConfigData[n] = o;                 
+                     hdConfigData.push(o);                 
                    }
                    
                    function prepConfig() {
@@ -129,27 +135,23 @@ var hdots_prefs = (function() {
                        
                      }
                      
-                     for (k in hdConfigData) {
-                       if (hdConfigData.hasOwnProperty(k)) {
-                         v = hdConfigData[k];
-                         switch (v.type) {
-                         case "select":
-                         case "plugin":
-                           makeSelect();
-                           break;
-                         case "boolean":
-                           makeBoolean();
-                           break;
-                         }
+                     for(var i = 0, l = hdConfigData.length; i < l; i++) {
+                       v = hdConfigData[i];
+                       switch (v.type) {
+                       case "select":
+                       case "plugin":
+                         makeSelect();
+                         break;
+                       case "boolean":
+                         makeBoolean();
+                         break;
                        }
                      }
-                     
                      makeAcceptButton();
-                     
                    }
                    
                    function registerPlugin(optionName, pluginName, desc, fun) {
-                   var o = hdConfigData[optionName];
+                   var o = getOptionByName(optionName);
                    var o1 = {}
                    o1[pluginName] = desc;
                    o.options.push(o1);
