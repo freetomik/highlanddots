@@ -32,7 +32,9 @@
         if (mel.type === this.type) {
           break;
         } else {
-          grp.push(mel);
+          if (mel.type === this.elementType) {
+            grp.push(mel);
+          }
         }
       }
       grp.reverse();

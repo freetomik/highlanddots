@@ -12,6 +12,14 @@ var GHPRef = {
   HA: "a3"
 };
 
+
+var beamGroupDef = {
+  start:  {sectionStart: true},
+  end:    {sectionEnd: true}
+};
+ 
+
+
 function parseBWW(dots) {
 
 
@@ -590,11 +598,7 @@ var z_ghbgrace = (function() {
                   "gstla": {category: "EMBELISHMENTS", dots: "Gag"},
                   "tste": {category: "EMBELISHMENTS", dots: "Aea"}
                   };
-                  
-    var bgdef = { "start":    {sectionStart: true},
-                  "end":    {sectionEnd: true}
-                };
- 
+
 
                 function isType(s) {
                   return (typeof a[s] !== "undefined");
@@ -629,10 +633,12 @@ var z_ghbgrace = (function() {
                   }
                   if (mels.length > 1) {
                     bg = score.createBeamGroup();
-                    meldObjectToObject(bgdef["start"], bg);
+                    bg.elementType = "gracenote";
+                    meldObjectToObject(beamGroupDef.start, bg);
                     mels.splice(0,0,bg);
                     bg = score.createBeamGroup();
-                    meldObjectToObject(bgdef["end"], bg);
+                    bg.elementType = "gracenote";
+                    meldObjectToObject(beamGroupDef.end, bg);
                     mels.push(bg); 
                   }
                   return (mels);
@@ -818,7 +824,64 @@ var z_noteDot = (function() {
 
 
 
-  
+  // This doesn't really fix anything,
+  //  it just tires to replicate the rules
+  //  BP appears to use when beaming.
+  //  
+  function fixBeamGroups() {
+    var i;
+    var inBeam = false;
+    var mel, bg;
+    for (i = 0; i < score.data.length; i++) {
+      mel = score.data[i];
+      switch (mel.type) {
+        case "melody":        if (mel.tail) {
+                                if (!inBeam) {
+                                  inBeam = true;
+                                  bg = score.createBeamGroup();
+                                  bg.elementType = "melody";
+                                  meldObjectToObject(beamGroupDef.start, bg);
+                                  score.data.splice(i,0,bg);
+                                }
+                              } else {
+                                if (inBeam) {
+                                  inBeam = false;
+                                  bg = score.createBeamGroup();
+                                  bg.elementType = "melody";
+                                  meldObjectToObject(beamGroupDef.end, bg);
+                                  score.data.splice(i,0,bg);
+                                }
+                              }
+                              break;
+
+        case "staffControl":  if (mel.newBar && inBeam) {
+                                inBeam = false;
+                                bg.elementType = "melody";
+                                bg = score.createBeamGroup();
+                                meldObjectToObject(beamGroupDef.end, bg);
+                                score.data.splice(i,0,bg);
+                              }
+                              break;
+
+        case "beat":          if (inBeam) {
+                                inBeam = false;
+                                bg = score.createBeamGroup();
+                                bg.elementType = "melody";
+                                meldObjectToObject(beamGroupDef.end, bg);
+                                score.data.splice(i,0,bg);
+                              }
+                              break;
+
+      }
+    }
+
+    // reindex elements
+    // FIXME : only reindex if a beam group was added
+    for (i = 0; i < score.data.length; i++) {
+      score.data[i].scoreIndex = i;
+    }
+
+  }
   
   function parseBits(b) {
     var i, l = b.length;
@@ -876,6 +939,12 @@ var z_noteDot = (function() {
     parseBits(bits);
   }
   
+  // This doesn't really fix anything,
+  //  it just tires to replicate the rules
+  //  BP appears to use when beaming.
+  //  
+  fixBeamGroups();
+
   score.buildCollections();
   //alert(score.metaData.toSource());
   //logit(score);

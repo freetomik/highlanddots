@@ -212,6 +212,7 @@ dots.push('"Crap",(Y,C,0,0,Times New Roman,14,400,0,0,18,0,0,0)');
 dots.push('"Jeremy J Starcher",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)');
 dots.push('"It just is",(F,R,0,0,Times New Roman,10,400,0,0,18,0,0,0)');
 dots.push('');
+
 dots.push('& sharpf sharpc 4_4');
 dots.push('!	 LG_1');
 dots.push('!	 LA_1');
@@ -281,7 +282,6 @@ dots.push('!t');
 dots.push('');
 
 
-
   // Greensleeves
   dots.push("");
   dots.push("& sharpf sharpc  6_8  I!''~B_8");
@@ -325,7 +325,7 @@ dots.push('');
   dots.push("");
   dots.push("& sharpf sharpc ~dbha HA_2~hdbf F_4 'f ~E_8");
   dots.push("!~gg Fr_8 HGl_8~hdbf Fr_8 El_8~thrd D_4~gg Dr_8 El_8"); 
-  dots.push("!~F_4~~eg Fr_8 HGl_8~dbha HA_4~HGr_8 Fl_8");
+  dots.push("!~F_4~~eg Fr_8 dbha HGl_8~dbha HA_4~HGr_8 Fl_8");
   dots.push("!~dbe E_4~~strla Er_8 Fl_8~gg E_4~~LAr_8 dg LAl_8 !t");
   dots.push("");
   dots.push("& sharpf sharpc~thrd D_4~gg Dr_8 El_8~dbf Fr_8 Dl_8~gg Fr_8 HGl_8");
@@ -447,7 +447,7 @@ function plotMusic(score)
                          if (doPaint) {delayMel(mel, staff);}
                          sdet.x += sdet.space * 2.5;
                          break;
-                       case "embellishment":
+                       case "gracenote":
                          if (doPaint) {delayMel(mel, staff);}
                          sdet.x += sdet.space * 1.25;
                          break;

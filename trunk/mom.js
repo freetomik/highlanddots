@@ -120,7 +120,7 @@ Score.prototype.buildCollections = function() {
       continue;
     }
 
-    if (mel.type === "embellishment") {
+    if (mel.type === "gracenote") {
       c.notes.push(mel);
       c.graceNotes.push(mel);
       if (inTie) tieGroup.push(mel);

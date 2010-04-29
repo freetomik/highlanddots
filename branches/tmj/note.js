@@ -79,13 +79,8 @@ Note.prototype.calcBeams = function(toNote) {
   o.startx = c.stemx2;
   o.starty = c.stemy2;
   o.endx = (c.stemx2 + o.width) * b.xMult;
-  o.endy = o.starty2 + ( Math.abs(o.startx - o.endx) * (slope * b.xMult) );
+  o.endy = o.starty + ( Math.abs(o.startx - o.endx) * (slope * b.xMult) );
   meldObjectToObject(o, b.halfBeam);
-
-
-  
-
-
 
 };
 
@@ -404,7 +399,6 @@ Note.prototype.paint2 = function(staff) {
 
       yInc += b.yInc;
     }
-
     for (i = 0; i < b.halfBeams; i++) {
       ctx.beginPath();
       ctx.moveTo(b.halfBeam.startx, (b.halfBeam.starty + yInc) );

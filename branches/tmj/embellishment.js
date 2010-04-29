@@ -1,7 +1,7 @@
 "use strict";
 
 (function() {
- var THISTYPE = "embellishment";
+ var THISTYPE = "gracenote";
  
  function ThisType() {  
    this.type = THISTYPE;
