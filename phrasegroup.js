@@ -17,7 +17,6 @@
     ThisType.prototype.getBoundingRect = function(staff) {
       if (this.sectionStart) return null;           // 'look back' bounding box strategy
 
-      this.calc(staff);  
       var c = this.c;
 
       o = {};

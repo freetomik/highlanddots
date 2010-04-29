@@ -5,7 +5,8 @@ function Note() {
   this.scaleFactor = 1.0;
   this.stemDir = "down";
   this.grouped = false;         // note is part of group
-  this.c = {};                  // Storage area for some commonly used calcuations.
+  this.b = {};                  // Storage area beaming calcuations.
+  this.c = {};                  // Storage area for co-ords and dimensions
   var self = this;
   return this;
 }
@@ -17,7 +18,7 @@ Note.prototype.hasStem = function() {
 };
 
 Note.prototype.countTails = function() {
-  var tailLookup = {1: 0, 2: 0, 4: 0, 8: 1, 16: 2, 32: 3};
+  var tailLookup = {1: 0, 2: 0, 4: 0, 8: 1, 16: 2, 32: 3, 64: 4, 128: 5};
   return tailLookup[this.duration];
 };
 
@@ -27,13 +28,73 @@ Note.prototype.stemDirection = function() {
 };
 
 
+Note.prototype.calcBeams = function(toNote) {  
+  /* calc number of full beams to paint
+   * number of half beams to paint
+   * calc dimensions of :
+   *   - full beam
+   *   - half beam
+   */
+  var o, slope;
+  var b = this.b;
+  var c = this.c;
+
+  if (!this.b.fullBeam) this.b.fullBeam = {};
+  if (!this.b.halfBeam) this.b.halfBeam = {};
+  
+  b = this.b;
+  b.xMult = (c.lastInGroup) ? -1 : 1;
+  b.yMult = (this.stemDirection() == "down") ? -1 : 1; 
+  b.yInc = ((c.height/2) + c.barthick) * b.yMult;  // amount to increment Y between tails
+  
+  
+  if (this.countTails() <= toNote.countTails() ) {
+    b.fullBeams = this.countTails();
+    b.halfBeams = 0;
+
+  } else {    
+    b.fullBeams = toNote.countTails();
+    b.halfBeams = this.countTails() - toNote.countTails();
+  
+  }
+  
+
+  o = {};
+  o.width = Math.abs(this.c.x - toNote.c.x);
+  o.height = c.height/3; 				// should be 1/2 space, but llooks better as 1/3rd
+  o.slope = slope;
+  o.startx = c.stemx2;
+  o.starty = c.stemy2;
+  o.endx = toNote.c.stemx2;
+  o.endy = toNote.c.stemy2;
+  meldObjectToObject(o, b.fullBeam);
+
+
+  slope = (c.stemy2 - toNote.c.stemy2) / (c.stemx2  - toNote.c.stemx2);
+
+  o = {};
+  o.width = c.width;
+  o.height = c.height/3; 				// should be 1/2 space, but llooks better as 1/3rd
+  o.slope = slope;
+  o.startx = c.stemx2;
+  o.starty = c.stemy2;
+  o.endx = (c.stemx2 + o.width) * b.xMult;
+  o.endy = o.starty2 + ( Math.abs(o.startx - o.endx) * (slope * b.xMult) );
+  meldObjectToObject(o, b.halfBeam);
+
+
+  
+
+
+
+};
 
 Note.prototype.calc = function(staff) {  
   var c = this.c;
+  var slMult = 3.2;       // stem length multiplier for more than 2 tails
   var w;
   var h;
   var o;
-  
   var sdet = staff.details;
   
   c.width = sdet.space * this.scaleFactor;
@@ -50,6 +111,7 @@ Note.prototype.calc = function(staff) {
   c.endX = c.x + c.width;
   c.endY = c.y;
     
+  // note head bezier control points
   c.cp1x1 = c.x + w;
   c.cp1y1 = c.y - h;
   c.cp2x1 = c.endX + w;
@@ -61,25 +123,26 @@ Note.prototype.calc = function(staff) {
   c.cp2y2 = c.y + h;
 
   // calc stem length and direction
-  c.stemlen = sdet.space * 3.2 * this.scaleFactor;
-  if (c.stemlenDelta == undefined) c.stemlenDelta = 0;
+  var k;// = this.countTails() - 2;
+  slMult = ( ((k = this.countTails()) -2 ) > 0) ? k * (sdet.space/4) : 0;
+  c.stemlen = ((sdet.space * 3.2) + slMult ) * this.scaleFactor;
 
   c.barthick = sdet.barthick * this.scaleFactor;
   if (c.barthick < 1) {c.barthick = 1;}
-
+  
   o = {};
-  o.stemx1 = c.x + (c.r*2) + (sdet.thick/2);
+  o.stemx1 = c.x + (c.width*1.1);
   o.stemx2 = o.stemx1;
-  o.stemy1 = c.y;
+  o.stemy1 = c.y - (c.height*0.2);
   o.stemy2 = c.y - c.stemlen;
   o.topy = o.stemy2;
   o.bottomy = o.stemy1 + h ;
   c.upStem = o;
   
   o = {};
-  o.stemx1 = c.x - (c.r/2) + sdet.thick;
+  o.stemx1 = c.x - (c.r/2) + (c.width*0.1);
   o.stemx2 = o.stemx1;
-  o.stemy1 = c.y;
+  o.stemy1 = c.y + (c.height*0.2);
   o.stemy2 = c.y + c.stemlen;
   o.topy = o.stemy1 - h;
   o.bottomy = o.stemy2;
@@ -112,9 +175,6 @@ Note.prototype.getBoundingRect = function(staff) {
   var sdet = staff.details;
   var ctx = sdet.ctx;
   var c = this.c;
-  this.calc(staff);  
-
-  //alert(c.w);
   
   var o = {
     x: c.downStem.stemx1,
@@ -143,11 +203,25 @@ Note.prototype.dotCount = function() {
 };
 
 
-Note.prototype.paint2 = function(staff) {
+Note.prototype.paint = function(staff) {
   var c = this.c;
   var sdet = staff.details;
   var ctx = sdet.ctx;
   var self = this;
+
+  function drawExtendedStaff() {
+    var lw = ctx.lineWidth;
+    // FIXME : scale factor on line width?
+    ctx.lineWidth = sdet.thick; 
+    ctx.beginPath();
+    ctx.moveTo(c.x - (c.width*0.75), c.y);
+    ctx.lineTo(c.x + (c.width*1.5), c.y);
+    ctx.closePath();
+    ctx.stroke();
+    ctx.lineWidth = lw; 
+    
+  }
+
 
   function drawDot() {
     var y = c.y + c.dotyOffset;
@@ -164,73 +238,99 @@ Note.prototype.paint2 = function(staff) {
     
 
   
-  function paintStem(grp) {
+  function paintStem() {
     
     var tails = self.countTails();
     var lw = ctx.lineWidth;
     var i,tailx,taily;
-    var yInc, yMult = 1;
-
-    yInc = (c.height/2) + c.barthick;		// amount to increment Y between tails
-    if (self.stemDirection() == "down") {
-      yMult = -1;				// 
-    }
+    var yMult = 1;
+    
+    if (self.stemDirection() == "up")
+      yMult = -1;
 
     // FIXME : scale factor on line width?
     ctx.lineWidth = sdet.thick; 
     ctx.beginPath();
     ctx.moveTo(c.stemx1, c.stemy1);
-    ctx.lineTo(c.stemx2, c.stemy2+c.stemlenDelta);
+    ctx.lineTo(c.stemx2, c.stemy2);
     ctx.stroke();
     ctx.closePath();
 
-    if (tails) {
-      if (self.grouped && Note.groupUtils.isLast(self, grp)) {
-        tailx = c.stemx1 - c.width;
-      } else if (self.grouped) {
+  }
 
-        // lookahead to next note
-        // IF next note has fewer tails && current tail count > next tail count
-        //    THEN tails are 1/2 width
-        // ELSE tail is as wide as the gap between notes
 
-        //Note.groupUtils.lookahead(self, grp, "countTails");
+  function paintTail() {
+    var tails = self.countTails();
+    var lw = ctx.lineWidth;
+    var i,tailx,taily;
+    var yInc, yMult = -1;
 
-        tailx = c.stemx1 + (c.width*2); // twice width to bridge to next note stem
-      } else {
-        tailx = c.stemx1 + c.width;
-      }
+    if (tails < 1) return;
 
-      taily = c.stemy2+c.stemlenDelta;
+    yInc = (c.height/2) + c.barthick;		// amount to increment Y between tails
+    if (self.stemDirection() == "up") {
+      yMult = 1;
+    }
 
-      // FIXME : line width should be 1/2 ... but 1/3 looks better
-      ctx.lineWidth = c.height/3;
+    tailx = c.stemx1 + c.width;
+    taily = c.stemy2;
 
-      for (i = 0; i < tails; i++) {
-        ctx.beginPath();
-        ctx.moveTo(c.stemx1, taily);
+    // FIXME : line width should be 1/2 ... but 1/3 looks better
+    ctx.lineWidth = c.height/3;
 
-        if (!self.grouped && sdet.beamStyle == "sloped") {
-          if (self.stemDirection() == "up") {
-            ctx.lineTo(tailx, taily+c.width);
-          } else {
-            ctx.lineTo(tailx, taily-c.width);
-          }
+    for (i = 0; i < tails; i++) {
+      ctx.beginPath();
+      ctx.moveTo(c.stemx2, taily);
+      if (self.stemDir === "up") {
+
+	if (i == tails-1) {
+          ctx.bezierCurveTo(c.stemx2, taily+(c.width), 
+                            c.stemx2+(c.width*1.5), taily+(c.width*0.5),
+                            c.stemx2+(c.width*0.83), taily+(c.width*2.33));
+
+          ctx.bezierCurveTo(c.stemx2+(c.width*0.83), taily+(c.width*2.3), 
+                            c.stemx2+(c.width*1.33), taily+(c.width*0.83),
+                            c.stemx2, taily+(c.width*0.63));
+        
         } else {
-          ctx.lineTo(tailx, taily);
+          ctx.bezierCurveTo(c.stemx2, taily+(c.width),
+                            c.stemx2+(c.width), taily+(c.width*0.5),
+                            c.stemx2+(c.width), taily+(c.width*1.5));
+
+          ctx.bezierCurveTo(c.stemx2+(c.width*0.83), taily+(c.width*0.83),
+                            c.stemx2+(c.width*0.33), taily+(c.width*0.83),
+                            c.stemx2, taily+(c.width*0.66));
         }
 
-        ctx.stroke();
-        ctx.closePath();
+      } else {
 
-        taily += yInc * yMult;
+	if (i == tails-1) {
+          ctx.bezierCurveTo(c.stemx2, taily-(c.width), 
+                            c.stemx2+(c.width*1.5), taily-(c.width*0.5),
+                            c.stemx2+(c.width*0.83), taily-(c.width*2.33));
+
+          ctx.bezierCurveTo(c.stemx2+(c.width*0.83), taily-(c.width*2.3), 
+                            c.stemx2+(c.width*1.33), taily-(c.width*0.83),
+                            c.stemx2, taily-(c.width*0.63));
+        
+        } else {
+          ctx.bezierCurveTo(c.stemx2, taily-(c.width),
+                            c.stemx2+(c.width), taily-(c.width*0.5),
+                            c.stemx2+(c.width), taily-(c.width*1.5));
+
+          ctx.bezierCurveTo(c.stemx2+(c.width*0.83), taily-(c.width*0.83),
+                            c.stemx2+(c.width*0.33), taily-(c.width*0.83),
+                            c.stemx2, taily-(c.width*0.66));
+        }
+
       }
-
-      ctx.lineWidth = lw;
+      ctx.closePath();
+      ctx.fill();
+      taily += yInc * yMult;
     }
   }
-  
-  // this.calc(staff); -- Already been calculated.  NO need to do it again.  
+
+
   ctx.beginPath();
   ctx.moveTo(c.x, c.y);
   ctx.bezierCurveTo(c.cp1x1, c.cp1y1, c.cp2x1, c.cp2y1, c.endX, c.endY);
@@ -247,168 +347,120 @@ Note.prototype.paint2 = function(staff) {
     ctx.fill();
   }
   
+  if (this.c.y <= sdet.noteInfo.a3.y) {
+    drawExtendedStaff();
+  }
+
   if (this.dotType) {
-  drawDot();
+    drawDot();
   }
   
   if (this.hasStem()) {
-    var grp = Note.groupUtils.findGroup (this, "beams");
-    if (this.grouped) {
-      Note.groupUtils.beam(staff, this, grp);
-    } else {
-      // FIXME :  there's a bug somewhere ..... c appear to be
-      //            a class level var - it should be instance level
-      // workaround :: reset stemlenDelta
-      this.c.stemlenDelta = 0;
+    if (!this.grouped) {
+      paintStem();
+      paintTail();
     }
-    paintStem(grp);
   }
-
 };
 
 
+Note.prototype.paint2 = function(staff) {
+  var c = this.c;
+  var sdet = staff.details;
+  var ctx = sdet.ctx;
+  var self = this;
 
-/*
- * Note group utility functions. These functions are Object functions, not
- * instance functions. This is the JS equivalent of Java static methods.
- */
-Note.groupUtils = {};
+  function paintStem() {
+    
+    var tails = self.countTails();
+    var lw = ctx.lineWidth;
+    var i,tailx,taily;
+    var yMult = 1;
+    
+    // FIXME : scale factor on line width?
+    ctx.lineWidth = sdet.thick; 
+    ctx.beginPath();
+    ctx.moveTo(c.stemx1, c.stemy1);
+    ctx.lineTo(c.stemx2, c.stemy2);
+    ctx.stroke();
+    ctx.closePath();
 
-/* 
- * collectionType can be "notes" | "melodyNotes" | "graceNotes" | "beams"
- */
-Note.groupUtils.findGroup = function(note, collectionType) {
-    var i,j,collection, grp;
-    collection = score.collections[collectionType];
-    for (i = 0; i < collection.length; i++) {
-      grp = collection[i];
-      for (j = 0; j <grp.length; j++) {
-        if (grp[j] == note) {
-          return (grp);
-        }
-      }
-    }
-    return (null);
-  };
-
-/*
- * If grp is null, the note's beam group will be found.
- */
-Note.groupUtils.lookahead = function(note, grp, attribName) {
-  var i;
-  var next, val = null;
-
-  if (grp == null) 
-    grp = Note.groupUtils.findGroup(note, "beams");
-
-  for (i = 0; i < grp.length; i++) {
-    if (grp[i] == note && i < (grp.length -1) ) {
-      next = grp[i+1];
-      if (next[attribName]) {
-        if (typeof next[attribName] == "function") {
-          val = next[attribName]();
-        } else  {
-          val = next[attribName];
-        }
-      }
-    }
   }
-  return val;
-}
 
-Note.groupUtils.isLast = function(note, group) {
-   return (note == group[group.length-1]);
- };
- 
-Note.groupUtils.isFirst = function(note, group) {
-   return (note == group[0]);
- };
+  function paintBeam() {
+    var i, endy, yInc;
+    var b = self.b;
+    
+    yInc = 0;
 
-Note.groupUtils.highest = function(group) {
-   var highest = group[0];
-   var lowest = group[0];
-   for (i=0; i<group.length; i++) {
-     if (sdet.findNote[group[i].staffPosition] < sdet.findNote[highest.staffPosition]) {
-       highest = group[i];
-     }
-   }
-   return (highest);
- };
+    for (i = 0; i < b.fullBeams; i++) {
+      ctx.beginPath();
+      ctx.moveTo(b.fullBeam.startx, (b.fullBeam.starty + yInc) );
+      ctx.lineTo(b.fullBeam.endx,   (b.fullBeam.endy + yInc) );
+      ctx.lineTo(b.fullBeam.endx,   (b.fullBeam.endy + (b.fullBeam.height*b.yMult) + yInc) );
+      ctx.lineTo(b.fullBeam.startx, (b.fullBeam.endy + (b.fullBeam.height*b.yMult) + yInc));
+      ctx.closePath();
+      ctx.fill();
 
-Note.groupUtils.lowest = function(group) {
-   var lowest = group[0];
-   for (i=0; i<group.length; i++) {
-     if (sdet.findNote[group[i].staffPosition] > sdet.findNote[lowest.staffPosition]) {
-       lowest = group[i];
-     }
-   }
-   return (lowest);
- };
+      yInc += b.yInc;
+    }
 
-Note.groupUtils.beam = function(staff, note) {
-   var i, note, noteGrp;
-   var sdet = staff.details;
-   var details = sdet;
-   var deltas = [];
-   
-   noteGrp = Note.groupUtils.findGroup(note, "beams");
-   // TODO: error handling?
-   
-   function straight () {
-     // FIXME : this works but really shouldn't be hardcoded!
-     var highestY = sdet.noteInfo[GHPRef.HA].y;
-     var lowestY = sdet.noteInfo[GHPRef.LG].y;
+    for (i = 0; i < b.halfBeams; i++) {
+      ctx.beginPath();
+      ctx.moveTo(b.halfBeam.startx, (b.halfBeam.starty + yInc) );
+      ctx.lineTo(b.halfBeam.endx,   (b.halfBeam.endy + yInc) );
+      ctx.lineTo(b.halfBeam.endx,   (b.halfBeam.endy + (b.halfBeam.height*b.yMult) + yInc) );
+      ctx.lineTo(b.halfBeam.startx, (b.halfBeam.endy + (b.halfBeam.height*b.yMult) + yInc));
+      ctx.closePath();
+      ctx.fill();
 
-     if (note.stemDirection() == "up") {
-       note.c.stemlenDelta = highestY - sdet.noteInfo[note.staffPosition].y;
-     } else {
-       note.c.stemlenDelta = lowestY - sdet.noteInfo[note.staffPosition].y;
-     }
-     note.c.beamSlope = 0;
-   }
-   
-   function sloped () {
-     var i, note, pivot, slope, pivoty, firsty, lasty, xSpan;
-     var highest = Note.groupUtils.highest(noteGrp);
-     var lowest = Note.groupUtils.lowest(noteGrp);
-     var first = noteGrp[0];
-     var last = noteGrp[noteGrp.length-1];
-     var yMult = 1;
-     
-     if (note.stemDirection() == "up") {
-       pivot = highest;
-     } else {
-       pivot = lowest;
-     }
-     
-     firsty = sdet.noteInfo[first.staffPosition].y;
-     lasty  = sdet.noteInfo[last.staffPosition].y;
+      yInc += b.yInc;
 
-     if (firstY == lastY) {
-       note.c.beamSlope = 0;
-       note.c.stemlenDelta = pivoty - (sdet.noteInfo[note.staffPosition].y);
-       
-     } else {
-       // FIXME : X diffs taken from staff layout spacing in hdot.js:238
-       //    this is expected to break when staff spacing is re-engineered
-       noteXSpan = sdet.space * 2.5;
-       pivotXSpan = noteXSpan * Note.groupUtils.indexOf(pivot, noteGrp);
-       grpXSpan = noteXSpan * noteGrp.length;
-       pivoty = sdet.noteInfo[pivot.staffPosition].y;
+    }
 
-       note.c.beamSlope = (firstY - lastY) / grpXSpan;
+  }
+  
+  paintStem();
+  paintBeam();
+  
+};
 
-// TDO : stem up|down multiplier?
-       note.c.stemlenDelta = pivoty - (pivotXSpan * m);
 
-     }
-     
-   }
-   
-   if (details.beamStyle != undefined && details.beamStyle == "sloped") {
-     sloped();
-   } else {
-     straight(); 
-   }   
- };
+/*
+Set from beamgroup.calc
+----------------------------------------------
+ c.prevNumBeams = grp[i-1].countTails();
+ c.lastInGroup = false;
+ c.beamWidth = grp[i+1].c.x - note.c.x;
+ c..nextNumBeams = grp[i+1].countTails();
+
+
+TAIL co-ords at 0,0 based on note.width == 10
+----------------------------------------------
+   Short Top line, up stem
+   START:0,   0
+   CP1:  0,   10
+   CP2:  10,  5
+   END:  10,  15
+
+   Short Bottom line, up stem
+   START:10,  15
+   CP1:  8.3, 8.3
+   CP2:  3.3, 8.3
+   END:  0,   6.6
+
+
+   Long Top line, up stem
+   START:0,   0
+   CP1:  0,   10
+   CP2:  15,  5
+   END:  8.3, 23.3
+
+   Long Bottom line, up stem
+   START:8.3, 23.3
+   CP1:  13.3,6.3
+   CP2:  5,   10
+   END:  0,   6.3
+
+*/
 

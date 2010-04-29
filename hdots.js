@@ -30,7 +30,7 @@ var staff =
    maxX: 0      // Max width of score
  };
  details.barthick = details.space /10;
- details.beamStyle = "straight";  // can be "straight" or "sloped"
+ details.beamStyle = "bww";  // can be "bww" or "straight" or "sloped"
  details.noteColor1 = "black";
  details.noteColor2 = "green";
  details.noteColor3 = "blue";
@@ -417,6 +417,9 @@ function plotMusic(score)
                        }
 
                        
+                       if (typeof mel.calc === "function") {
+                         mel.calc(staff);
+                       }
                        //TODO : enable bounding box for gracenotes in a group
                        if (typeof mel.getBoundingRect === "function") {
                          rect = mel.getBoundingRect(staff);
@@ -451,6 +454,9 @@ function plotMusic(score)
                        case "graphic":
                          if (doPaint) {delayMel(mel, staff);}
                          sdet.x += rect.width;
+                         break;
+                       case "beamgroup":
+                         if (doPaint) {delayMel(mel, staff);}
                          break;
                        case "phrasegroup":
                          if (doPaint) {delayMel(mel, staff);}
