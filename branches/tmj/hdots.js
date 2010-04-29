@@ -3,6 +3,14 @@
 var G_vmlCanvasManager; // so non-IE won't freak out in canvasInit
 
 
+function uiLoadTune(ext, tuneText) {
+  var startTime = new Date();
+  loadTune(ext, tuneText);
+  var endTime = new Date();
+  var total = (endTime - startTime) / 1000;
+  document.getElementById("timeinfo").innerHTML = "Time spent rendering: " + total + " seconds.";
+}
+
 function testImport2() {
   var startTime = new Date();
   testImport();
@@ -185,6 +193,22 @@ var staff =
  };
  }());
 
+
+function loadTune(ext, tuneText) {
+  var dots;// = [];
+  dots = tuneText.split("\n");
+
+staff.details.logging = true;
+for (var i = 0; i<dots.length; i++)
+  logit(dots[i]);
+staff.details.logging = false;
+
+  score.removeAllNodes();
+  parseBWW(dots);
+  plotMusic(score);
+
+}
+
 function testImport() {
   var dots = [];
 /*
@@ -325,7 +349,7 @@ dots.push('');
   dots.push("");
   dots.push("& sharpf sharpc ~dbha HA_2~hdbf F_4 'f ~E_8");
   dots.push("!~gg Fr_8 HGl_8~hdbf Fr_8 El_8~thrd D_4~gg Dr_8 El_8"); 
-  dots.push("!~F_4~~eg Fr_8 dbha HGl_8~dbha HA_4~HGr_8 Fl_8");
+  dots.push("!~F_4~~eg Fr_8 HGl_8~dbha HA_4~HGr_8 Fl_8");
   dots.push("!~dbe E_4~~strla Er_8 Fl_8~gg E_4~~LAr_8 dg LAl_8 !t");
   dots.push("");
   dots.push("& sharpf sharpc~thrd D_4~gg Dr_8 El_8~dbf Fr_8 Dl_8~gg Fr_8 HGl_8");
