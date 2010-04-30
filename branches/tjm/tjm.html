@@ -61,9 +61,15 @@ function localPathToURI(path) {
 	return uri;
 }
 
+function loadFromEditor() {
+	var t = document.getElementById('editor').value;
+	uiLoadTune('bww', t);
+	devCon();
+}
 
 function handleLoadTunes(list) {
 	var t = list[0].getAsText("");
+	document.getElementById('editor').value = t;
 	uiLoadTune('bww', t);
 	devCon();
 }
@@ -129,10 +135,15 @@ function devCon() {
 
   <input type="file" onchange="handleLoadTunes(this.files);" />
   <br />
-  <button onclick="plotMusic(score);">Reload</button>
-<button onclick="testImport2()">Internal notation test</button>
+  <button onclick="plotMusic(score);">Reload</button> <button onclick="loadFromEditor();">Load from editor</button>
+  <button onclick="testImport2()">Internal notation test</button>
   <br />
+  <p><b>Current Local Tune</b></p>
+  <textarea id="editor" style="width:80%; height:300px; overflow:auto; border:1px solid black">
+  Locally loaded tunes will go here.
+  </textarea>
 
+  </iframe>
 </div>
 
 </body>
