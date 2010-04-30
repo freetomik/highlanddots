@@ -73,8 +73,8 @@ Note.prototype.calcBeams = function(toNote) {
   o.height = c.height/3; 				// should be 1/2 space, but llooks better as 1/3rd
   o.startx = c.stemx2;
   o.starty = c.stemy2;
-  o.endx = (c.stemx2 + o.width) * b.xMult;
-  o.endy = o.starty + ( Math.abs(o.startx - o.endx) * (c.beamSlope) );
+  o.endx = c.stemx2 + (o.width * b.xMult);
+  o.endy = o.starty + ( Math.abs(o.startx - o.endx) * (c.beamSlope * b.xMult) );
   meldObjectToObject(o, b.halfBeam);
 
 };
