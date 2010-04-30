@@ -1,0 +1,18 @@
+& sharpf sharpc
+LAr_8 dg LAl_8 
+!t
+
+& sharpf sharpc
+gg Dr_4 thrd Dr_8 El_8
+!t 
+& sharpf sharpc
+dbf Fr_8 Dl_8 gg Fr_8 HGl_8
+!t
+
+& sharpf sharpc
+HA_4  gg HAr_8 HGl_8 ! Er_8 Dl_8 ! Fr_16 Er_8 Bl_8 ! Er_16 HGr_8 Bl_8
+!t
+
+& sharpf sharpc
+LAr_8 Bl_8 Cr_16 Br_16 Fl_32 ! Er_8 Dl_8 ! Fr_16 Er_8 Bl_8
+!t
