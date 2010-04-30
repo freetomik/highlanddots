@@ -30,7 +30,6 @@
         
       while (--pos >= 0) {
         mel = score.get(pos);
-// FIXME : nested groups; endSection
         if (mel.type === this.type) {
           if (mel.sectionStart && nested == 0)
             break;
