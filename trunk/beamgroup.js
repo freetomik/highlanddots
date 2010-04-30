@@ -82,6 +82,7 @@
           note = grp[i];
 
           o = {};
+          o.beamSlope = 0;
           o.stemlen = highest.c.stemlen + Math.abs((highest.c.y - note.c.y)) + hd;
           o.stemy2 = note.c.y - o.stemlen;
           o.topy = o.stemy2;
@@ -89,6 +90,7 @@
           c.upStem = o;
   
           o = {};
+          o.beamSlope = 0;
           o.stemlen = lowest.c.stemlen + Math.abs(lowest.c.y - note.c.y) + ld;
           o.stemy2 = note.c.y + o.stemlen;
           o.topy = o.stemy2;
@@ -113,12 +115,11 @@
       }
 
       function beamSloped () {
-/*
         var pivot, slope, pivoty, firsty, lasty, xspan;
-        var first = grp[1];
-        var last = grp[grp.length-2];
+        var first = grp[0];
+        var last = grp[grp.length-1];
      
-        if (c.stemUp) {
+        if (first.stemDirection() == "up") {
           pivot = highest;
         } else {
           pivot = lowest;
@@ -127,32 +128,38 @@
         if (c.rect.height < 1 ) {
           slope = 0;
         } else {
-          slope = c.rect.height / c.rect.width;
+          slope = (first.c.y - last.c.y) / (first.c.x - last.c.x);
+          if (pivot == highest)
+            slope = slope * -1;
         }
-	
-        o = {};
-        for (i=1; i<grp.length-1; i++) {
-          note = grp[i];
-          o.slope = slope;
-          if (i == grp.length-2) {
-            o.last = true;
-            // FIXME : more pleasing beam/tail width for last in group
-            o.width = note.width;
-          } else {
-            o.last = false;
-            // FIXME : more pleasing beam/tail width for last in group
-            o.width = grp[i+1].c.x - note.c.x;
-          }
-          
-          xspan = note.c.x - pivot.c.x;
 
-          note.c.stemlen = note.c.stemlen + 
-                           Math.abs(pivot.c.y - note.c.y) +
-                           Math.abs(pivot.c.y - (xspan * slope));
-          note.c.beam = o;
-          note.c.beamed = true;
+        for (i=0; i<grp.length; i++) {
+          note = grp[i];
+
+          o = {};
+          o.beamSlope = slope;
+          o.stemy2 = note.c.y - Math.abs(note.c.y - pivot.c.y) - pivot.c.stemlen + ((pivot.c.x - note.c.x) * slope);
+          o.stemlen = Math.abs(note.c.y - o.stemy2);
+          o.topy = o.stemy2;
+          o.bottomy = note.c.stemy1 + note.c.h ;
+          c.upStem = o;
+  
+          o = {};
+          o.beamSlope = slope;
+          o.stemy2 = note.c.y + Math.abs(note.c.y - pivot.c.y) + pivot.c.stemlen - ((pivot.c.x - note.c.x) * slope);
+          o.stemlen = Math.abs(note.c.y - o.stemy2);
+          o.topy = note.c.y - note.c.h;
+          o.bottomy = o.stemy2 ;
+          c.downStem = o;
+         
+         
+          if (note.stemDirection() === "up") {
+            meldObjectToObject(c.upStem, note.c);
+          } else {
+            meldObjectToObject(c.downStem, note.c);
+          }
         }
-*/
+
       }
 
 
