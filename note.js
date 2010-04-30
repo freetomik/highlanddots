@@ -44,7 +44,8 @@ Note.prototype.calcBeams = function(toNote) {
   
   b = this.b;
   b.xMult = (c.lastInGroup) ? -1 : 1;
-  b.yMult = (this.stemDirection() == "down") ? -1 : 1; 
+  b.yMult = (this.stemDirection() == "down") ? -1 : 1;  // this looks backwards but isn't - if stems are down
+                                                        //  tails are painted starting from the end of the tail
   b.yInc = ((c.height/2) + c.barthick) * b.yMult;  // amount to increment Y between tails
   
   
@@ -58,28 +59,22 @@ Note.prototype.calcBeams = function(toNote) {
   
   }
   
-
   o = {};
   o.width = Math.abs(this.c.x - toNote.c.x);
   o.height = c.height/3; 				// should be 1/2 space, but llooks better as 1/3rd
-  o.slope = slope;
   o.startx = c.stemx2;
   o.starty = c.stemy2;
   o.endx = toNote.c.stemx2;
   o.endy = toNote.c.stemy2;
   meldObjectToObject(o, b.fullBeam);
 
-
-  slope = (c.stemy2 - toNote.c.stemy2) / (c.stemx2  - toNote.c.stemx2);
-
   o = {};
   o.width = c.width;
   o.height = c.height/3; 				// should be 1/2 space, but llooks better as 1/3rd
-  o.slope = slope;
   o.startx = c.stemx2;
   o.starty = c.stemy2;
   o.endx = (c.stemx2 + o.width) * b.xMult;
-  o.endy = o.starty + ( Math.abs(o.startx - o.endx) * (slope * b.xMult) );
+  o.endy = o.starty + ( Math.abs(o.startx - o.endx) * (c.beamSlope) );
   meldObjectToObject(o, b.halfBeam);
 
 };
@@ -393,7 +388,7 @@ Note.prototype.paint2 = function(staff) {
       ctx.moveTo(b.fullBeam.startx, (b.fullBeam.starty + yInc) );
       ctx.lineTo(b.fullBeam.endx,   (b.fullBeam.endy + yInc) );
       ctx.lineTo(b.fullBeam.endx,   (b.fullBeam.endy + (b.fullBeam.height*b.yMult) + yInc) );
-      ctx.lineTo(b.fullBeam.startx, (b.fullBeam.endy + (b.fullBeam.height*b.yMult) + yInc));
+      ctx.lineTo(b.fullBeam.startx, (b.fullBeam.starty + (b.fullBeam.height*b.yMult) + yInc));
       ctx.closePath();
       ctx.fill();
 
@@ -404,7 +399,7 @@ Note.prototype.paint2 = function(staff) {
       ctx.moveTo(b.halfBeam.startx, (b.halfBeam.starty + yInc) );
       ctx.lineTo(b.halfBeam.endx,   (b.halfBeam.endy + yInc) );
       ctx.lineTo(b.halfBeam.endx,   (b.halfBeam.endy + (b.halfBeam.height*b.yMult) + yInc) );
-      ctx.lineTo(b.halfBeam.startx, (b.halfBeam.endy + (b.halfBeam.height*b.yMult) + yInc));
+      ctx.lineTo(b.halfBeam.startx, (b.halfBeam.starty + (b.halfBeam.height*b.yMult) + yInc));
       ctx.closePath();
       ctx.fill();
 
