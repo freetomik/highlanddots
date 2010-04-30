@@ -89,10 +89,10 @@
           c.upStem = o;
   
           o = {};
-          o.stemlen = highest.c.stemlen + Math.abs(lowest.c.y - note.c.y) + ld;
+          o.stemlen = lowest.c.stemlen + Math.abs(lowest.c.y - note.c.y) + ld;
           o.stemy2 = note.c.y + o.stemlen;
           o.topy = o.stemy2;
-          o.bottomy = note.c.stemy1 - note.c.h ;
+          o.bottomy = note.c.stemy1 + note.c.h ;
           c.downStem = o;
          
           if (note.stemDirection() === "up") {
