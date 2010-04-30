@@ -3,6 +3,14 @@
 var G_vmlCanvasManager; // so non-IE won't freak out in canvasInit
 
 
+function uiLoadTune(ext, tuneText) {
+  var startTime = new Date();
+  loadTune(ext, tuneText);
+  var endTime = new Date();
+  var total = (endTime - startTime) / 1000;
+  document.getElementById("timeinfo").innerHTML = "Time spent rendering: " + total + " seconds.";
+}
+
 function testImport2() {
   var startTime = new Date();
   testImport();
@@ -184,6 +192,22 @@ var staff =
    details: details
  };
  }());
+
+
+function loadTune(ext, tuneText) {
+  var dots;// = [];
+  dots = tuneText.split("\n");
+
+staff.details.logging = true;
+for (var i = 0; i<dots.length; i++)
+  logit(dots[i]);
+staff.details.logging = false;
+
+  score.removeAllNodes();
+  parseBWW(dots);
+  plotMusic(score);
+
+}
 
 function testImport() {
   var dots = [];
