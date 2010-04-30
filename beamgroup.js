@@ -20,8 +20,10 @@
 
     ThisType.prototype.getNoteGroup = function() {
       var mel;
+      var nested = 0;
       var grp = [];
       var pos = score.find(this);
+
       if (!pos) {
         return;
       }
@@ -30,10 +32,19 @@
         mel = score.get(pos);
 // FIXME : nested groups; endSection
         if (mel.type === this.type) {
-          break;
+          if (mel.sectionStart && nested == 0)
+            break;
+          if (mel.sectionEnd) {
+            nested++;
+            continue;
+          } else if (mel.sectionStart) {
+            nested--;
+            continue;
+          }
         } else {
           if (mel.type === this.elementType) {
-            grp.push(mel);
+            if (nested == 0)
+              grp.push(mel);
           }
         }
       }
@@ -102,7 +113,6 @@
           } else {
             meldObjectToObject(c.downStem, note.c);
           }
-          
         }
       }
       
