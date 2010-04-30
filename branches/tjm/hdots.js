@@ -196,13 +196,7 @@ var staff =
 
 function loadTune(ext, tuneText) {
   var dots;// = [];
-  dots = tuneText.split("\n");
-
-staff.details.logging = true;
-for (var i = 0; i<dots.length; i++)
-  logit(dots[i]);
-staff.details.logging = false;
-
+  dots = tuneText.split("\n|\r");
   score.removeAllNodes();
   parseBWW(dots);
   plotMusic(score);

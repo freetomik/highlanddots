@@ -5,11 +5,11 @@
 <!-- Oh it pains me to do this, but excanvas don't work properly unless this
 is active.  Seems to be a "feature" of adding the canvas element on the fly
 as opposed to having it static on the page.-->
-<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7">
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7"> 
 
 <title>Highland Dots</title>
   <link rel="stylesheet" type="text/css" href="layout.css">
-
+  
 <!--[if IE]>
 <script src="jslib/excanvas.js"></script>
 <![endif]-->
@@ -29,6 +29,25 @@ as opposed to having it static on the page.-->
   <button onclick="testImport2()">Import and Engrave</button>
   <span id="timeinfo">Time: Not  yet rendered.</span>
   <br />
+  <span>
+    Note Color:    <select onChange="staff.details.noteColor1=this.options[this.selectedIndex].value;">
+                     <option value="">Black</option>
+                     <option value="">Red</option>
+                     <option value="">Green</option>
+                     <option value="">Blue</option>
+                   </select>
+    &nbsp; &nbsp; &nbsp; &nbsp;
+    Beaming Style: <select onChange="staff.details.beamStyle=this.options[this.selectedIndex].value;">
+                     <option value="straight">Straight</option>
+                     <option value="sloped">Sloped</option>
+                   </select>
+  </span>
+  &nbsp; &nbsp; &nbsp; &nbsp;
+  <span>
+    <input type="checkbox" onChange="(this.checked)?staff.details.uiTracing=true:staff.details.uiTracing=false;"/> UI Tracing
+    &nbsp; &nbsp; &nbsp; &nbsp;
+    <input type="checkbox" onChange="(this.checked)?staff.details.uiTracing=true:staff.details.uiTracing=false;"/> Logging
+  </span>
 </p>
 
 
