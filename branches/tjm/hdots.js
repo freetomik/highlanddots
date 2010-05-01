@@ -418,8 +418,57 @@ function plotMusic(score)
       }(mel, staff));
       delay.push(f);
     }
-    
-                       
+
+    if (doPaint) {
+      var totalTxtHeight = 0;
+      var moveToY = sdet.top;
+      var m = score.metaData;
+      var txtMetrics = {};
+      if (m["Title"]) {
+
+        txtMetrics.x = sdet.canvas.width/2;
+        txtMetrics.align = "center";
+        txtMetrics.y = moveToY;
+        txtMetrics.style = "bold";
+        txtMetrics.size = sdet.space*2.55;
+        txtMetrics.font = "sans-serif";
+
+        score.createText().paintAt(staff, m["Title"], txtMetrics)
+
+        moveToY += txtMetrics.size + sdet.space * 1.5;
+
+      }
+      
+      if (m["Genre"]) {
+        txtMetrics.x = sdet.canvas.width*0.1;
+        txtMetrics.align = "left";
+        txtMetrics.y = moveToY;
+        txtMetrics.style = "bold";
+        txtMetrics.size = sdet.space*2;
+        txtMetrics.font = "sans-serif";
+
+        score.createText().paintAt(staff, m["Genre"], txtMetrics)
+
+      }
+      if (m["Composer"]) {
+        txtMetrics.x = sdet.canvas.width - (sdet.canvas.width*0.1);
+        txtMetrics.align = "right";
+        txtMetrics.y = moveToY;
+        txtMetrics.style = "bold";
+        txtMetrics.size = sdet.space*2;
+        txtMetrics.font = "sans-serif";
+
+        score.createText().paintAt(staff, m["Composer"], txtMetrics)
+
+        moveToY += txtMetrics.size + sdet.space * 1.5;
+
+      }
+      
+      // TODO : print tempo
+
+      sdet.top += moveToY;
+   }
+
     
     score.data.forEach(function(mel) {
                        var rect;
