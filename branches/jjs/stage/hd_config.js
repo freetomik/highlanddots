@@ -9,9 +9,10 @@ function testButton() {
 
 
 function shortTestFunction() {
-  var val = hdots_prefs.getPluginPreference("s_engine", "short");
-
-  alert("Your quest is '" + val + "'? Really?");
+  var quest = hdots_prefs.getPluginPreferenceValue("s_engine", "short", "quest");
+  var color = hdots_prefs.getValueOf("color1");
+  
+  alert("Your quest is '" + quest + "'? And your  favorite color is '" + color + "'? Really?");
 }
 
 function longTestFunction() {
@@ -31,9 +32,9 @@ function prepConfig() {
   
   hdots_prefs.registerPreference( {
                                  type: "select",
-                                 label: "Note color",
+                                 label: "What is your favorite color",
                                  name: "color1",
-                                 def:  "blue",
+                                 def:  "green",
                                  options: [
                                  {"#FF0000": "red"},
                                  {"#0000FF": "blue"},
@@ -75,10 +76,17 @@ function doIt() {
                                        name: "quest",
                                        def:  "To find the Grail"
                                        });
-  
-  
-  
-  
+ 
+   hdots_prefs.registerPluginPreference("s_engine", "short",
+                                       {
+                                       type: "text",
+                                       label: "How many in your party?",
+                                       name: "party",
+                                       def:  "-2"
+                                       });
+   
+   alert(hdots_prefs.allValues.toSource());
+
   hdots_prefs.makeHdConfigForm();
 }
 
@@ -90,24 +98,23 @@ var hdots_prefs =
    var hdConfigData = [];
    var formContentsId = "hd_config";
    var formId = formContentsId + "_form"; 
-   var formPrefix = ["hd"]; // Give all the form elements a prefix to avoid collission
+   var formPrefix = []; // Give all the form elements a prefix to avoid collission
    var SEP = '$';
    var pluginTracker = {};
    var pluginOptions = {};
-   
+   var allValues = {};
    
    function getFormPrefix() {
      return formPrefix.join(SEP) + SEP;
    }
 
-   function getPluginPreference(prefName, pluginName) {
-     var pref = pluginOptions[prefName + SEP + pluginName];
-     return getValueOfInner(prefName, pref);
+   function getPluginPreferenceValue(prefName, pluginName, pluginPrefName) {
+     return allValues[[prefName, pluginName, pluginPrefName].join(SEP)];
    }
-
-   
+  
    function getPluginFunction(n) {
      var s = getValueOf(n, hdConfigData);
+     alert("gpf " + s.toSource());
      if (s) {
        return pluginTracker[n + SEP + s];
      }
@@ -122,7 +129,7 @@ var hdots_prefs =
    }
    
    function getValueOf(n) {
-     return(getValueOfInner(n, hdConfigData)); 
+     return allValues[SEP + n];
    }
    
    function getValueOfInner(n, a) {
@@ -132,21 +139,20 @@ var hdots_prefs =
        return pref.def;
      }
    }
-   
-   
+      
    function registerPreference(pref) {
      hdConfigData.push(pref);
      if (pref.type === "plugin") {
        pluginTracker[pref.name] = {};
        //pluginOptions[pref.name] = {};
      }
+     allValues[SEP + pref.name] = pref.def;
    }
    
    function registerPluginPreference(prefName, pluginName, pref) {
      pluginOptions[prefName + SEP + pluginName].push(pref);
+     allValues[prefName + SEP + pluginName + SEP + pref.name] = pref.def;
    }
-   
-   
    
    function makeHdConfigForm() {
      var k, v;
@@ -160,7 +166,6 @@ var hdots_prefs =
        if (typeof el.name === "string") {
          el.name = getFormPrefix() + v.name;
        }
-       
        
        target.appendChild(label);
        target.appendChild(API.createElement("br"));
@@ -177,7 +182,6 @@ var hdots_prefs =
        addToForm(v, el, target);
      }                     
      
-     
      function makeRadio(v, target) {
        var target = API.getEBI(formContentsId);
        var el;
@@ -189,8 +193,7 @@ var hdots_prefs =
        f.appendChild(el);
        API.setStyle(f, 'border', '1px solid black')
        opt = v.options;
-       
-       
+              
        for (i = 0, l = opt.length; i < l; i++) {
          o = opt[i];
          API.forEachProperty(o, function(p, i) {
@@ -205,26 +208,20 @@ var hdots_prefs =
                              f.appendChild(el);
                              //alert(pluginOptions[v.name][i].toSource());
                              
-                             formPrefix.push(v.name);
-                             formPrefix.push(i);
+                             formPrefix.push(v.name + SEP + i);
                              makeFormFields(pluginOptions[v.name + SEP + i],f);
                              formPrefix.pop();
-                             formPrefix.pop();
-                             
          });                         
        }
        target.appendChild(f);
      }
-     
-     
      
      function makeSelect(v, target) {
        var el = API.createElement("select");
        var i, l, o = {}, opt;
        var o;
        opt = v.options;
-       
-       
+              
        for (i = 0, l = opt.length; i < l; i++) {
          o = opt[i];
          API.forEachProperty(o, function(p) {
@@ -236,21 +233,15 @@ var hdots_prefs =
        }
        addToForm(v, el, target);
      }
-     
-     
+          
      function getDataFromForm() {
        var s = API.HD_serializeFormUrl(API.getEBI(formId));
-       
-       
-       for(var i = 0, l = hdConfigData.length; i < l; i++) {
-         v = hdConfigData[i];
-         if (v.type === "boolean") {
-           v.value = !!s[getFormPrefix() + v.name];  // Force value to boolean
-         } else {
-           v.value = s[getFormPrefix() + v.name];
-         }
-       }
+       API.forEachProperty(s, function(v, k) {
+                           allValues[k] = v; 
+                           });
+       alert(allValues.toSource());
      }                       
+     
      function makeAcceptButton(v, target) {
        var target = API.getEBI(formContentsId);
        var el = API.createElement("button");
@@ -264,7 +255,6 @@ var hdots_prefs =
        target.appendChild(el);
        
      }
-     
      
      function makeFormFields(data, target) {     
        for(var i = 0, l = data.length; i < l; i++) {
@@ -284,8 +274,7 @@ var hdots_prefs =
            makeBoolean(v, target);
            break;
          }
-       }
-       
+       }  
      }
      
      makeFormFields(hdConfigData, API.getEBI(formContentsId));     
@@ -320,13 +309,13 @@ var hdots_prefs =
        var reText = new RegExp('^(text|password|hidden|textarea)$');
        
        function add(n, v) {
-         c[n] =v;
+         c[n]=v;
        }
        
        for (var i=0, ilen=es.length; i<ilen; i++) {
          e = es[i];
          n = e.name;
-         if (n && !e.disabled) {
+         if (n /* && !e.disabled */) {
            t = e.type;
            if (!t.indexOf('select')) {
              // The 'select-one' case could reuse 'select-multiple' case
@@ -347,9 +336,12 @@ var hdots_prefs =
              } 
            }
            else if (reCheck.test(t)) {
-             if (e.checked) {
-               add(n, e.value || 'on');
-             }          
+             if (t === "radio") {
+             if (e.checked) { add(n, e.value || true); }
+             } else {
+             if (e.checked) { add(n, e.value || true); }
+             if (!e.checked) { add(n, false); }
+             }
            }
            else if (reText.test(t)) {
              add(n, e.value);
@@ -362,7 +354,8 @@ var hdots_prefs =
    }
    
    return {
-     getPluginPreference: getPluginPreference,
+     allValues: allValues, /* DEBUG */
+     getPluginPreferenceValue: getPluginPreferenceValue,
      registerPluginPreference: registerPluginPreference,
      registerPreference: registerPreference,
      getPluginFunction: getPluginFunction,
