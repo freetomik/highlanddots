@@ -425,89 +425,12 @@ function plotMusic(score)
       delay.push(f);
     }
 
-    if (doPaint) {
+    if (doPaint && score.metaData) {
+      score.metaData.calc(staff);
+      score.metaData.paint(staff);
+      sdet.top += score.metaData.getBoundingRect().height + sdet.space;
+    }
 
-
-      var totalTxtHeight = 0;
-      var moveToY = sdet.top;
-      var m = score.metaData;
-      var txtMetrics = {};
-
-      if (m["Title"]) {
-
-        txtMetrics.x = sdet.canvas.width/2;
-        txtMetrics.align = "center";
-        txtMetrics.y = moveToY;
-        txtMetrics.style = "bold";
-        txtMetrics.size = sdet.space*2.55;
-        txtMetrics.font = "sans-serif";
-
-        score.createText().paintAt(staff, m["Title"], txtMetrics)
-
-        moveToY += txtMetrics.size + sdet.space * 1.5;
-
-      }
-      
-      if (m["Genre"]) {
-        txtMetrics.x = sdet.leftMargin;
-        txtMetrics.align = "left";
-        txtMetrics.y = moveToY;
-        txtMetrics.style = "bold";
-        txtMetrics.size = sdet.space*2;
-        txtMetrics.font = "sans-serif";
-
-        score.createText().paintAt(staff, m["Genre"], txtMetrics)
-
-      }
-      if (m["Composer"]) {
-        txtMetrics.x = sdet.canvas.width - (sdet.leftMargin);
-        txtMetrics.align = "right";
-        txtMetrics.y = moveToY;
-        txtMetrics.style = "bold";
-        txtMetrics.size = sdet.space*2;
-        txtMetrics.font = "sans-serif";
-
-        score.createText().paintAt(staff, m["Composer"], txtMetrics)
-
-        moveToY += txtMetrics.size + sdet.space * 1.5;
-
-      }
-      
-      if (m["TuneTempo"] && m.beatUnit) {
-
-        txtMetrics.x = sdet.leftMargin + (sdet.space*2);
-        txtMetrics.align = "left";
-        txtMetrics.y = moveToY;
-        txtMetrics.style = "italic";
-        txtMetrics.size = sdet.space/2;
-        txtMetrics.font = "sans-serif";
-
-var n = score.createMelodyNote();
-n.duration = m.beatUnit;
-n.staffPosition = 'floating';
-n.stemDir = "up";
-sdet.x = sdet.leftMargin;
-var s = sdet.space
-sdet.space = txtMetrics.size * 1.25;
-sdet.x = sdet.leftMargin;
-
-sdet.noteInfo.floating.x = sdet.x;
-sdet.noteInfo.floating.y = txtMetrics.y;
-
-n.calc(staff);
-n.paint(staff);
-
-        score.createText().paintAt(staff, "= " + m["TuneTempo"], txtMetrics)
-        moveToY += txtMetrics.size + sdet.space;
-        sdet.space = s;
-
-      }
-
-
-      sdet.top += moveToY;
-   }
-
-    
     score.data.forEach(function(mel) {
                        var rect;
                        var strokeStyle = ctx.strokeStyle; 

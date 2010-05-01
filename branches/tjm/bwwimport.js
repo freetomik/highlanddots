@@ -926,7 +926,9 @@ var z_noteDot = (function() {
   }
   
   
-  score.metaData = {};  
+//  score.metaData = {};  
+  score.metaData = score.createMetadata();
+
   var i, l = dots.length;
   var s, bits;
   for (i = 0; i < l; i++) {
