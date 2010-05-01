@@ -84,6 +84,12 @@ var staff =
          details.noteInfo[n] = o;
        }
      }
+     // TJM 'floating note' not attached to staff
+     //      used for placing on the UI, within text,etc.
+     details.noteInfo.floating = o;
+     details.noteInfo.floating.drawnOnLine = false;
+     details.noteInfo.floating.needsLedgerLine = false;
+     
    }
    prepData();   
    //logit(details.noteInfo);
@@ -420,10 +426,13 @@ function plotMusic(score)
     }
 
     if (doPaint) {
+
+
       var totalTxtHeight = 0;
       var moveToY = sdet.top;
       var m = score.metaData;
       var txtMetrics = {};
+
       if (m["Title"]) {
 
         txtMetrics.x = sdet.canvas.width/2;
@@ -440,7 +449,7 @@ function plotMusic(score)
       }
       
       if (m["Genre"]) {
-        txtMetrics.x = sdet.canvas.width*0.1;
+        txtMetrics.x = sdet.leftMargin;
         txtMetrics.align = "left";
         txtMetrics.y = moveToY;
         txtMetrics.style = "bold";
@@ -451,7 +460,7 @@ function plotMusic(score)
 
       }
       if (m["Composer"]) {
-        txtMetrics.x = sdet.canvas.width - (sdet.canvas.width*0.1);
+        txtMetrics.x = sdet.canvas.width - (sdet.leftMargin);
         txtMetrics.align = "right";
         txtMetrics.y = moveToY;
         txtMetrics.style = "bold";
@@ -464,7 +473,36 @@ function plotMusic(score)
 
       }
       
-      // TODO : print tempo
+      if (m["TuneTempo"] && m.beatUnit) {
+
+        txtMetrics.x = sdet.leftMargin + (sdet.space*2);
+        txtMetrics.align = "left";
+        txtMetrics.y = moveToY;
+        txtMetrics.style = "italic";
+        txtMetrics.size = sdet.space/2;
+        txtMetrics.font = "sans-serif";
+
+var n = score.createMelodyNote();
+n.duration = m.beatUnit;
+n.staffPosition = 'floating';
+n.stemDir = "up";
+sdet.x = sdet.leftMargin;
+var s = sdet.space
+sdet.space = txtMetrics.size * 1.25;
+sdet.x = sdet.leftMargin;
+
+sdet.noteInfo.floating.x = sdet.x;
+sdet.noteInfo.floating.y = txtMetrics.y;
+
+n.calc(staff);
+n.paint(staff);
+
+        score.createText().paintAt(staff, "= " + m["TuneTempo"], txtMetrics)
+        moveToY += txtMetrics.size + sdet.space;
+        sdet.space = s;
+
+      }
+
 
       sdet.top += moveToY;
    }

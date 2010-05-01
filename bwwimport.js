@@ -46,7 +46,7 @@ var grok_metaData = (function() {
                      GracenoteDurations: {ignore: true},
                      FontSizes: {ignore: true},
                      TuneFormat: {ignore: true},
-                     TuneTempo: {ignore: true}
+                     TuneTempo: {ignore: false}
                      };
                      
                      function isType(s) {
@@ -88,7 +88,6 @@ var grok_metaData = (function() {
                          }
                          return;
                        }
-                       
                        
                        l = s.split(",");
                         name = l[0];
@@ -197,6 +196,11 @@ var z_timesig = (function() {
                    var s1 = s.split("_");
                    mel.beatsPerBar = +s1[0];
                    mel.beatUnit = +s1[1];      
+                   // TJM don't overwrite metadata,
+                   //    it should only be set once per score
+                   //    as tempo changes don't effect text titles
+                   if (!score.metaData.beatUnit)
+                     score.metaData.beatUnit = mel.beatUnit;
                    return mel;
                    
                  }
