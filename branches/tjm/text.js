@@ -4,7 +4,7 @@
     var THISTYPE = "text";
     
     function ThisType() { 
-      this.txt = "";
+      this.txt = [];
       this.size = staff.details.space;
       this.style = ""; // bold|italic
       this.c = {};                  // Storage area for some commonly used calcuations.
@@ -28,10 +28,23 @@
 
     };
 
+    ThisType.prototype.add = function(row, col, txt) {  
+      var r, c;
+      if (this.txt.length < row)
+        this.txt[row-1] = [];
+
+      this.txt[row-1][col-1] = txt;
+      
+      var sdet = staff.details;
+      var c = this.c;
+    }
+    
     ThisType.prototype.calc = function(staff) {  
       var sdet = staff.details;
       var c = this.c;
     }
+
+
 
     ThisType.prototype.paintAt = function(staff, txt, metrics) {
       // metrics should contain x,y,font,style,size,align;
@@ -62,7 +75,6 @@
 
       ctx.font = "bold " + (sdet.space*2.55) + "px sans-serif";
       ctx.textAlign = metrics.align;
-alert("["+x+","+y+"] "+txt);
       ctx.fillText(txt, x, y);
       ctx.font = tf;
       ctx.textAlign = ta;
