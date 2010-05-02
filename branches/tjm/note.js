@@ -337,7 +337,7 @@ Note.prototype.paint = function(staff) {
     ctx.fill();
   }
   
-  if (this.c.y <= sdet.noteInfo.a3.y) {
+  if (this.c.y <= sdet.noteInfo.a3.y && this.c.y != sdet.noteInfo.floating.y) {
     drawExtendedStaff();
   }
 

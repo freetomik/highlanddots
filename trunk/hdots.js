@@ -84,6 +84,12 @@ var staff =
          details.noteInfo[n] = o;
        }
      }
+     // TJM 'floating note' not attached to staff
+     //      used for placing on the UI, within text,etc.
+     details.noteInfo.floating = o;
+     details.noteInfo.floating.drawnOnLine = false;
+     details.noteInfo.floating.needsLedgerLine = false;
+     
    }
    prepData();   
    //logit(details.noteInfo);
@@ -226,7 +232,7 @@ dots.push('TuneFormat,(1,0,M,L,500,500,500,500,P,0,0)');
 dots.push('TuneTempo,90');
 dots.push('');
 dots.push('"Layout Tester",(T,L,0,0,Times New Roman,16,700,0,0,18,0,0,0)');
-dots.push('"Crap",(Y,C,0,0,Times New Roman,14,400,0,0,18,0,0,0)');
+dots.push('"Test",(Y,C,0,0,Times New Roman,14,400,0,0,18,0,0,0)');
 dots.push('"Jeremy J Starcher",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)');
 dots.push('"It just is",(F,R,0,0,Times New Roman,10,400,0,0,18,0,0,0)');
 dots.push('');
@@ -418,9 +424,13 @@ function plotMusic(score)
       }(mel, staff));
       delay.push(f);
     }
-    
-                       
-    
+
+    if (doPaint && score.metaData) {
+      score.metaData.calc(staff);
+      score.metaData.paint(staff);
+      sdet.top += score.metaData.getBoundingRect().height + sdet.space;
+    }
+
     score.data.forEach(function(mel) {
                        var rect;
                        var strokeStyle = ctx.strokeStyle; 

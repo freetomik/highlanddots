@@ -232,7 +232,7 @@ dots.push('TuneFormat,(1,0,M,L,500,500,500,500,P,0,0)');
 dots.push('TuneTempo,90');
 dots.push('');
 dots.push('"Layout Tester",(T,L,0,0,Times New Roman,16,700,0,0,18,0,0,0)');
-dots.push('"Crap",(Y,C,0,0,Times New Roman,14,400,0,0,18,0,0,0)');
+dots.push('"Test",(Y,C,0,0,Times New Roman,14,400,0,0,18,0,0,0)');
 dots.push('"Jeremy J Starcher",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)');
 dots.push('"It just is",(F,R,0,0,Times New Roman,10,400,0,0,18,0,0,0)');
 dots.push('');
