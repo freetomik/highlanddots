@@ -27,7 +27,7 @@
  OTHER DEALINGS IN THE SOFTWARE.
 
 */
-// Fri, 9 Apr 2010 00:39:06 UTC
+// Sun, 2 May 2010 19:46:22 UTC
 // My Library (http://www.cinsoft.net/mylib.html)
 // Copyright (c) 2007-2010 by David Mark. All Rights Reserved.
 var API, global = this;
@@ -361,6 +361,8 @@ var Q, E, D, F, W, I, C;
   
   var addElementHtml, elTemp, htmlToNodes, select, selectsBroken, setElementHtml, setElementOuterHtml, setSelectHtml, setTempHtml, transferTempHtml;
   
+  var constructElementHtml, getDocumentHtml, getElementHtml, getElementOuterHtml, reAmp, reCollapsibleAttributes, reLT, reGT, reSelfClosing, reQuot;
+  
   var addElementScript, addScript, setElementScript;
   
   var createElement, isXmlParseMode;
@@ -525,7 +527,7 @@ var Q, E, D, F, W, I, C;
     return typeof el.canHaveChildren == 'undefined' || el.canHaveChildren;
   }
   
-  var addStyleRule, setActiveStyleScore;
+  var addStyleRule, setActiveStyleSheet;
   
   var canAdjustStyle, isStyleCapable, iStyle, styles;
   
@@ -1852,18 +1854,140 @@ var Q, E, D, F, W, I, C;
       API.setElementOuterHtml = setElementOuterHtml;
     }
     
-    // Style scores section
+    if (html && isRealObjectProperty(html, 'firstChild') && typeof html.nodeType == 'number' && getAttribute && hasAttribute) {
+      reSelfClosing = new RegExp('^(br|hr|img|meta|link|input|base|param|col|area)$');
+      reCollapsibleAttributes = new RegExp('^(checked|selected|disabled|multiple|ismap|readonly)$');
+      reLT = new RegExp('<', 'g');
+      reGT = new RegExp('>', 'g');
+      reAmp = new RegExp('&', 'g');
+      reQuot = new RegExp('"', 'g');
+
+      constructElementHtml = function(el, bOuter, bXHTML, docNode) {
+        var i, nn, name, value, result, selfClose = (bXHTML)?' />':'>';
+        var attributes = [], attribute;
+
+        switch (el.nodeType) {
+          case 1:
+            nn = getElementNodeName(el);
+            result = [];
+            if (el.attributes && el.attributes.length) {
+              i = el.attributes.length;
+              attributes.length = i;
+
+              while (i--) {
+                attribute = el.attributes[i];
+                if (attribute) {
+                  name = (attribute.nodeName || attribute.name || '').toLowerCase();
+                  if (name) {
+                    value = getAttribute(el, name, docNode); // Third argument skips getElementDocument call in getAttribute
+                    if (value === '' && reCollapsibleAttributes.test(name) && hasAttribute(el, name)) { // Last test in case implementation returns empty string instead of null for missing attributes
+                      value = name;
+                    }
+                    if (value !== null) { attributes[i] = [' ', name, '="', value.replace(reAmp, '&amp;').replace(reLT, '&lt;').replace(reGT, '&gt;').replace(reQuot, '&quot;'), '"'].join(''); }
+                  }
+                }
+              }
+            }
+						
+            if (reSelfClosing.test(nn)) {
+              result = (bOuter)?['<', nn].concat(attributes, selfClose):[''];
+            }
+            else {
+              result = [];
+              if (nn == '!') { return result; } // IE5 thinks comments are elements
+              if (el.childNodes && el.childNodes.length) {
+                i = el.childNodes.length;
+                while (i--) {
+                  result = constructElementHtml(el.childNodes[i], true, bXHTML, docNode).concat(result);
+                }
+                result = (bOuter)?['<', nn].concat(attributes, '>', result, '</', nn, '>'):result;
+              }
+              else {
+                if (nn == 'style') {
+                  if (el.styleSheet && el.styleSheet.cssText) {
+                    result = [el.styleSheet.cssText];
+                  }
+                }
+                else {
+                  if (el.innerText) {
+                    result = [el.innerText];
+                  }
+                  else {
+                    if (el.text) { result = [el.text]; }
+                  }
+                }
+                result = (bOuter)?['<', nn].concat(attributes, '>', result, '</', nn, '>'):[''];
+              }
+            }
+            return result;
+          case 3:
+            return (reNotEmpty.test(el.nodeValue))?[el.nodeValue]:[''];
+          case 4:
+            return ['<![CDATA[', el.nodeValue, ']]>'];
+          case 8:
+            return ['<!--', el.nodeValue, '-->'];
+          case 10:
+            return [el.nodeValue];
+          default:
+            return [];
+        }
+      };
+
+      // Native properties used only if requested and actual document types match
+
+      getElementHtml = function(el, bXHTML, bUseNative) {
+        var docNode = getElementDocument(el);
+	var isXML = isXmlParseMode(docNode);
+        if (typeof el.innerHTML == 'string' && bUseNative && bXHTML === isXML) {
+          return el.innerHTML;
+        }
+        if (typeof bXHTML == 'undefined') {
+          bXHTML = isXML;
+        }
+        return constructElementHtml(el, false, bXHTML, docNode).join('');
+      };
+
+      API.getElementHtml = getElementHtml;
+
+      getElementOuterHtml = function(el, bXHTML, bUseNative) {
+        var docNode = getElementDocument(el);
+	var isXML = isXmlParseMode(docNode);
+        if (typeof el.outerHTML == 'string' && bUseNative && bXHTML === isXML) {
+          return el.outerHTML;
+        }
+        if (typeof bXHTML == 'undefined') {
+          bXHTML = isXML;
+        }
+        return constructElementHtml(el, true, bXHTML, docNode).join('');
+      };
+
+      API.getElementOuterHtml = getElementOuterHtml;
+
+      getDocumentHtml = function(bXHTML, bUseNative, docNode) {
+        docNode = docNode || global.document;
+        var sHTML, el = getHtmlElement(docNode);
+
+        if (el) {
+          sHTML = getElementOuterHtml(el);
+        }
+        return sHTML;
+      };
+
+      API.getDocumentHtml = getDocumentHtml;
+    }
+    
+    // Style sheets section
 
     addStyleRule = (function() {
       if (getEBTN && createElement && html && isHostMethod(html, 'appendChild')) {
         var addRule = (function() {
           var el = createElement('style');
           if (el) {
-            if (isHostMethod(global.document, 'styleScores')) { // Could conceivably be callable like document.images
+            if (isHostMethod(global.document, 'styleSheets')) { // Could conceivably be callable like document.images
               return function(selector, rule, el, docNode) {
                 var ss;
-                if (docNode.styleScores && docNode.styleScores.length) {
-                  ss = docNode.styleScores[docNode.styleScores.length - 1];
+                if (docNode.styleSheets && docNode.styleSheets.length) {
+                  ss = docNode.styleSheets[docNode.styleSheets.length - 1];
                   if (ss.addRule) {
                     ss.addRule(selector, rule);
                   }
@@ -1872,7 +1996,7 @@ var Q, E, D, F, W, I, C;
                       ss.cssText = selector + ' {' + rule + '}';
                     }
                     else {
-                      if (ss.insertRule) { // old Mozilla versions, which don't support cssText property for style score objects
+                      if (ss.insertRule) { // old Mozilla versions, which don't support cssText property for style sheet objects
                         ss.insertRule(selector + ' {' + rule + '}', ss.cssRules.length);
                       }
                     }
@@ -1922,7 +2046,7 @@ var Q, E, D, F, W, I, C;
     API.addStyleRule = addStyleRule;
 
     if (html && getAttribute && getEBTN) {
-      setActiveStyleScore = function(id, docNode) {
+      setActiveStyleSheet = function(id, docNode) {
         var a, i, l, t;
         a = getEBTN('link', docNode);
         i = 0;
@@ -1937,7 +2061,7 @@ var Q, E, D, F, W, I, C;
         }
       };
 
-      API.setActiveStyleScore = setActiveStyleScore;
+      API.setActiveStyleSheet = setActiveStyleSheet;
     }
     
   }
@@ -2900,6 +3024,104 @@ var Q, E, D, F, W, I, C;
     API.setDefaultStatus = setDefaultStatus;    
   }
   
+  // Cookie section
+
+  var cookieCheck, cookiesEnabled, deleteCookie, getCookie, setCookie;
+  var reEncodeRegExp = new RegExp('([\\.])', 'g');
+  
+  var deleteCookieCrumb, getCookieCrumb, setCookieCrumb;
+  
+  function encodeRegExp(s) {
+    return s.replace(reEncodeRegExp, '\\$1');
+  }
+
+  if (encode && decode && doc && typeof doc.cookie == 'string') {
+    setCookie = function(name, value, expires, path, secure, docNode) {
+      var date, sExpires = '';
+      path = path || '/';
+      if (typeof expires == 'undefined') { expires = 30; }
+      if (expires) {
+        if (typeof expires == 'number') {
+          date = new Date();
+          date.setTime(date.getTime() + (expires * 86400000));
+          expires = date;
+        }
+        sExpires = '; expires=' + expires.toUTCString();
+      }
+      (docNode || global.document).cookie = encode(name) + '=' + encode(value) + sExpires + '; path=' + path + ((secure)?'; secure':'');
+    };
+
+    API.setCookie = setCookie;
+
+    getCookie = function(name, defaultValue, encoded, docNode) {
+      var re = new RegExp('( |;|^)' + encodeRegExp(encode(name)) + '=([^;]+)');
+      var value = (docNode || global.document).cookie.match(re);
+      return (value !== null)?((encoded)?value[2]:decode(value[2])):((typeof defaultValue == 'undefined')?null:defaultValue);
+    };
+
+    API.getCookie = getCookie;
+
+    deleteCookie = function(name, path, docNode) {
+      setCookie(name, '', -1, path, null, docNode);
+    };
+
+    API.deleteCookie = deleteCookie;
+
+    cookiesEnabled = function() {
+      if (typeof cookieCheck == 'undefined') {
+        setCookie('_cookietest', '1');
+        cookieCheck = (getCookie('_cookietest', '0') == '1');
+        deleteCookie('_cookietest');
+      }
+      return cookieCheck;
+    };
+
+    API.cookiesEnabled = cookiesEnabled;
+    
+    setCookieCrumb = function(name, crumb, value, path, docNode) {
+      var re, sCrumbs = getCookie(name, null, true, docNode);
+
+      if (sCrumbs !== null) {
+        re = new RegExp('(&|^)' + encodeRegExp(encode(crumb)) + '=[^&]*&?');
+        if (re.test(sCrumbs)) {
+          sCrumbs = sCrumbs.replace(re, encode(crumb) + '=' + encode(value));
+        }
+        else {
+          sCrumbs += '&' + encode(crumb) + '=' + encode(value);
+        }
+      }
+      else {
+        sCrumbs = encode(crumb) + '=' + encode(value);
+      }
+      (docNode || global.document).cookie = encode(name) + '=' + sCrumbs + '; path=' + (path || '/');
+    };
+
+    API.setCookieCrumb = setCookieCrumb;
+
+    getCookieCrumb = function(name, crumb, defaultValue, docNode) {
+      var sCrumbs = getCookie(name, null, true, docNode);
+      var value = null;
+      var re;
+
+      if (sCrumbs !== null) {
+        re = new RegExp('(&|^)' + encodeRegExp(encode(crumb)) + '=([^&]*)&?');
+        var match = re.exec(sCrumbs);
+        if (match) { value = decode(match[1]); }
+      }
+      return (value !== null && value.length)?value:((typeof defaultValue == 'undefined')?null:defaultValue);
+    };
+
+    API.getCookieCrumb = getCookieCrumb;
+
+    deleteCookieCrumb = function(name, crumb, docNode) {
+      setCookieCrumb(name, crumb, '', null, docNode);
+    };
+
+    API.deleteCookieCrumb = deleteCookieCrumb;
+    
+  }
+
+  
   // Events section
 
   var attachListener, attachDocumentListener, attachWindowListener, detachListener, detachDocumentListener, detachWindowListener;
@@ -3440,7 +3662,7 @@ var Q, E, D, F, W, I, C;
         var target = getEventTarget(e);
         var over = e.type == 'mouseover' || e.type == 'focus';	
         var isAncestorOfRelatedTarget = el != relatedTarget && (relatedTarget && isDescendant(el, relatedTarget));
-        var isAncestorOfTarget = el != target && isDescendant(el, target);
+        var isAncestorOfTarget = target && el != target && isDescendant(el, target);
         if (isAncestorOfRelatedTarget && isAncestorOfTarget) {
           return;
         }
@@ -3524,6 +3746,10 @@ var Q, E, D, F, W, I, C;
   
   var absoluteElement, ensurePositionable, getElementPositionedChildPosition, relativeElement;
   
+  var adjacentElement;
+  
+  var overlayElement;
+  
   var centerElement;
   
   var getWorkspaceRectangle;
@@ -3533,6 +3759,8 @@ var Q, E, D, F, W, I, C;
   var maximize, maximizeElement, restoreElement;
   
   var fullScreenElement;
+  
+  var coverDocument;
   
   var getElementPosition;
   
@@ -5305,6 +5533,115 @@ var Q, E, D, F, W, I, C;
           return (getStyle(el, 'position') == 'relative')?getElementPosition(el, elParent, true):getElementPositionStyle(el, elParent);
         };
         
+        adjacentElement = function(el, elAdj, side) {
+          var p, dim, dimAdj, constraint;
+          var adjParent, dimParent;
+          var parent = getPositionedParent(el);
+          var docNode = getElementDocument(el);
+          var m = (typeof getElementMarginsOrigin == 'function')?getElementMarginsOrigin(el):[0, 0];
+          // TODO: if el is fixed, check if elAdj is contained in document rectangle (adjust for scroll position)
+          var fixed = getStyle(el, 'position') == 'fixed';
+
+          if (!ensurePositionable(el)) { return false; }
+          if (parent) {
+            adjParent = getPositionedParent(elAdj);
+            if (adjParent === parent) {
+              p = getElementPositionedChildPosition(elAdj, adjParent);
+            }
+            else {
+              return false;
+            }
+            if (typeof dimParent.clientWidth == 'number') {
+              constraint = [0, 0, dimParent.clientHeight, dimParent.clientWidth];
+            }
+          }
+          else {
+            p = getElementPosition(elAdj);
+            if (typeof getViewportClientRectangle == 'function') { constraint = getViewportClientRectangle(docNode); }
+          }
+
+          dim = getElementSize(el);
+          dimAdj = getElementSize(elAdj);
+
+          if (constraint) {
+            switch(side) {
+            // TODO: check if will be contained on other side
+            case 1:
+              if (!contained([p[0], p[1] + dimAdj[1] + dim[1]], dim, [constraint[0], constraint[1]], [constraint[2], constraint[3]])) { side = 3; }
+              break;
+            case 2:
+              if (!contained([p[0] + dimAdj[0] + dim[0], p[1]], dim, [constraint[0], constraint[1]], [constraint[2], constraint[3]])) { side = 0; }
+              break;
+            case 3:
+              if (!contained([p[0], p[1] - dim[1]], dim, [constraint[0], constraint[1]], [constraint[2], constraint[3]])) { side = 1; }
+              break;
+            case 0:
+              if (!contained([p[1] - dim[1], p[1]], dim, [constraint[0], constraint[1]], [constraint[2], constraint[3]])) { side = 2; }
+            }
+
+            if (side == 1 || side == 2) {
+              p[1] += dimAdj[side % 2];
+            }
+            else {
+              p[0] -= dimAdj[side % 2];
+            }
+
+            if (!contained(p, dim, [constraint[0], constraint[1]], [constraint[2], constraint[3]])) {
+              constrainPosition(p, [p[0], p[1]], dim, constraint);
+            }
+          }
+
+          if (fixed) {
+            if (htmlToViewportOrigin) { p = htmlToViewportOrigin(p, docNode); }
+            var sp = (typeof getScrollPosition == 'function')?getScrollPosition(docNode):[0, 0];
+            p[0] -= sp[0];
+            p[1] -= sp[1];
+          }
+          positionElement(el, p[0] - m[0], p[1] - m[1]);
+          return side;
+        };
+
+        API.adjacentElement = adjacentElement;
+        
+        overlayElement = function(el, elOver, cover) {
+          var pos, dim;
+          var m = (typeof getElementMarginsOrigin == 'function')?getElementMarginsOrigin(el):[0, 0];
+          var parent = getPositionedParent(el);
+          var parentOver = getPositionedParent(elOver);
+
+          if (!ensurePositionable(el, parent)) { return false; }
+          if (parent) {
+            if (parent === parentOver) {
+              pos = getElementPositionedChildPosition(elOver, parentOver);
+            }
+            else {
+              return false;
+            }
+          }
+          else {
+            // TODO: if el is fixed, check if over is in viewport, else fail
+            pos = getElementPosition(elOver);
+            var posStyle = getStyle(el, 'position');
+            if (posStyle == 'fixed') {
+              if (typeof getScrollPosition != 'undefined') {
+                var docNode = getElementDocument(el);
+                var sp = getScrollPosition(docNode);
+                pos[0] -= sp[0];
+                pos[1] -= sp[1];
+              }
+            }
+          }
+          if (cover) {
+            dim = getElementSize(elOver);
+            sizeElement(el, dim[0], dim[1]);
+            adjustElementSize(el, dim);
+          }
+          positionElement(el, pos[0] - m[0], pos[1] - m[1]);
+          return true;
+        };
+
+        API.overlayElement = overlayElement;
+        
         if (getViewportClientRectangle) {
         getWorkspaceRectangle = function(docNode, elExclude) {
           var s, side, dim, el, index, r = getViewportClientRectangle(docNode);
@@ -5765,6 +6102,25 @@ var Q, E, D, F, W, I, C;
         };
 
         API.fullScreenElement = fullScreenElement;
+        
+        if (getViewportScrollRectangle) {
+          coverDocument = function(el) {
+            if (typeof ensurePositionable == 'undefined' || ensurePositionable(el, null, 'absolute')) {
+              var docNode = getElementDocument(el);
+              var r;
+              el.style.display = 'none';
+              r = getViewportScrollRectangle(docNode);
+              el.style.display = 'block';
+              positionElement(el, r[0], r[1]);
+              sizeElement(el, r[2], r[3]);
+              adjustElementSize(el, [r[2], r[3]]);
+              return true;
+            }
+            return false;
+          };
+
+          API.coverDocument = coverDocument;
+        }
         
       }
       
@@ -6658,6 +7014,123 @@ var Q, E, D, F, W, I, C;
       };
 
       
+      if (typeof changeImage == 'function') {
+        oldChangeImage = changeImage;
+        changeImage = (function() {
+          if (canAdjustStyle.visibility && canAdjustStyle.display && body && isHostMethod(body, 'cloneNode') && isHostMethod(body, 'appendChild') && isHostMethod(body, 'removeChild')) {
+            return function(el, src, options, fnDone) {
+              var elTemp;
+              var docNode = getElementDocument(el);
+              var body = getBodyElement(docNode);
+
+              var done = function() {
+                oldChangeImage(el, src);
+                showElement(elTemp, false);
+                body.removeChild(elTemp);
+                elTemp = null;
+              };
+
+              if (options && options.effects) {
+                elTemp = el.cloneNode(false);
+                elTemp.id = elementUniqueId(el) + '_temporaryoverlay';
+                oldChangeImage(elTemp, src);
+                elTemp.style.visibility = 'hidden';
+                elTemp.style.display = 'none';
+                elTemp.style.position = 'absolute';
+                elTemp.style.left = elTemp.style.top = '0';
+                body.appendChild(elTemp);
+                elTemp.style.display = 'block';
+                overlayElement(elTemp, el);
+                showElement(elTemp, true, options, function() { done(); if (fnDone) { fnDone(el); } });
+              }
+              else {
+                oldChangeImage(el, src);
+                if (fnDone) { fnDone(el); }
+              }
+            };
+          }
+          return function(el, src, options, fnDone) {
+            oldChangeImage(el, src);
+            if (fnDone) { fnDone(el); }
+          };
+        })();
+        API.changeImage = changeImage;
+      }
+      
+      if (typeof setElementHtml == 'function' && canAdjustStyle.visibility && canAdjustStyle.display && body && isHostMethod(body, 'cloneNode') && isHostMethod(body, 'appendChild') && isHostMethod(body, 'removeChild')) {
+        oldSetElementHtml = setElementHtml;
+        setElementHtml = function(el, html, options, fnDone) {
+          var elTemp;
+          var docNode = getElementDocument(el);
+          var body = getBodyElement(docNode);
+
+          var done = function() {
+            el = oldSetElementHtml(el, html);
+            showElement(elTemp, false);
+            body.removeChild(elTemp);
+            elTemp = null;
+          };
+
+          if (options && options.effects) {
+            elTemp = el.cloneNode(false);
+            elTemp.id = elementUniqueId(el) + '_temporaryoverlay';
+            elTemp.style.visibility = 'hidden';
+            elTemp.style.display = 'none';
+            elTemp.style.position = 'absolute';
+            elTemp.style.left = elTemp.style.top = '0';
+            body.appendChild(elTemp);
+            elTemp = oldSetElementHtml(elTemp, html);
+            elTemp.style.display = 'block';
+            overlayElement(elTemp, el, true);
+            showElement(elTemp, true, options, function() { done(); if (fnDone) { fnDone(el); } });
+            return el;
+          }
+          else {
+            el = oldSetElementHtml(el, html);
+            if (fnDone) { fnDone(el); }
+            return el;
+          }
+        };
+
+        API.setElementHtml = setElementHtml;
+      }
+      
+      if (typeof setElementNodes == 'function' && canAdjustStyle.visibility && canAdjustStyle.display && body && isHostMethod(body, 'cloneNode') && isHostMethod(body, 'appendChild') && isHostMethod(body, 'removeChild')) {
+        oldSetElementNodes = setElementNodes;
+        setElementNodes = function(el, elNewNodes, options, fnDone) {
+          var elTemp;
+          var docNode = getElementDocument(el);
+          var body = getBodyElement(docNode);
+
+          var done = function() {
+            oldSetElementNodes(el, elNewNodes);
+            showElement(elTemp, false);
+            body.removeChild(elTemp);
+            elTemp = null;
+          };
+
+          if (options && options.effects) {
+            elTemp = el.cloneNode(false);
+            elTemp.id = elementUniqueId(el) + '_temporaryoverlay';
+            oldSetElementNodes(elTemp, elNewNodes);
+            elTemp.style.visibility = 'hidden';
+            elTemp.style.display = 'none';
+            elTemp.style.position = 'absolute';
+            elTemp.style.left = elTemp.style.top = '0';
+            body.appendChild(elTemp);
+            elTemp.style.display = 'block';
+            overlayElement(elTemp, el, true);
+            showElement(elTemp, true, options, function() { done(); if (fnDone) { fnDone(el); } });
+          }
+          else {
+            oldSetElementNodes(el, elNewNodes);
+            if (fnDone) { fnDone(el); }
+          }
+        };
+
+        API.setElementNodes = setElementNodes;
+      }
+      
       body = containerElement = null;
     });
     
@@ -6968,6 +7441,546 @@ var Q, E, D, F, W, I, C;
       }
       head = null;
     });
+  }
+  
+  // Ajax section
+
+  var createXmlHttpRequest = (function() { 
+    var i, 
+      fs = [// for legacy eg. IE 5 
+            function() { 
+              return new global.ActiveXObject("Microsoft.XMLHTTP"); 
+            }, 
+            // for fully patched Win2k SP4 and up 
+            function() { 
+              return new global.ActiveXObject("Msxml2.XMLHTTP.3.0"); 
+            }, 
+            // IE 6 users that have updated their msxml dll files. 
+            function() { 
+              return new global.ActiveXObject("Msxml2.XMLHTTP.6.0"); 
+            }, 
+            // IE7, Safari, Mozilla, Opera, etc (NOTE: IE7+ native version does not support overrideMimeType or local file requests)
+            function() { 
+              var o = new global.XMLHttpRequest();
+
+              // Disallow IE7+ XHR if overrideMimeType (hack) method is required
+
+              if (API.requireMimeTypeOverride) {
+                if (!isHostMethod(o, 'overrideMimeType')) {
+                  o = null;
+                }
+              }
+              return o;
+            }];
+
+    // If local Xhr required and ActiveX constructor present, check ActiveX first
+
+    if (API.requireLocalXhr && isHostMethod(global, 'ActiveXObject')) {
+      fs.reverse();
+    }
+
+    // Loop through the possible factories to try and find one that
+    // can instantiate an XMLHttpRequest object that works.
+
+    for (i=fs.length; i--; ) { 
+      try { 
+        if (fs[i]()) { 
+          return fs[i]; 
+        } 
+      } 
+      catch (e) {} 
+    }
+  })();
+
+  API.createXmlHttpRequest = createXmlHttpRequest;
+
+  var updateElement;
+
+  var submitAjaxForm;
+
+  if (createXmlHttpRequest && Function.prototype.apply && isHostMethod(global, 'setTimeout')) {
+  API.ajax = (function() {    
+    var xmlhttp, pendingRequests = 0, groupRequests = {};
+    var defaultTimeoutTime = 30000;
+    var fnJsonFilter, Requester;
+
+    var Updater;
+
+    var tempRequesterHandle = 0;
+
+    var reQuery = new RegExp('\\?(.*)$');
+
+    var ajaxLinks, doAjaxLink, isLocalAnchorLink;
+
+    var isMailLink = function(href) {
+      return !href.indexOf('mailto:');
+    };
+
+    var isNewsLink = function(href) {
+      return !href.indexOf('news:');
+    };
+
+    if (getDocumentWindow) {
+      isLocalAnchorLink = function(href, docNode) {
+        // TODO: Use document.URL
+        var win = getDocumentWindow(docNode);
+        var loc = win.location.href;
+        if (loc.indexOf('#') != -1) { loc = loc.substring(0, loc.indexOf('#')); }
+
+        return !href.indexOf('#') || (loc && !href.indexOf(loc) && href.indexOf('#') != -1);
+      };
+    }
+
+    var parseJsonString = (function() {
+      if (isRealObjectProperty(global, 'JSON') && typeof global.JSON.parse == 'function') {
+        return function(s) { return global.JSON.parse(s); };
+      }
+      else {
+        return function(s) { return (new Function('return (' + s + ')'))(); };
+      }
+    })();
+
+    API.parseJson = parseJsonString;
+
+    var empty = function() {};
+
+    function callback(sEvent, o, args) {
+      var context = o.callbackContext || o;
+      var m = o['on' + sEvent];
+      if (m) {
+        m.apply(context, args);
+      }
+    }
+
+    function sessionCallback(sEvent, o, args) {
+      args = args || [];
+      callback(sEvent, API.ajax, [o.id(), o.group()].concat(args));
+    }
+
+    function bindCallbacks(a, objFrom, objTo) {
+      var cb;
+      var i = a.length;
+      while (i--) {
+        cb = 'on' + a[i];
+        objFrom[cb] = objTo[cb];
+      }
+    }
+
+    function requestStart(requester) {
+      var sGroup = requester.group();
+
+      pendingRequests++;
+      if (pendingRequests == 1) { sessionCallback('start', requester); }
+      if (sGroup) {
+        if (typeof groupRequests[sGroup] == 'undefined') { groupRequests[sGroup] = 0; }
+        groupRequests[sGroup]++;
+        if (groupRequests[sGroup] == 1) { sessionCallback('groupstart', requester); }
+      }
+    }
+
+    function requestFinish(requester) {
+      var sGroup = requester.group();
+
+      pendingRequests--;
+      if (sGroup) {
+        groupRequests[sGroup]--;
+        if (!groupRequests[sGroup]) { sessionCallback('groupfinish', requester); }
+      }
+      if (!pendingRequests) { sessionCallback('finish', requester); }
+    }
+
+    function update(el, requester, xmlhttp, fnUpdate, bAppend, updateOptions, fnUpdated, context) {
+      var method, xml, html = xmlhttp.responseText;
+      var result = html;
+
+      if (xmlhttp.responseXML && xmlhttp.responseXML.childNodes && xmlhttp.responseXML.childNodes.length) { xml = xmlhttp.responseXML; }
+      if (fnUpdate) { result = fnUpdate.call(context || requester, html, xml); }
+      if (typeof result == 'string') {
+        method = (bAppend)?addElementHtml:setElementHtml;
+      }
+      else {
+        // Import is not part of required combination (DOM + HTML + Requester)
+        // Combination should be (DOM + (HTML | Import) + Requester)
+        if (typeof addElementNodes == 'function') {
+          method = (bAppend)?addElementNodes:setElementNodes;
+        }
+      }
+      if (result) { method(el, result, updateOptions, fnUpdated); }
+    }
+
+    xmlhttp = createXmlHttpRequest();
+
+    if (xmlhttp && isHostMethod(xmlhttp, 'setRequestHeader')) {
+      Requester = function(sId, sGroup) {
+        var timeout, evalJSON, bLocalFile;
+        var xmlhttp = createXmlHttpRequest();
+        var done = true;
+        var that = this;
+        var readyStateCallbacks = { '1':'loading', '2':'loaded', '3':'interactive' };
+        var readyStateCallbacksCalled = [];
+        var timeoutTime = defaultTimeoutTime;
+
+        function stateChange() {
+          var state = xmlhttp.readyState;
+          if (state == 4) {
+            if (!done) {
+              done = true;
+              xmlhttp.onreadystatechange = empty;
+              global.clearTimeout(timeout);
+              requestFinish(that);
+              if (xmlhttp.status >= 200 && xmlhttp.status < 300 || xmlhttp.status == 1223 || (typeof xmlhttp.status == 'undefined' && xmlhttp.responseText) || (!xmlhttp.status && bLocalFile)) {
+                that.dispatch('success', [xmlhttp, (evalJSON && xmlhttp.responseText)?parseJsonString(xmlhttp.responseText):null]);
+              }
+              else {
+                that.dispatch('fail', [xmlhttp]);
+              }
+            }
+          }
+          else {
+            if (!readyStateCallbacksCalled[state]) {
+              that.dispatch(readyStateCallbacks[state], [xmlhttp]);
+              readyStateCallbacksCalled[state] = true;
+            }
+          }
+        }
+
+        function abort() {
+          if (!done) {
+            done = true;
+            global.clearTimeout(timeout);
+            xmlhttp.onreadystatechange = empty;
+            xmlhttp.abort();			
+            requestFinish(that);
+            that.dispatch('cancel', [xmlhttp]);
+          }
+        }
+
+        function send(cmd, uri, postData, postDataType, bNoCache, bJSON) {
+          if (done) {
+            try {
+              xmlhttp.open(cmd, uri, true, that.username, that.password);
+            }
+            catch(e) {
+              //that.dispatch('error', [xmlhttp, e, uri]);
+              sessionCallback('error', that, [xmlhttp, e, uri]);
+              return false;
+            }
+            bLocalFile = !uri.indexOf('file:');
+            postDataType = postDataType || 'application/x-www-form-urlencoded';
+            xmlhttp.setRequestHeader("Content-Type", postDataType);
+            xmlhttp.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+            if (bNoCache && cmd == 'GET') {
+              xmlhttp.setRequestHeader('If-Modified-Since', 'Sat, 1 Jan 1990 00:00:00 GMT');
+              xmlhttp.setRequestHeader('Cache-Control', 'no-cache');
+            }
+            that.dispatch('send', [xmlhttp, uri]);
+            xmlhttp.onreadystatechange = stateChange;
+            requestStart(that);
+            readyStateCallbacksCalled = [];
+            done = false;
+            evalJSON = bJSON;
+            try {
+              xmlhttp.send((cmd == 'POST' || cmd == 'PUT')?postData:null);
+              if (!done) { timeout = global.setTimeout(abort, timeoutTime); }
+            }
+            catch(E) {
+              xmlhttp.onreadystatechange = empty;
+              done = true;
+              requestFinish(that);
+              //that.dispatch('error', [xmlhttp, E, uri]);
+              sessionCallback('error', that, [xmlhttp, E, uri]);
+              return false;
+            }
+            return true;
+          }
+          return false;
+        }
+        
+        this.busy = function() { return !done; };
+				
+        this.cancel = function() {
+          abort();
+        };
+
+        if (isHostMethod(xmlhttp, 'overrideMimeType')) {
+          this.overrideMimeType = function(mimeType) { xmlhttp.overrideMimeType(mimeType); };
+        }
+				
+        this.get = function(uri, bJSON, bAllowCache) {
+          return send('GET', uri, null, null, !bAllowCache, bJSON);
+        };
+
+        this.head = function(uri) {
+          return send('HEAD', uri);
+        };
+
+        this.post = function(uri, data, type, bJSON) {
+          return send('POST', uri, data, type, false, bJSON);
+        };
+
+        this.put = function(uri, data, type, bJSON) {
+          return send('PUT', uri, data, type, false, bJSON);
+        };
+
+        this.group = function() {
+          return sGroup;
+        };
+
+        this.id = function() {
+          return sId;
+        };
+
+        this.setTimeoutTime = function(t) {
+          timeoutTime = t;
+        };
+      };
+
+      Requester.prototype.bindToObject = function(obj, bCallInContext) {
+        bindCallbacks(['send', 'success', 'fail', 'cancel', 'loading', 'loaded', 'interactive'], this, obj);
+        this.callbackContext = (typeof bCallInContext == 'undefined' || bCallInContext)?obj:null;
+      };
+
+      Requester.prototype.dispatch = function(sEvent, args) {
+        callback(sEvent, this, args);
+      };
+
+      API.Requester = Requester;
+
+      if (isHostMethod(global, 'setInterval') && ((setElementHtml && addElementHtml) || (typeof setElementNodes == 'function' && typeof addElementNodes == 'function'))) {
+        updateElement = function(el, uri, bAppend, updateOptions, fnUpdate, fnUpdated, requester) {
+          if (!requester) { requester = new Requester('_temp' + tempRequesterHandle++); }
+          var oldOnSuccess = requester.onsuccess;
+          var oldOnFail = requester.onfail;
+          var oldOnCancel = requester.oncancel;
+
+          var putBackCallbacks = function() {
+            requester.onsuccess = oldOnSuccess;
+            requester.onfail = oldOnFail;
+            requester.oncancel = oldOnCancel;
+          };
+
+          requester.onsuccess = function(xmlhttp) {
+            putBackCallbacks();
+            update(el, requester, xmlhttp, fnUpdate, bAppend, updateOptions, fnUpdated);
+            // FIXME: dispatch and consolidate
+            if (typeof requester.onsuccess == 'function') { requester.onsuccess(xmlhttp); }
+            requester = null;
+          };
+          requester.onfail = function(xmlhttp) {
+            putBackCallbacks();
+            if (typeof requester.onfail == 'function') { requester.onfail(xmlhttp); }
+            requester = null;
+          };
+          requester.oncancel = function(xmlhttp) {
+            putBackCallbacks();
+            if (typeof requester.oncancel == 'function') { requester.oncancel(xmlhttp); }
+            requester = null;
+          };
+          var result = requester.get(uri);
+          if (!result) {
+            putBackCallbacks();
+            requester = null;
+          }
+        };
+
+        API.updateElement = updateElement;
+
+        Updater = function(el, uri, frequency, append, sId, sGroup) {
+          var that = this;
+          var interval, paused;
+
+          function send() {
+            global.clearInterval(interval);
+            paused = true;
+            that.get(uri);
+          }
+
+          frequency = frequency || 30000;
+          Requester.call(this, sId, sGroup);
+          this.start = function() {
+            if (!interval) {
+              interval = global.setInterval(send, frequency);
+              return true;
+            }
+            return false;
+          };
+
+          this.stop = function() {
+            global.clearInterval(interval);
+            if (this.busy()) { this.cancel(); }
+            interval = null;
+            paused = false;
+          };
+
+          this.active = function() {
+            return !!interval;
+          };
+
+          this.next = function() {
+            if (paused) {
+              interval = global.setInterval(send, frequency);
+              return true;
+            }
+            return false;
+          };
+
+          this.element = function() {
+            return el;
+          };
+
+          this.appends = function() {
+            return append;
+          };
+        };
+
+        inherit(Updater, Requester);
+
+        Updater.prototype.dispatch = function(sEvent, args) {
+          Requester.prototype.dispatch.apply(this, sEvent, args);
+          if (sEvent == 'success') {
+            update(this.element(), this, xmlhttp, this.onupdate, this.appends(), this.updateOptions, this.onupdated, this.callbackContext);
+            this.next();
+          }
+        };
+
+        Updater.prototype.bindToObject = function(obj, bCallInContext) {
+          Requester.prototype.bindToObject.call(this, obj, bCallInContext);
+          this.onupdate = obj.onupdate;
+          this.onupdated = obj.onupdated;
+        };
+
+        API.Updater = Updater;
+      }
+
+      if (getAttribute && serializeFormUrlencoded) {
+        submitAjaxForm = function(frm, bJSON, requester) {
+          var data, method, action, type;
+
+          if (!requester) { requester = new Requester('_temp' + tempRequesterHandle++); }
+          data = serializeFormUrlencoded(frm);
+          method = getAttribute(frm, 'method');
+          // FIXME: Resolve correct global
+          action = getAttribute(frm, 'action') || global.location.href;
+          type = getAttribute(frm, 'enctype');
+          if (action) {
+            if (method && method.toUpperCase() == 'POST') {
+              return requester.post(action, data, type, bJSON);
+            }
+            else {
+              return requester.get([action.replace(reQuery, ''), '?', data].join(''), bJSON, false);
+            }		
+          }
+        };
+
+        API.submitAjaxForm = submitAjaxForm;
+
+        if (typeof attachListener == 'function') {
+          API.ajaxForm = function(frm, sId, sGroup, bJSON, fnSubmit) {
+            var requester = new Requester(sId, sGroup);
+
+            attachListener(frm, 'submit', function(e) {
+              if (!fnSubmit || fnSubmit.call(this, e)) {
+                if (submitAjaxForm(this, bJSON, requester)) {
+                  return cancelDefault(e);
+                }
+              }
+            });
+            frm = null;
+            return requester;
+          };
+        }
+      }
+
+      if (getAttribute && attachListener && isLocalAnchorLink) {
+        doAjaxLink = function(e, el, requester, bJSON, bAllowCache) {
+          var href, r = true;
+
+          if (requester.busy()) { requester.cancel(); }
+          href = getAttribute(el, 'href');
+          if (href && !isLocalAnchorLink(href) && !isMailLink(href) && !isNewsLink(href) && requester.get(href, bJSON, bAllowCache)) {
+            r = cancelDefault(e);
+          }
+          return r;
+        };
+
+        API.ajaxAllLinks = function(sId, sGroup, bJSON, bAllowCache, docNode) {
+          var requester;
+          var body = getBodyElement(docNode);
+          if (body) {
+            requester = new Requester(sId, sGroup);
+            attachListener(body, 'click', function(e) {
+              var el = getEventTarget(e);
+              if (getElementNodeName(el) == 'a') {
+                return doAjaxLink(e, el, requester, bJSON, bAllowCache);
+              }
+              body = null;
+            });
+          }
+          return requester;
+        };
+
+        ajaxLinks = function(links, sId, sGroup, bJSON, bAllowCache, docNode) {
+          var i, requester = new Requester(sId, sGroup);
+          var fn = function(e) {
+            return doAjaxLink(e, this, requester, bJSON, bAllowCache);
+          };
+
+          if (typeof links.length != 'number') { links = [links]; }
+          i = links.length;
+          while (i--) {
+            attachListener(links[i], 'click', fn);
+          }
+          links = null;
+          return requester;
+        };
+
+        API.ajaxLinks = ajaxLinks;
+
+        if (typeof update == 'function') {
+          API.ajaxLinksUpdate = function(elUpdate, links, sId, sGroup, bAllowCache, bAppend, updateOptions, fnUpdate, fnUpdated) {
+            var requester = ajaxLinks(links, sId, sGroup, false, bAllowCache);
+
+            requester.onsuccess = function(xmlhttp) { update(elUpdate, requester, xmlhttp, fnUpdate, bAppend, updateOptions, fnUpdated); };
+          };
+        }
+      }
+
+      return {
+        getPendingRequests:function() { return pendingRequests; },
+        bindToObject:function(obj, bCallInContext) { bindCallbacks(['start', 'finish', 'error', 'groupstart', 'groupfinish'], this, obj); this.callbackContext = (typeof bCallInContext == 'undefined' || bCallInContext)?obj:null; },
+        setTimeoutTime:function(t) { defaultTimeoutTime = t; },
+        setJsonFilter:function(fn) { fnJsonFilter = fn; }
+      };
+    }
+    xmlhttp = null;
+  })();
+  }
+  
+  // Bookmark section
+
+  var addBookmark, addBookmarkCurrent;
+
+  addBookmark = (function() {			
+    if (isRealObjectProperty(this, 'external') && isHostMethod(this.external, 'addFavorite')) { return function(href, title, win) { (win || global).external.addFavorite(href, title); }; }
+    if (isRealObjectProperty(this, 'sidebar') && isHostMethod(this.sidebar, 'addPanel')) { return function(href, title, win) { (win || global).sidebar.addPanel(title, href, ''); }; }
+  })();
+
+  API.addBookmark = addBookmark;
+
+  if (addBookmark) {
+    addBookmarkCurrent = (function() {
+      if (isRealObjectProperty(this, 'document') && isHostMethod(this, 'location') && typeof this.location.protocol == 'string') {
+        return function(win) {
+          win = win || global;
+          var loc = win.location.href;
+          if (!loc.indexOf('http')) {
+            addBookmark(loc, win.document.title);
+          }
+        };
+      }
+    })();
+
+    API.addBookmarkCurrent = addBookmarkCurrent;
   }
   
   // Query section
@@ -9153,9 +10166,9 @@ var Q, E, D, F, W, I, C;
           };
         }
 
-        if (API.setActiveStyleScore) {
-          dPrototype.setActiveStyleScore = function(id) {
-            setActiveStyleScore(id, this.node());
+        if (API.setActiveStyleSheet) {
+          dPrototype.setActiveStyleSheet = function(id) {
+            setActiveStyleSheet(id, this.node());
             return this;
           };
         }

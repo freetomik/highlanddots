@@ -183,7 +183,7 @@
           a();
       });
       
-   if (typeof this.b.measureNumber !== "undefined") {
+   if (this.b && typeof this.b.measureNumber !== "undefined") {
      var tf = ctx.font;
      var ta = ctx.textAlign;
      var fc = ctx.fillStyle;

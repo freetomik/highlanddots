@@ -7,6 +7,43 @@
 <script type='text/javascript' src='hd_config.js'></script>
 
 
+<style>
+#hd_config_plugin {
+}
+
+#hd_config {
+}
+
+.hd_pluginPref {
+  border: 1px solid green;
+  margin-left: 2em;
+}
+
+
+#hd_config label {
+color: green;
+}
+
+#hd_config label span {
+  float:left;
+  width:25%;
+  margin-right:0.5em;
+  padding-top:0.2em;
+  text-align:right;
+  font-weight:bold;
+  color: white;
+  padding-right: 0.5em;
+  border: 1px solid black;
+  background: blue;
+}
+
+#hd_config div.breaker {
+  clear: both;
+}
+
+
+</style>
+
 </head>
 <body onload="doIt();">
 
@@ -16,9 +53,21 @@
 <br>
 
 <form action="#" id="hd_config_form" onsubmit="return false;">
-<div id="hd_config">
+
+<div id="hd_config_plugin">
+<p>When a plugin needs preferences set, that appears here.</p>
 </div>
+
+
+<div id="hd_config">
+<p>Please setup the preferences in the list below.</p>
+</div>
+
+
 </form>
+
+<pre style="clear:both;" id="log"></pre>
+
 
 </body>
 </html>

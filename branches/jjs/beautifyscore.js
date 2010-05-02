@@ -1,7 +1,25 @@
 "use strict";
 
-function beautifyScore(score) {
-  var beatInPixels = 200;  // How wide each beat is... This should be adjustable, selectable somehow.
+  hdots_prefs.registerPlugin("beauty_engine", "beat", "To the beat", beautifyScore);
+  
+  hdots_prefs.registerPluginPreference("beauty_engine", "beat",
+    {
+      type: "text",
+      label: "Length of line, in pixels",
+      name: "linelen",
+      def:  "2000"
+    });
+
+ 
+  
+  hdots_prefs.registerPlugin("beauty_engine", "natural", "The natural layout", dummy);
+  function dummy(pref, score) {
+  }
+  
+
+function beautifyScore(pref, score) {
+  var FORCEWIDTH = +pref.linelen; //2000;   // Forced for now.  It is the width of the the bar, minus "headers" 
+  
   
   var i, l, data;
   var mel, mel2, measureList, melodyNoteList;
@@ -120,7 +138,6 @@ function beautifyScore(score) {
   */
   function setSpacing() {
     //FIXEME: Should be based off scaling.
-    var FORCEWIDTH = 2000;   // Forced for now.  It is the width of the the bar, minus "headers" 
     var spaceForLeadIn = 0;  // How much space to reserve for lead ins.
     
     var BEATLENGTH;

@@ -368,6 +368,8 @@ function plotMusic(score)
       w: sdet.maxX,
       h: sdet.top
     };
+
+   var drawBoundingBox = hdots_prefs.getValueOf("boundingbox") === "true";
     
     sdet.top = sdet.newTop;
     staff.prime();
@@ -424,7 +426,7 @@ function plotMusic(score)
                          if (rect) {
                            //logit([mel.type, "rect: ", rect.x, rect.y, rect.width, rect.height, mel.paddingRight]);
                            mel.rect = rect;
-                           if (doPaint && sdet.uiTracing) {
+                           if (doPaint && drawBoundingBox) {
                              ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
                              ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
                              ctx.fillStyle = strokeStyle;
@@ -484,7 +486,12 @@ function plotMusic(score)
   }
   
   reFlowAndReDraw(false); // Calculate sizes
-  beautifyScore(score);  
+  
+  
+  var f = hdots_prefs.getPluginFunction("beauty_engine");
+  f(score);
+  
+  //beautifyScore(score);  
   
   reFlowAndReDraw(false); // Calculate sizes
 
@@ -497,7 +504,9 @@ function plotMusic(score)
 }
 
 function logit(s) {
-  //if (!staff.details.logging) return;
+  if (hdots_prefs.getValueOf("logging") !== "true") {return;}
+  
+  
   if (typeof s === "object") { // Yes, it catches arrays.  That is good.
     //s = "" + s.toSource();
     // TJM line below causes too much recursion error
