@@ -10,7 +10,12 @@ function getInfo(mel) {
 
   o.idx = score.data.indexOf(mel);
   
+  if (mel.forceToX2) {
+    o.forceToX2 = mel.forceToX2;
+  }    
   
+
+  if (mel.b) {  
   if (mel.b.beatWeight) {
     o.beatWeight = mel.b.beatWeight;
   }
@@ -26,10 +31,8 @@ function getInfo(mel) {
   if (mel.b.isLeadOut) {
     o.extra = "lead out";
   }    
-
-  if (mel.forceToX2) {
-    o.forceToX2 = mel.forceToX2;
   }    
+  
   
   
   return o; 
@@ -52,7 +55,8 @@ function getInfo(mel) {
     imgEl.id = "mapImage";
     imgEl.style.position = "absolute";
     imgEl.useMap = "#hDotsMap";
-    document.body.appendChild(imgEl);
+
+    API.getEBI('hd_page_1').appendChild(imgEl);
   }
   
   API.positionElement(imgEl, canvasPos[0], canvasPos[1]);

@@ -1,0 +1,34 @@
+#hd_config_plugin {
+}
+
+#hd_config {
+}
+
+.hd_pluginPref {
+  border: 1px solid green;
+  margin-left: 2em;
+}
+
+
+#hd_config label {
+color: green;
+}
+
+#hd_config label span {
+  float:left;
+  width:25%;
+  margin-right:0.5em;
+  padding-top:0.2em;
+  text-align:right;
+  font-weight:bold;
+  color: white;
+  padding-right: 0.5em;
+  border: 1px solid black;
+  background: blue;
+}
+
+#hd_config div.breaker {
+  clear: both;
+}
+
+
