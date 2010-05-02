@@ -24,6 +24,7 @@
       var ctx = sdet.ctx;
       var c = this.c;
       var rect = {};
+      var o;
       
       c.rect = rect;
       rect.x = sdet.x;
@@ -31,9 +32,8 @@
       rect.height = 0;
       rect.width = sdet.canvas.width;
 
-      var o = {};
-
       if (this.Title) {
+        o = {};
         o.width = ctx.measureText(this.Title).width;
         o.x = (rect.width/2) - (o.width/2);
         o.y = rect.y + rect.height;
@@ -44,11 +44,12 @@
         o.align = "center";
         c.title = o;
 
-        c.rect.height += c.title.height;
+        rect.height += c.title.height;
 
       }
       
       if (this.Genre) {
+        o = {};
         o.x = sdet.leftMargin;
         o.y = rect.y + rect.height;
         o.height = sdet.space*2.5;
@@ -59,12 +60,13 @@
         o.align = "left";
         c.genre = o;
 
-        c.rect.height += c.genre.height;
+        rect.height += c.genre.height;
 
       }
 
       if (this.Composer) {
-        o.x = sdet.rightMargin;
+        o = {};
+	o.x = sdet.canvas.width - sdet.leftMargin;
         o.y = rect.y + rect.height;
         o.height = sdet.space*2.5;
         o.width = ctx.measureText(this.Composer).width;
@@ -74,23 +76,25 @@
         o.align = "right";
         c.composer = o;
 
-        c.rect.height += c.composer.height;
+        rect.height += c.composer.height;
 
       }
       
       if (this.TuneTempo && this.beatUnit) {
-
-        o.x = sdet.leftMargin;
+        o = {};
+        o.notex = sdet.leftMargin;
+        o.x = o.notex + (sdet.space *2);   // this space should be note width * 2
         o.y = rect.y + rect.height;
-        o.height = sdet.space;
+        o.height = sdet.space*2;
+        o.size = sdet.space*1.75;
         o.width = ctx.measureText(" =  " + this.TuneTempo).width;
-        o.size = sdet.space*1.5;
+        o.noteSize = sdet.space*0.6;
         o.style = "italic";
         o.font = "sans-serif";
         o.align = "left";
         c.tempo = o;
 
-        c.rect.height += c.tempo.height;
+        rect.height += c.tempo.height;
 
       }
 
@@ -122,24 +126,28 @@
       if (this.Composer) paintText(this.Composer, c.composer);
       
       if (this.TuneTempo) {
+        var ts, tx;
+        
+        paintText(" =  " + this.TuneTempo, c.tempo);
 
-        paintText(" =  " + this.Composer, c.composer);
-/*
         var n = score.createMelodyNote();
-        n.duration = m.beatUnit;
+        n.duration = this.beatUnit;
         n.staffPosition = 'floating';
         n.stemDir = "up";
-        sdet.x = sdet.leftMargin;
-        var s = sdet.space
-        sdet.space = o.size * 1.25;
-        sdet.x = sdet.leftMargin;
+        tx = sdet.x;
+        ts = sdet.space
 
-        sdet.noteInfo.floating.x = sdet.x;
-        sdet.noteInfo.floating.y = o.y;
+        sdet.x = c.tempo.notex;
+        sdet.space = c.tempo.noteSize;
+
+        sdet.noteInfo.floating.x = c.tempo.notex;
+        sdet.noteInfo.floating.y = c.tempo.y;
 
         n.calc(staff);
         n.paint(staff);
-*/
+
+        sdet.x = tx;
+        sdet.space = ts;
       
       }
     
