@@ -1,7 +1,25 @@
 "use strict";
 
-function beautifyScore(score) {
-  var beatInPixels = 200;  // How wide each beat is... This should be adjustable, selectable somehow.
+  hdots_prefs.registerPlugin("beauty_engine", "beat", "To the beat", beautifyScore);
+  
+  hdots_prefs.registerPluginPreference("beauty_engine", "beat",
+    {
+      type: "text",
+      label: "Length of line, in pixels",
+      name: "linelen",
+      def:  "2000"
+    });
+
+ 
+  
+  hdots_prefs.registerPlugin("beauty_engine", "natural", "The natural layout", dummy);
+  function dummy(pref, score) {
+  }
+  
+
+function beautifyScore(pref, score) {
+  var FORCEWIDTH = +pref.linelen; //2000;   // Forced for now.  It is the width of the the bar, minus "headers" 
+  
   
   var i, l, data;
   var mel, mel2, measureList, melodyNoteList;
@@ -120,7 +138,6 @@ function beautifyScore(score) {
   */
   function setSpacing() {
     //FIXEME: Should be based off scaling.
-    var FORCEWIDTH = 2000;   // Forced for now.  It is the width of the the bar, minus "headers" 
     var spaceForLeadIn = 0;  // How much space to reserve for lead ins.
     
     var BEATLENGTH;
@@ -130,7 +147,7 @@ function beautifyScore(score) {
     var a;
     var mel, prevMel, staffMel;
     var newX;
-    
+   
     // Find the next start of a measure bar.
     // Sometimes there are measure bars with no melody notes inside, such
     // as when a bar starts off the beginning of a line, then a repeat bar
@@ -174,7 +191,7 @@ function beautifyScore(score) {
       mel.forceToX = toX;
       //prevMel.paddingRight = 0;
     }
-    
+
     // There are some things that should be immune from being forced.
     // Things like the clef, key signatures, time signatures.
     // Also, the leadins are left alone.
@@ -185,41 +202,41 @@ function beautifyScore(score) {
      var inLeadIn = false;
      var isMeasureStart = true;
      var getNextMelodyX = false;
-      
+     
      isMeasureStart = true;
      l = data.length;      
      for (i = 0; i < l; i++) {
        mel = data[i];
        if (!mel.c) {continue;}
-      
+       
        if (mel.b && mel.b.isLeadIn) {
          inLeadIn = true;
          getNextMelodyX = true;
        } else if (mel.newBar) {
          inLeadIn = false;
-        }
-        
+       }
+       
        if (inLeadIn) {
          mel.noForceX = true;
        } else {
-        
+         
          if (mel.type === "melody") {
            if (getNextMelodyX) {
              if (mel.c && typeof mel.c.x === "number") {spaceForLeadIn = Math.max(spaceForLeadIn, mel.c.x)};
              getNextMelodyX = false;
            }
-        
+             
            isMeasureStart = false;
-      }
+         }
          if (inLeadIn) {mel.noForceX = true};
          if (mel.type === "gracenote") { isMeasureStart = false; }
          if (mel.staffEnd) { isMeasureStart = true;}
          if (isMeasureStart) { mel.noForceX = true;}
        }
      }
-      
+     
     }());
-      
+    
     var offSet;
     var m;
     // Start collecting data
@@ -249,7 +266,7 @@ function beautifyScore(score) {
       }      
     };
     
-    
+
     // Now, we walk through the data once more -- backwards.
     // And we shift most of the other mel's around to slide back in front
     // of the melody note they are attached to.
@@ -269,7 +286,7 @@ function beautifyScore(score) {
         //logit(mel.type + " offset = " + offSet);
         if (!mel.noForceX) { 
           mel.forceToX = mel.c.x - offSet;
-      }
+        }
       }
       
       if (mel.staffEnd) { mel.forceToX  = FORCEWIDTH + spaceForLeadIn;}
