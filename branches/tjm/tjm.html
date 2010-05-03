@@ -43,7 +43,7 @@ as opposed to having it static on the page.-->
    height:20px;
    background-image:url('ui/images/bg-header.png');
    background-repeat:repeat-x;
-   border-bottom: 1px solid black;
+   border-bottom: 1px solid #cccccc;
 	font-family: Verdana, Arial, SunSans-Regular, Sans-Serif;
 	font-weight:bold;
 	font-size: 14px;
@@ -129,6 +129,63 @@ color: green;
 
 </style>
 
+<style>
+/*
+ * Tabs from http://nontroppo.org/test/tab1.html, copyleft license
+ */
+	#tabmenu {
+		color: #000;
+		border-bottom: 2px solid black;
+		margin: 12px 0px 0px 0px;
+		padding: 0px;
+		z-index: 1;
+		padding-left: 10px }
+
+	#tabmenu li {
+		display: inline;
+		overflow: hidden;
+		list-style-type: none; }
+
+	#tabmenu a, a.active {
+		color: #DEDECF;
+		background: #898B5E;
+		font: bold 1em "Trebuchet MS", Arial, sans-serif;
+		border: 2px solid black;
+		padding: 2px 5px 0px 5px;
+		margin: 0;
+		text-decoration: none; }
+
+	#tabmenu a.active {
+		background: #ABAD85;
+		border-bottom: 3px solid #ABAD85; }
+
+	#tabmenu a:hover {
+		color: #fff;
+		background: #ADC09F; }
+
+	#tabmenu a:visited {
+		color: #E8E9BE; }
+
+	#tabmenu a.active:hover {
+		background: #ABAD85;
+		color: #DEDECF; }
+
+	#content {font: 0.9em/1.3em "bitstream vera sans", verdana, sans-serif;
+		text-align: justify;
+		background: #ABAD85;
+		padding: 20px;
+		border: 2px solid black;
+		border-top: none;
+		z-index: 2;	}
+
+	#content a {
+		text-decoration: none;
+		color: #E8E9BE; }
+
+	#content a:hover { background: #898B5E; }
+
+</style>
+
 
 <script>
 function closeInputDialog() {
@@ -148,11 +205,12 @@ function openSettings(srcElem) {
   while (p.tagName.toLowerCase() !== "div") {
     p = p.parentNode;
   }
-  ui = document.getElementById('hd_page_2');
+  ui = document.getElementById('settings');  //'hd_page_2');
   ui.style.position = 'fixed';
   ui.style.top = p.style.top + p.style.height;
   ui.style.float = "right";
-  ui.style.width = '30%';
+  ui.style.width = '50%';
+  ui.style.height = '50%';
 
   ui.style.display = 'block';
   ui.style.visibility = 'visible';
@@ -250,6 +308,8 @@ function doEval(elemId) {
     <li><a href="#" onClick="uiDoFileOpen('inputDialog',this);">OPEN</a></li>
     <li><a href="#" onClick="alert('Not yet implemented');">SAVE</a></li>
     <li><a href="#" onClick="alert('Not yet implemented');">PRINT</a></li>
+    <li style="width:20px;">&nbsp;</li>
+    <li><a href="#" onClick="alert('Not yet implemented');">HELP</a></li>
   </ul>
 </span>
 <span style="float:right;">
@@ -263,44 +323,78 @@ function doEval(elemId) {
 <div class="inputArea" id="inputDialog">
 </div>
 
-<div class="hd_page" id="hd_page_2" style="display:none; visibility:hidden; background-color:#ffffff;border:solid #CCCCCC 2px;">
-  <span class="uiInputHeading">Settings and Preferences</span>
-  <img src="ui/images/tuliana/cancel.png" onclick="closeInputDialog('hd_page_2');"
-	   style="float:right; height:15px;width:15px;" />
 
-  <form action="#" id="hd_config_form" onsubmit="return false;">
-
-	<div id="hd_config_plugin">
-	  <p>When a plugin needs preferences set, that appears here.</p>
-	</div>
-	<div id="hd_config">
-	  <p>Please setup the preferences in the list below.</p>
-	 </div>
-  </form>
+<div id="settings" style="display:none; visibility:hidden; background-color:#ffffff;border:solid #CCCCCC 2px;">
+  <span style="float:left;">
+    <ul id="tabmenu">
+      <li><a class="active" href="#">General</a></li>
+      <li><a href="#">Prefs</a></li>
+      <li><a href="#">Plugins</a></li>
+      <li><a href="#">DevTools</a></li>
+    </ul>
+  </span>
+  <span style="float:right;">
+    <img src="ui/images/tuliana/cancel.png" onclick="closeInputDialog('settings');"
+   	   style="float:right; height:15px;width:15px;" />
+  </span>
+  <br />
+  <div class="hd_page" id="hd_page_2">
+    <form action="#" id="hd_config_form" onsubmit="return false;">
+      <div id="hd_config_plugin">
+        <p>When a plugin needs preferences set, that appears here.</p>
+      </div>
+      <div id="hd_config">
+        <p>Please setup the preferences in the list below.</p>
+      </div>
+    </form>
+  </div>
 </div>
-</div>
 
-<div id="canvas_div" style="width:800px; height:400px; overflow:auto;border:solid black 1px;">
+<div style="width:800px; height:400px; overflow:auto;">
   <div class="sectionHeader">
     <span style="float:left;">
       <img src="ui/images/tuliana/reload.png" onclick="plotMusic(score);"
            style="float:left; height:18px;width:18px;" />
       <span id="scoreTitle" style="float:left;">Score</span>
     </span>
+
     <span id="scoreControls" style="float:right;">
       <img src="ui/images/tuliana/view_fullscreen.png" onclick="alert('Not yet implemented');"
            style="float:right; height:18px;width:18px;" />
       <img src="ui/images/tuliana/view_nofullscreen.png" onclick="alert('Not yet implemented');"
            style="float:right; height:18px;width:18px;" />
+    </span>
+    <span id="playerControls" style="float:right;margin-right:100px;">
+      <img src="ui/images/tuliana/player_start.png" onclick="alert('Not yet implemented');"
+           style="height:18px;width:18px; text-align:center;"/>
+      <img src="ui/images/tuliana/player_stop.png" onclick="alert('Not yet implemented');"
+           style="height:18px;width:18px; text-align:center;"/>
+      <img src="ui/images/tuliana/player_play.png" onclick="alert('Not yet implemented');"
+           style="height:18px;width:18px; text-align:center;"/>
+      <img src="ui/images/tuliana/reload.png" onclick="alert('Not yet implemented');"
+           style="height:18px;width:18px; text-align:center;"/>
+
+      &nbsp;
+
+      <img src="ui/images/tuliana/arts.png" onclick="alert('Not yet implemented');"
+           style="height:18px;width:18px; text-align:center;"/>
 
     </span>
+
+    <span id="playerControls" style="float:right;margin-right:50px;">
+      <input type="text" value="80" size="3"
+             style="background:transparent;height:12.5px;line-height: 10px;padding: 0 0 -2.5px 0;">
+      <b>BPM</b>
+    </span>
   </div>
+  <div id="canvas_div" style="margin-left:auto;margin-right:auto;height:375px;width:790px; overflow:scroll;border-left:solid 1px #cccccc;">
   <p id="hdots_canvas">The music goes here</p>
+  </div>
 </div>
 
 <br />
 
-<div id="editor_div" style="width:800px; height:300px; overflow:auto;border:solid black 1px;">
+<div id="editor_div" style="width:800px; height:300px; overflow:auto;">
   <div class="sectionHeader">
     <span style="float:left;">
       <img src="ui/images/tuliana/reload.png" onclick="loadFromEditor();"
@@ -315,7 +409,7 @@ function doEval(elemId) {
 
     </span>
   </div>
-  <textarea id="editor" style="width:800px; height:270px; overflow:auto; border:none;">
+  <textarea id="editor" style="width:790px; height:268px; overflow:auto; border:solid 1px #cccccc;">
   Locally loaded tunes will go here.
   </textarea>
 </div>
@@ -349,7 +443,7 @@ function doEval(elemId) {
 
 <br />
 
-<div id="log_div" style="width:800px; height:50px; border:solid black 1px;">
+<div id="log_div" style="width:800px; height:70px; border:solid black 1px;">
   <div class="sectionHeader">
     <span style="float:left;">
       <span id="scoreTitle" style="float:left;">Log</span>
@@ -364,7 +458,7 @@ function doEval(elemId) {
 
     </span>
   </div>
-  <div style="overflow:scroll;">
+  <div style="width:800px; height:50px; overflow:auto;">
     <pre id="log"></pre>
   </div>
 </div>
