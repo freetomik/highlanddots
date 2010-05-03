@@ -18,21 +18,369 @@ as opposed to having it static on the page.-->
 <script src="jslib/helvetiker-normal-normal.js"></script>
 <script src="jslib/helvetiker-bold-normal.js"></script>
 
+<style>
+
+/* classes*/
+
+.inputArea {
+    width: auto;
+    z-index: 500;
+    background-color: #ffffff;
+	border-left: 2px solid #CCCCCC;
+	border-bottom: 2px solid #CCCCCC;
+	border-right: 2px solid #CCCCCC;
+	visibility: hidden;
+	display:none;
+}
+
+
+.uiInputHeading {
+	font-weight:bold;
+}
+
+.sectionHeader {
+   width:800px;
+   height:20px;
+   background-image:url('ui/images/bg-header.png');
+   background-repeat:repeat-x;
+   border-bottom: 1px solid black;
+	font-family: Verdana, Arial, SunSans-Regular, Sans-Serif;
+	font-weight:bold;
+	font-size: 14px;
+
+}
+
+#hd_config_plugin {
+}
+
+#hd_config {
+}
+
+.hd_pluginPref {
+  border: 1px solid green;
+  margin-left: 2em;
+}
+
+
+#hd_config label {
+color: green;
+}
+
+#hd_config label span {
+  float:left;
+  width:25%;
+  margin-right:0.5em;
+  padding-top:0.2em;
+  text-align:right;
+  font-weight:bold;
+  color: white;
+  padding-right: 0.5em;
+  border: 1px solid black;
+  background: blue;
+}
+
+#hd_config div.breaker {
+  clear: both;
+}
+
+
+/* ids */
+#menuBar {
+   width:800px;
+   height:30px;
+   background-image:url('ui/images/bg-menu.png');
+   background-repeat:repeat-x;
+   border: 1px solid gray;
+
+}
+
+
+
+#menuBar span {
+    padding:0px 0px 0px 0px;
+}
+#menuBar ul {
+	list-style: none;
+    height:30px;
+    padding:0px 0px 0px 0px;
+    margin-top:4px;
+}
+
+#menuBar li {
+    display:inline;
+    height:30px;
+    padding:0px 0px 0px 0px;
+}
+
+#menuBar a {
+	width: auto;
+	padding: 3px 0px 2px 20px;
+	color: black;
+	font-family: Verdana, Arial, SunSans-Regular, Sans-Serif;
+	font-weight:bold;
+	text-decoration: none;
+}
+
+#menuBar a:hover {
+	color: #66cc66;
+}
+
+
+
+</style>
+
+
+<script>
+function closeInputDialog() {
+  var id = "inputDialog";
+  if (arguments.length == 1)
+    id = arguments[0];
+
+  document.getElementById(id).style.visibility = 'hidden';
+  document.getElementById(id).style.display = 'none';
+
+}
+
+function openSettings(srcElem) {
+  var elem1, elem2,elem3,p;
+
+  p = srcElem.parentNode;
+  while (p.tagName.toLowerCase() !== "div") {
+    p = p.parentNode;
+  }
+  ui = document.getElementById('hd_page_2');
+  ui.style.position = 'fixed';
+  ui.style.top = p.style.top + p.style.height;
+  ui.style.float = "right";
+  ui.style.width = '30%';
+
+  ui.style.display = 'block';
+  ui.style.visibility = 'visible';
+
+
+}
+
+
+function uiDoFileOpen(displayElemId, srcElem) {
+  var elem1, elem2,p;
+
+  var ui = document.getElementById(displayElemId);
+  ui.innerHTML = "";
+
+  elem1 = document.createElement('span');
+  elem1.setAttribute('class', 'uiInputHeading');
+  elem1.appendChild(document.createTextNode('Select a file to open'));
+
+  elem2 = document.createElement('img');
+  elem2.setAttribute('src', 'ui/images/tuliana/cancel.png');
+  elem2.setAttribute('onclick', 'closeInputDialog();');
+  elem2.setAttribute('style', 'float:right; height:15px;width:15px;');
+  elem1.appendChild(elem2);
+
+  ui.appendChild(elem1)
+
+
+  elem1 = document.createElement('br');
+  ui.appendChild(elem1)
+
+  elem1 = document.createElement('input');
+  elem1.setAttribute('type', 'file');
+  elem1.setAttribute('class', 'uiInputHeading');
+  elem1.setAttribute('onChange', 'handleLoadTunes(this.files);');
+  ui.appendChild(elem1)
+
+  p = srcElem.parentNode;
+  while (p.tagName.toLowerCase() !== "div") {
+    p = p.parentNode;
+  }
+
+  ui.style.position = 'fixed';
+  ui.style.top = p.style.top + p.style.height;
+  ui.style.left = p.style.left;
+  ui.style.width = '30%';
+  ui.style.display = 'block';
+  ui.style.visibility = 'visible';
+
+}
+
+
+
+function localPathToURI(path) {
+  var uri = path;
+  uri = uri.replace(/\\/g, '/');
+  uri = uri.replace(/:/g, '|');
+  uri = "file://" + uri;
+  return uri;
+}
+
+function loadFromEditor() {
+  var t = document.getElementById('editor').value;
+  uiLoadTune('bww', t);
+  closeInputDialog();
+}
+
+function handleLoadTunes(list) {
+  var t = list[0].getAsText("");
+  document.getElementById('editor').value = t;
+  uiLoadTune('bww', t);
+
+  closeInputDialog();
+}
+
+function reload() {
+	plotMusic(score);
+}
+
+function doEval(elemId) {
+  var o = document.getElementById(elemId);
+  if (o.value && o.value.length > 0) eval(o.value);
+}
+
+
+</script>
+
+
 </head>
 
-<body>
-<p>
-  <img src="pics/logo.gif" width="43px" height="52px" border="0" onclick="devCon();">
-  <span id="timeinfo">Time: Not  yet rendered.</span>
-</p>
+<body onLoad="hdots_prefs.makeHdConfigForm();">
+
+<div id="menuBar">
+<span style="float:left;">
+  <ul>
+    <li><a href="#" onClick="uiDoFileOpen('inputDialog',this);">OPEN</a></li>
+    <li><a href="#" onClick="alert('Not yet implemented');">SAVE</a></li>
+    <li><a href="#" onClick="alert('Not yet implemented');">PRINT</a></li>
+  </ul>
+</span>
+<span style="float:right;">
+<ul>
+    <li><a href="#" onClick="openSettings(this);">SETTINGS</a></li>
+    <li><a href="#">LIBRARY</a></li>
+  </ul>
+</span>
+</div>
+
+<div class="inputArea" id="inputDialog">
+</div>
+
+<div class="hd_page" id="hd_page_2" style="display:none; visibility:hidden; background-color:#ffffff;border:solid #CCCCCC 2px;">
+  <span class="uiInputHeading">Settings and Preferences</span>
+  <img src="ui/images/tuliana/cancel.png" onclick="closeInputDialog('hd_page_2');"
+	   style="float:right; height:15px;width:15px;" />
+
+  <form action="#" id="hd_config_form" onsubmit="return false;">
+
+	<div id="hd_config_plugin">
+	  <p>When a plugin needs preferences set, that appears here.</p>
+	</div>
+	<div id="hd_config">
+	  <p>Please setup the preferences in the list below.</p>
+	 </div>
+  </form>
+</div>
+</div>
+
+<div id="canvas_div" style="width:800px; height:400px; overflow:auto;border:solid black 1px;">
+  <div class="sectionHeader">
+    <span style="float:left;">
+      <img src="ui/images/tuliana/reload.png" onclick="plotMusic(score);"
+           style="float:left; height:18px;width:18px;" />
+      <span id="scoreTitle" style="float:left;">Score</span>
+    </span>
+    <span id="scoreControls" style="float:right;">
+      <img src="ui/images/tuliana/view_fullscreen.png" onclick="alert('Not yet implemented');"
+           style="float:right; height:18px;width:18px;" />
+      <img src="ui/images/tuliana/view_nofullscreen.png" onclick="alert('Not yet implemented');"
+           style="float:right; height:18px;width:18px;" />
+
+    </span>
+  </div>
+  <p id="hdots_canvas">The music goes here</p>
+</div>
+
+<br />
+
+<div id="editor_div" style="width:800px; height:300px; overflow:auto;border:solid black 1px;">
+  <div class="sectionHeader">
+    <span style="float:left;">
+      <img src="ui/images/tuliana/reload.png" onclick="loadFromEditor();"
+           style="float:left; height:18px;width:18px;" />
+      <span id="scoreTitle" style="float:left;">Editor</span>
+    </span>
+    <span id="scoreControls" style="float:right;">
+      <img src="ui/images/tuliana/view_fullscreen.png" onclick="alert('Not yet implemented');"
+           style="float:right; height:18px;width:18px;" />
+      <img src="ui/images/tuliana/view_nofullscreen.png" onclick="alert('Not yet implemented');"
+           style="float:right; height:18px;width:18px;" />
+
+    </span>
+  </div>
+  <textarea id="editor" style="width:800px; height:270px; overflow:auto; border:none;">
+  Locally loaded tunes will go here.
+  </textarea>
+</div>
+
+<br />
+
+<div id="status_div" style="width:800px; height:50px; border:solid black 1px;">
+  <div class="sectionHeader">
+    <span style="float:left;">
+      <span id="scoreTitle" style="float:left;">Status</span>
+    </span>
+    <span id="scoreControls" style="float:right;">
+      <img src="ui/images/tuliana/cancel.png" onclick="alert('Not yet implemented');"
+           style="float:right; height:15px;width:15px;" />
+      <img src="ui/images/tuliana/view_fullscreen.png" onclick="alert('Not yet implemented');"
+           style="float:right; height:18px;width:18px;" />
+      <img src="ui/images/tuliana/view_nofullscreen.png" onclick="alert('Not yet implemented');"
+           style="float:right; height:18px;width:18px;" />
+
+    </span>
+  </div>
+  <p>
+    <span id="timeinfo">Time: Not  yet rendered.</span>
+  </p>
+  <div style="overflow:auto;">
+    <p id="status">
+      &nbsp;
+    </p>
+  </div>
+</div>
+
+<br />
+
+<div id="log_div" style="width:800px; height:50px; border:solid black 1px;">
+  <div class="sectionHeader">
+    <span style="float:left;">
+      <span id="scoreTitle" style="float:left;">Log</span>
+    </span>
+    <span id="scoreControls" style="float:right;">
+      <img src="ui/images/tuliana/cancel.png" onclick="alert('Not yet implemented');"
+           style="float:right; height:15px;width:15px;" />
+      <img src="ui/images/tuliana/view_fullscreen.png" onclick="alert('Not yet implemented');"
+           style="float:right; height:18px;width:18px;" />
+      <img src="ui/images/tuliana/view_nofullscreen.png" onclick="alert('Not yet implemented');"
+           style="float:right; height:18px;width:18px;" />
+
+    </span>
+  </div>
+  <div style="overflow:scroll;">
+    <pre id="log"></pre>
+  </div>
+</div>
 
 
-<div id="canvas_div"><p id="hdots_canvas">The music goes here</p></div>
+<map name="hDotsMap" id="hDotsMap">
+<area shape="polygon" coords="19,44,45,11,87,37,82,76,49,98" href="http://www.trees.com/save.html">
+<area shape="rect" coords="128,132,241,179" href="http://www.trees.com/furniture.html">
+<area shape="circle" coords="68,211,35" href="http://www.trees.com/plantations.html">
+</map>
 
 
 <script type='text/javascript' src='tools.js'></script>
 <script type='text/javascript' src='mylib.js'></script>
 <script type='text/javascript' src='hdots.js'></script>
+<script type='text/javascript' src='gui.js'></script>
 
 <script type='text/javascript' src='bwwimport.js'></script>
 
@@ -52,100 +400,8 @@ as opposed to having it static on the page.-->
 <script type='text/javascript' src='imagemap.js'></script>
 <script type='text/javascript' src='beautifyscore.js'></script>
 
-<script>
-
-function localPathToURI(path) {
-	var uri = path;
-	uri = uri.replace(/\\/g, '/');
-	uri = uri.replace(/:/g, '|');
-	uri = "file://" + uri;
-	return uri;
-}
-
-function loadFromEditor() {
-	var t = document.getElementById('editor').value;
-	uiLoadTune('bww', t);
-	devCon();
-}
-
-function handleLoadTunes(list) {
-	var t = list[0].getAsText("");
-	document.getElementById('editor').value = t;
-	uiLoadTune('bww', t);
-	devCon();
-}
-
-function reload() {
-	plotMusic(score);
-}
-
-function doEval(elemId) {
-	var o = document.getElementById(elemId);
-	if (o.value && o.value.length > 0) eval(o.value);
-}
-
-function devCon() {
-	var s = document.getElementById('devcon').style;
-	s.display = (s.display === "none") ? "inline" : "none";
-
-}
 
 
-</script>
-<p id="status">
-&nbsp;
-</p>
-
-<pre id="log"></pre>
-
-<map name="hDotsMap" id="hDotsMap">
-<area shape="polygon" coords="19,44,45,11,87,37,82,76,49,98" href="http://www.trees.com/save.html">
-<area shape="rect" coords="128,132,241,179" href="http://www.trees.com/furniture.html">
-<area shape="circle" coords="68,211,35" href="http://www.trees.com/plantations.html">
-</map>
-
-<div id="devcon" style="position:absolute; left:0px; top:0px; display:none; background-color:#FFFFFF; overflow:auto; height:100%; width:100%; z-index:100;">
-  <img src="pics/logo.gif" width="43px" height="52px" border="0" onclick="devCon();">
-  <br />
-
-  <span>
-    Note Color:    <select onChange="staff.details.noteColor1=this.options[this.selectedIndex].value;">
-                     <option value="black">Black</option>
-                     <option value="red">Red</option>
-                     <option value="green">Green</option>
-                     <option value="blue">Blue</option>
-                   </select>
-    &nbsp; &nbsp; &nbsp; &nbsp;
-    Beaming Style: <select onChange="staff.details.beamStyle=this.options[this.selectedIndex].value;">
-                     <option value="bww">BWW</option>
-                     <option value="straight">Straight</option>
-                     <option value="sloped">Sloped</option>
-                   </select>
-  </span>
-  &nbsp; &nbsp; &nbsp; &nbsp;
-  <span>
-    <input type="checkbox" onChange="(this.checked)?staff.details.uiTracing=true:staff.details.uiTracing=false;"/> UI Tracing
-    &nbsp; &nbsp; &nbsp; &nbsp;
-    <input type="checkbox" onChange="(this.checked)?staff.details.logging=true:staff.details.logging=false;"/> Logging
-  </span>
-  <br />
-
-  <input type="text"size="60" id="jsToEval" value="" />
-  <button onclick="doEval('jsToEval');" >Eval</button>
-  <br />
-
-  <input type="file" onchange="handleLoadTunes(this.files);" />
-  <br />
-  <button onclick="plotMusic(score);">Reload</button> <button onclick="loadFromEditor();">Load from editor</button>
-  <button onclick="testImport2()">Internal notation test</button>
-  <br />
-  <p><b>Current Local Tune</b></p>
-  <textarea id="editor" style="width:80%; height:300px; overflow:auto; border:1px solid black">
-  Locally loaded tunes will go here.
-  </textarea>
-
-  </iframe>
-</div>
 
 </body>
 </html>
