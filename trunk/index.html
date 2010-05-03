@@ -12,6 +12,8 @@ as opposed to having it static on the page.-->
 
 <!--[if IE]>
 <script src="jslib/excanvas.js"></script>
+<script language = "vbscript" src="win_loadfile.vbs"></script>
+
 <![endif]-->
 
 <script src="jslib/canvas.text.js"></script>
@@ -26,6 +28,9 @@ as opposed to having it static on the page.-->
 
 </head>
 <body onload="primeGUI();">
+
+ <button onClick = 'ProcessScript("file")'>Load File (Windows)</button>   
+   
 
 <div id="toolbarlanding">&nbsp;</div>
 
