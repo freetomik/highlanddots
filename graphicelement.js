@@ -12,7 +12,7 @@ Score.graphicsList = {
  var THISTYPE = "graphic";
  function ThisType(name) {
    this.name = name;
-     this.c = {};                  // Storage area for some commonly used calcuations.
+   this.c = {};                  // Storage area for some commonly used calcuations.
    return this;
  }
  
@@ -20,10 +20,10 @@ Score.graphicsList = {
  ThisType.prototype.type = THISTYPE;
  
  ThisType.prototype.glyphInfo  =   {
-    "treble-clef" : {width : 480, height : 1200},
-    "natural" : {width : 160, height : 480},
-    "sharp" : {width : 180, height : 480},
-    "flat" : {width : 180, height : 480}
+    "treble-clef" : {width : 480, height : 1200, scaleFromHeight: 1200},
+    "natural" : {width : 160, height : 480, scaleFromHeight: 1200},
+    "sharp" : {width : 180, height : 480, scaleFromHeight: 1200},
+    "flat" : {width : 180, height : 480, scaleFromHeight: 1200}
  };
    
  ThisType.prototype.c = {};
@@ -37,14 +37,15 @@ Score.graphicsList = {
    var origin = sdet.noteInfo[this.staffNote].y;
 
    var ratio, size, width, height;
-   ratio = sdet.space * 1.8;
    size = sdet.staffHeight * 1.8;
+   ratio = this.glyphInfo[this.name].scaleFromHeight / size;
+
 
    width = this.glyphInfo[this.name].width;
    height = this.glyphInfo[this.name].height;
 
-   var dh = height / ratio;
-   var dw = width /ratio;  
+   var dh = height /  ratio;
+   var dw = width / ratio;  
 
    this.c.size = size;
    this.c.ratio = ratio;
