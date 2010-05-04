@@ -200,15 +200,9 @@ Note.prototype.paint = function(staff) {
   var self = this;
 
   function drawExtendedStaff() {
-    var lw = ctx.lineWidth;
-    // FIXME : scale factor on line width?
-    ctx.lineWidth = sdet.thick; 
-    ctx.beginPath();
-    ctx.moveTo(c.x - (c.width*0.75), c.y);
-    ctx.lineTo(c.x + (c.width*1.5), c.y);
-    ctx.closePath();
-    ctx.stroke();
-    ctx.lineWidth = lw; 
+    // FIXME : This only draws line under note. Lines should be drawn
+    //         for each line extended over staff
+    ctx.fillRect(c.x -(c.width*0.75), c.y, c.width*2.25, sdet.thick)
     
   }
 

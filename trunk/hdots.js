@@ -94,9 +94,14 @@ var staff =
    prepData();   
    //logit(details.noteInfo);
    
-   
+   /*
+    * Calling this function WITHOUT ARGUMENTS will increment the Y co-ord
+    * AND draw a line.
+    * Calling this function WITH any ARGUMENT(S) will increment the Y co-ord
+    * but WILL NOT draw a line.
+    */
    function drawLine() {
-     ctx.fillRect(x, y, width, details.thick);
+     if (arguments.length == 0) ctx.fillRect(x, y, width, details.thick);
      y += details.space;
    }
    
@@ -118,13 +123,14 @@ var staff =
    
    
    halfy = details.space/2;
+
    //High A line
    ctx.fillStyle = HIDDEN_LINE_COLOR;
    ctx.strokeStyle = HIDDEN_LINE_COLOR;
    details.noteInfo.a3.y = y; 
    details.noteInfo.g2.y = y + halfy; 
-   drawLine();
-   
+   drawLine(false);
+      
    ctx.fillStyle = "black";
    ctx.strokeStyle = "black";
    details.noteInfo.f2.y = y; 
@@ -150,10 +156,9 @@ var staff =
    ctx.fillStyle = HIDDEN_LINE_COLOR;
    ctx.strokeStyle = HIDDEN_LINE_COLOR;
    details.noteInfo.c1.y = y; 
-   drawLine();
+   drawLine(false);
    
-   //alert(details.findNote.toSource());   
-   
+
    details.heigth = y - details.top - details.space;
    ctx.closePath();
    details.top = y;
