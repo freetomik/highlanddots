@@ -25,6 +25,7 @@ Function ProcessScript(buttonPressed)
          If Not SelectFile("C:\", fileSpec, "Bagpipe Music Writer|*.bww|All Files|*.*") Then
             Exit Function
          Else
+            OpenIt fileSpec
             MsgBox "You selected " & fileSpec, vbInformation
          End If
       Case "folder"
@@ -109,3 +110,18 @@ Function SelectFile(folderSpec, fileSpec, filter)
       End If
    On Error Goto 0
 End Function
+
+
+Function OpenIt(FileName)
+	Dim fso,f
+	Dim v
+	Set fso=CreateObject("Scripting.FileSystemObject")
+	Set f=fso.OpenTextFile(FileName,1)
+	v=f.ReadAll
+	f.close
+	Set f=Nothing
+	Set fso=Nothing
+	'FIXME:  Do something with the file after we load it.
+  MsgBox "FileContents " & v, vbInformation
+End Function
+
