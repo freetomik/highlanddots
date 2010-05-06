@@ -1,134 +1,200 @@
 "use strict";
-/*
-function localPathToURI(path) {
-  var uri = path;
-  uri = uri.replace(/\\/g, '/');
-  uri = uri.replace(/:/g, '|');
-  uri = "file://" + uri;
-  return uri;
-}
-*/
-
-function FFFileOpenerComponent() {
-
-        var self = this;
-
-	this.register = function() {
-	  HD.ui.registerComponent(this.componentInfo);
-	};
-
-	this.init = function(domInfo) {
-	  //no-op
-	};
-
-	this.onShown = function(domInfo) {
-	  //no-op
-	};
-
-	this.onHidden = function(domInfo) {
-	  //no-op
-	};
-
-	this.openHttpFile = function(uri) {
-	  // TODO
-	};
-
-	this.openLocalFile = function(fileList) {
-          var startTime = new Date();
-	  var t = fileList[0].getAsText("");
-	  
-	  HD.ui.setText('editor', t);
-	  HD.core.loadTune('bww', t);
-          
-          var endTime = new Date();
-          var total = (endTime - startTime) / 1000;
-          HD.ui.setText('status', "Time spent rendering: " + total + " seconds.");
-
-	};
 
 
+var fileOpener = (function() {
 
-	this.getContent = function(domInfo) {
-	  var divElem, elem, inputElem;
-	  var doc = domInfo.doc;
-	  var parent = domInfo.parentNode;
+  var uiElement;
+  var tuneTxt;
+  var self = this;
 
-	  if (this.uiElement === undefined) {
-	    divElem = doc.createElement('div');
-
-	    elem = doc.createElement('fieldset');
-	    divElem.appendChild(elem)
-	    elem.appendChild(doc.createElement('legend'));
-	    elem.childNodes[0].appendChild(doc.createTextNode("HTTP"));
-
-	    inputElem = doc.createElement('input');
-	    inputElem.setAttribute('type', 'text');
-	    inputElem.setAttribute('size', '40');
-	    inputElem.setAttribute('value', 'http://');
-	    elem.setAttribute('onChange', "HD.ui.FileOpener.instance.openHttpFile(this.value);");
-	    elem.appendChild(inputElem);
-
-	    elem = doc.createElement('fieldset');
-	    divElem.appendChild(elem)
-	    elem.appendChild(doc.createElement('legend'));
-	    elem.childNodes[0].appendChild(doc.createTextNode("Files"));
-
-	    inputElem = doc.createElement('input');
-	    inputElem.setAttribute('type', 'file');
-	    inputElem.setAttribute('size', '30');
-	    inputElem.setAttribute('onChange', "HD.ui.FileOpener.instance.openLocalFile(this.files);");
-	    elem.appendChild(inputElem)
-
-	    this.uiElement = divElem;
-	  }
-	  return (this.uiElement);
-
-	};
-	
-  this.componentInfo = {
-	    instance : self, 
-	    category: "ui",
-	    type: "component",
-	    identifier: "FileOpener",
-	    os: "any",
-	    browser: "mozilla",
-	    title: "Open File",
-	    desc: "Firefox File opener",
-	    init: self.init,
-	    getContent : self.getContent,
-	    show: self.onShown,
-	    hide: self.onHidden
+  localPathToURI = function (path) {
+    var uri = path;
+    uri = uri.replace(/\\/g, '/');
+    uri = uri.replace(/:/g, '|');
+    uri = "file://" + uri;
+    return uri;
   };
 
-  return this;
-};
+  toRelativePath = function (path) {
+    var uri = path;
+    uri = uri.replace(/\\/g, '/');
+    uri = uri.replace(/:/g, '|');
+    uri = "file://" + uri;
+    return uri;
+  };
+
+  return function(fileOpenData) {
+
+    var data = fileOpenData;
+
+    openHttp = function(url) {
+      var txt;
+      var req;
+
+      function reqFailed() {
+        if (fileOpenData.onFailure) { fileOpenData.onFailure(); }
+      }
+
+      fileOpenData.filename = url.substring(url.lastIndexOf('/'));
+      fileOpenData.fileUrl = url;
+
+      req = API.createXmlHttpRequest();
+      req.open('GET', url, false);
+      req.send(null);
+
+      if(req.status == 200) {
+
+        txt = req.responseText;
+
+        if (txt && txt.length > 0) {
+          fileOpenData.tuneTxt = txt;
+          if (fileOpenData.onSuccess) { fileOpenData.onSuccess(); }
+
+        } else {
+          reqFailed();
+        }
+      } else {
+        reqFailed();
+      }
+
+    };
+
+    httpFilePicker = function() {
+
+      if (API.createXmlHttpRequest() != null) {
+        return function() {
+          var inputId = "httpOpenTuneUrl";
+          elem = document.createElement('fieldset');
+          divElem.appendChild(elem)
+          elem.appendChild(document.createElement('legend'));
+          elem.childNodes[0].appendChild(document.createTextNode("HTTP"));
+
+          inputElem = document.createElement('input');
+          inputElem.setAttribute('id', inputId);
+          inputElem.setAttribute('type', 'text');
+          inputElem.setAttribute('size', '40');
+          inputElem.setAttribute('value', 'http://');
+          inputElem.onChange = this.openHttp(API.getEBI(inputId).value);
+          elem.appendChild(inputElem);
+        }
+      } else {
+        return null;
+      }
+    };
 
 
-function IEFileOpenerComponent() {
-	var self = this;
+    // test for ActiveX support
+    // FIXME : should test for input[type==file].files
+    //         and ActiveX
+    //         and give "not supported" message content for everything else
+    var useActiveX = false;
+    try {
+      var xhr= new ActiveXObject('Microsoft.XMLHTTP');
+      if (API.isHostMethod(xhr, "open")) {
+        useActiveX = true;
+      }
+    } catch (ex) {
+    }
 
-	this.register = function() {
-	  HD.ui.registerComponent(this.componentInfo);
-	};
+    if (!useActiveX) {
 
-	this.init = function(domInfo) {
-	  //no-op
-	};
+      return {
+         uiElement: null,
+         fileInput: null,
 
-	this.onShown = function(domInfo) {
-	  //no-op
-	};
 
-	this.onHidden = function(domInfo) {
-	  //no-op
-	};
+        openLocalFile: function() {
+          var txt;
+          var f = data.fileInput.files[0];
+          data.filename = f.name;
+          data.fileUrl = f.url;
 
-	this.openHttpFile = function(uri) {
-	  // TODO
-	};
+          txt = f.getAsText("");
+          if (txt && txt.length > 0) {
+            this.tuneTxt = txt;
+            if (data.useForEditor) { data.useForEditor.value = txt; }
+            if (data.onSuccess) { data.onSuccess(); }
+          } else {
+            if (data.onFailure) { data.onFailure(); }
+          }
 
-	this.openLocalFile = function() {
+        },
 
+        filePicker: function() {
+          var frag, divElem, elem, inputElem;
+
+          if (self.uiElement === undefined) {
+            frg = document.createDocumentFragment();
+            divElem = document.createElement('div');
+            frg.appendChild(divElem);
+
+            elem = httpFilePicker();
+
+//            if (elem !== null) { divElem.appendChild(elem); }
+
+            elem = document.createElement('fieldset');
+            divElem.appendChild(elem)
+            elem.appendChild(document.createElement('legend'));
+            elem.childNodes[0].appendChild(document.createTextNode("Files"));
+
+            inputElem = document.createElement('input');
+            inputElem.setAttribute('type', 'file');
+            inputElem.setAttribute('size', '30');
+            inputElem.addEventListener("change",this.openLocalFile, false);
+
+            elem.appendChild(inputElem);
+
+            this.uiElement = frg;
+            data.fileInput = inputElem;
+
+          }
+          if (fileOpenData.useForUi) {
+           data.useForUi.appendChild(this.uiElement);
+          } else {
+            return (this.uiElement);
+          }
+
+        }
+
+      }
+    } else if (useActiveX) {
+
+      return {
+
+        filePicker:  function() {
+          var divElem, elem, inputElem;
+
+          if (self.uiElement === undefined) {
+
+            divElem = doc.createElement('div');
+
+            elem = self.httpFilePicker();
+            if (elem) { divElem.appendChild(elem); }
+
+            elem = document.createElement('fieldset');
+            divElem.appendChild(elem)
+            elem.appendChild(document.createElement('legend'));
+            elem.childNodes[0].appendChild(document.createTextNode("Files"));
+
+            inputElem = document.createElement('button');
+            inputElem.setAttribute('value', 'Browse Files');
+            inputElem.onclick = open();
+            inputElem.appendChild(document.createTextNode('Browse Files'));
+
+            elem.appendChild(inputElem)
+
+            self.uiElement = divElem;
+          }
+
+          if (fileOpenData.useForUi) {
+           fileOpenData.useForUi.appendChild(self.uiElement);
+          } else {
+            return (self.uiElement);
+          }
+
+        },
+
+        open: function() {
           var dialog = new ActiveXObject('UserAccounts.CommonDialog');
           dialog.Filter = 'All files (*.*)|*.*| ';
           var result = dialog.ShowOpen();
@@ -136,81 +202,21 @@ function IEFileOpenerComponent() {
            return false;
 
           var fso = new ActiveXObject("Scripting.FileSystemObject");
-          var f = fso.OpenTextFile(dialog.FileName, 1, false); // open for reading, don't create it
+          var f = fso.OpenTextFile(dialog.FileName, 1, false); // open for reading, don't create file
           var txt = f.ReadAll();
-	  
-          var startTime = new Date();
-	  HD.ui.setText('editor', txt);
-	  HD.core.loadTune('bww', txt);
 
-	  var endTime = new Date();
-	  var total = (endTime - startTime) / 1000;
-	  HD.ui.setText('status', "Time spent rendering: " + total + " seconds.");
+          if (txt && txt.length > 0) {
+            fileOpenData.tuneTxt = txt;
+            if (fileOpenData.onSuccess) { fileOpenData.onSuccess(); }
+          } else {
+            if (fileOpenData.onFailure) { fileOpenData.onFailure(); }
+          }
 
-	};
+        }
 
+      }
+    };
 
-
-	this.getContent = function(domInfo) {
-	  var divElem, elem, inputElem;
-	  var doc = domInfo.doc;
-	  var parent = domInfo.parentNode;
-
-	  if (this.uiElement === undefined) {
-	  
-	    divElem = doc.createElement('div');
-
-	    elem = doc.createElement('fieldset');
-	    divElem.appendChild(elem)
-	    elem.appendChild(doc.createElement('legend'));
-	    elem.childNodes[0].appendChild(doc.createTextNode("HTTP"));
-
-	    inputElem = doc.createElement('input');
-	    inputElem.setAttribute('type', 'text');
-	    inputElem.setAttribute('size', '40');
-	    inputElem.setAttribute('value', 'http://');
-	    inputElem.setAttribute('onChange', "HD.ui.FileOpener.instance.openHttpFile(this.value);");
-	    elem.appendChild(inputElem);
-
-	    elem = doc.createElement('fieldset');
-	    divElem.appendChild(elem)
-	    elem.appendChild(doc.createElement('legend'));
-	    elem.childNodes[0].appendChild(doc.createTextNode("Files"));
-
-	    inputElem = doc.createElement('button');
-	    inputElem.setAttribute('value', 'Browse Files');
-            inputElem.onclick = function() { HD.ui.FileOpener.instance.openLocalFile(); };
-            inputElem.appendChild(doc.createTextNode('Browse Files'));
-
-	    elem.appendChild(inputElem)
-
-	    this.uiElement = divElem;
-	  }
-	  return (this.uiElement);
-
-	};
-	
-  this.componentInfo = {
-	    instance : self, 
-	    category: "ui",
-	    type: "component",
-	    identifier: "FileOpener",
-	    os: "win32",
-	    browser: "ie",
-	    title: "Open File",
-	    desc: "IE File opener",
-	    init: self.init,
-	    getContent : self.getContent,
-	    show: self.onShown,
-	    hide: self.onHidden
   };
 
-  return this;
-};
-
-
-//if (location.href.lastIndexOf(".hta")) {
-//  IEFileOpenerComponent().register();
-//} else {
-  FFFileOpenerComponent().register();
-//}
+}());
