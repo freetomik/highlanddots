@@ -294,19 +294,28 @@ function uiDoFileOpen(displayElemId, srcElem) {
   // dialog title
   node = document.getElementById(displayElemId + 'Title');
   if (node.childNodes.length) node.removeChild(node.childNodes[0]);
-  node.appendChild(document.createTextNode(HD.ui.FileOpener.title));
+  node.appendChild(document.createTextNode("Open File"));
 
-  // dom info
-  var domInfo = {
-    doc: document,
-    parentNode: document.getElementById(displayElemId)
-  };
+var fileOpenData = {
+//  filename:  "mystuff.bww",
+//  fileUrl: "./mystuff.bww";
+//  tuneTxt: "";
+//  errorMsg = "";
+  onSuccess:  function() {uiLoadTune('bww', API.getEBI("editor").value);closeInputDialog(); },
+//  onFailure:  function() {API.getEBI(displayElemId+"Content").innerHTML=errorMsg; },
+  useForUi:  API.getEBI(displayElemId+"Content"),
+  useForEditor:  API.getEBI("editor")
+};
 
 
   // dialog content
   node = document.getElementById(displayElemId+"Content");
   if (node.childNodes.length) node.removeChild(node.childNodes[0]);
-  node.appendChild(HD.ui.FileOpener.getContent(domInfo));
+
+  fileOpener(fileOpenData).filePicker();
+
+  alert("UI HTML="+fileOpenData.useForUi.innerHTML);
+
 
   p = srcElem.parentNode;
   while (p.tagName.toLowerCase() !== "div") {
@@ -319,10 +328,6 @@ function uiDoFileOpen(displayElemId, srcElem) {
   ui.style.left = p.style.left;
   ui.style.display = 'block';
   ui.style.visibility = 'visible';
-
-  HD.ui.FileOpener.show();
-  //HD.ui.FileOpener.hide();
-
 
 }
 
