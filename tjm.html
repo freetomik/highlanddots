@@ -296,12 +296,12 @@ function uiDoFileOpen(displayElemId, srcElem) {
   node.appendChild(document.createTextNode("Open File"));
 
 var fileOpenData = {
-//  filename:  "mystuff.bww",
-//  fileUrl: "./mystuff.bww";
-//  tuneTxt: "";
-//  errorMsg = "";
+  //  filename:  "mystuff.bww",
+  //  fileUrl: "./mystuff.bww";
+  //  tuneTxt: "";
+  //  errorMsg = "";
+  //  onFailure:  function() {API.getEBI(displayElemId+"Content").innerHTML=errorMsg; },
   onSuccess:  function() {closeInputDialog();uiLoadTune('bww', API.getEBI("editor").value);},
-//  onFailure:  function() {API.getEBI(displayElemId+"Content").innerHTML=errorMsg; },
   useForUi:  API.getEBI(displayElemId+"Content"),
   useForEditor:  API.getEBI("editor")
 };

@@ -112,7 +112,7 @@ var fileOpener = (function() {
 
           tuneTxt = f.getAsText("");
           if (tuneTxt && tuneTxt.length > 0) {
-            if (data.useForEditor) { data.useForEditor.value = tuneTxt; }
+            if (data.useForEditor) { data.tuneTxt = tuneTxt;data.useForEditor.value = tuneTxt; }
             if (data.onSuccess) { data.onSuccess(); }
           } else {
             if (data.onFailure) { data.onFailure(); }
@@ -136,6 +136,9 @@ var fileOpener = (function() {
             divElem.appendChild(elem)
             elem.appendChild(document.createElement('legend'));
             elem.childNodes[0].appendChild(document.createTextNode("Files"));
+
+
+            // FIXME : set proper filters based on what parsers are installed
 
             inputElem = document.createElement('input');
             inputElem.setAttribute('type', 'file');
@@ -164,14 +167,51 @@ var fileOpener = (function() {
       return {
 
         openLocalFile: function() {
-          var dialog = new ActiveXObject('UserAccounts.CommonDialog');
-          dialog.Filter = 'All files (*.*)|*.*| ';
-          var result = dialog.ShowOpen();
-          if (result == 0 )
+          var dialog,path;
+          try {
+/*
+            // Vista/Win7 ? needs testing
+            From: http://www.databaseforum.info/11/1059402.aspx
+            The documentation  for System.Shell.chooseFile seems to be wrong:
+            oShellItem = System.Shell.chooseFile( [bForOpen], strFilter [, strInitialDirectory] [, strFileInit])
+            should in fact be:
+            oShellItem = System.Shell.chooseFile( bForOpen, strFilter , strInitialDirectory , strFileInit)
+            If you don't have all four parameters, you get an object error.
+            EDIT:  The System.Shell.Item it returns doesn't support System.Shell.Item.isFile as per the documentation either!
+
+
+            From: http://social.msdn.microsoft.com/Forums/en/sidebargadfetdevelopment/thread/71011dc5-e4df-4c86-9706-26af3af7c82a
+            Can you not use the Sidebar file dialogue?
+            var cfItem = System.Shell.chooseFile(true, "All Files:*.*::", "", "");
+            if (cfItem.path != "")
+            {
+                //do something with cfItem.path
+            }
+
+*/
+            // FIXME : set proper filters based on what parsers are installed
+
+
+            dialog = new ActiveXObject('System.Shell');
+            var fileItem = dialog.chooseFile(true, "All Files:*.*::", "", "");
+            if (fileItem.path != "")
+              path = fileItem.path;
+          } catch (ex) {
+            // Win XP
+            dialog = new ActiveXObject('UserAccounts.CommonDialog');
+            if (data.fileFilter) { inputElem.setAttribute('filter', data.fileFilter); }
+
+            dialog.Filter = 'All files (*.*)|*.*| ';
+            var result = dialog.ShowOpen();
+            if (result != 0 )
+             path = dialog.FileName;
+          }
+
+          if (!path)
            return false;
 
           var fso = new ActiveXObject("Scripting.FileSystemObject");
-          var f = fso.OpenTextFile(dialog.FileName, 1, false); // open for reading, don't create file
+          var f = fso.OpenTextFile(path, 1, false); // open for reading, don't create file
           tuneTxt = f.ReadAll();
 
           if (tuneTxt && tuneTxt.length > 0) {
