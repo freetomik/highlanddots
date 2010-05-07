@@ -1,21 +1,21 @@
 "use strict";
 
-  hdots_prefs.registerPlugin("beauty_engine", "beat", "To the beat", beautifyScore);
-  
-  hdots_prefs.registerPluginPreference("beauty_engine", "beat",
-    {
-      type: "text",
-      label: "Length of line, in pixels",
-      name: "linelen",
-      def:  "2000"
-    });
+hdots_prefs.registerPlugin("beauty_engine", "beat", "To the beat", beautifyScore);
 
- 
-  
-  hdots_prefs.registerPlugin("beauty_engine", "natural", "The natural layout", dummy);
-  function dummy(pref, score) {
-  }
-  
+hdots_prefs.registerPluginPreference("beauty_engine", "beat",
+                                     {
+                                     type: "text",
+                                     label: "Length of line, in pixels",
+                                     name: "linelen",
+                                     def:  "2000"
+                                     });
+
+
+
+hdots_prefs.registerPlugin("beauty_engine", "natural", "The natural layout", dummy);
+function dummy(pref, score) {
+}
+
 
 function beautifyScore(pref, score) {
   var FORCEWIDTH = +pref.linelen; //2000;   // Forced for now.  It is the width of the the bar, minus "headers" 
@@ -31,10 +31,10 @@ function beautifyScore(pref, score) {
   var beatCount = 0;
   var beatCountOnLine = 1;
   var t, tmp;
-	
+  
   data = score.data;
   l = data.length;
-	
+  
   measureList = [];
   melodyNoteList = [];
   measureNumber = 0;
@@ -44,19 +44,19 @@ function beautifyScore(pref, score) {
   
   
   /*
-    Pass  1:
-    
-    Loop through all of the mels in order.
-    Save off the time signature every time it changes, we use that to calcuate
-    beat size and things.
-    
-    Then, for each melody note, calcuate the actual duration of that note,
-    
-    Count up the number of beats and squirrel them away.  For any measure
-    that has less than the proper beats per measure, set a isLeadIn.
-    
-    This is used later
-    */
+  Pass  1:
+  
+  Loop through all of the mels in order.
+  Save off the time signature every time it changes, we use that to calcuate
+  beat size and things.
+  
+  Then, for each melody note, calcuate the actual duration of that note,
+  
+  Count up the number of beats and squirrel them away.  For any measure
+  that has less than the proper beats per measure, set a isLeadIn.
+  
+  This is used later
+  */
   for (i = 0; i < l; i++) {
     mel = data[i];
     mel.b = {};
@@ -147,7 +147,7 @@ function beautifyScore(pref, score) {
     var a;
     var mel, prevMel, staffMel;
     var newX;
-   
+    
     // Find the next start of a measure bar.
     // Sometimes there are measure bars with no melody notes inside, such
     // as when a bar starts off the beginning of a line, then a repeat bar
@@ -175,7 +175,7 @@ function beautifyScore(pref, score) {
         idx++;
         if (mel.type === "melody") {a.push(mel);}
         if (mel.newBar) {m++;}
-    
+        
         if (mel.staffEnd) {idx--; break;}
       }
       return {
@@ -191,7 +191,7 @@ function beautifyScore(pref, score) {
       mel.forceToX = toX;
       //prevMel.paddingRight = 0;
     }
-
+    
     // There are some things that should be immune from being forced.
     // Things like the clef, key signatures, time signatures.
     // Also, the leadins are left alone.
@@ -225,7 +225,7 @@ function beautifyScore(pref, score) {
              if (mel.c && typeof mel.c.x === "number") {spaceForLeadIn = Math.max(spaceForLeadIn, mel.c.x)};
              getNextMelodyX = false;
            }
-             
+           
            isMeasureStart = false;
          }
          if (inLeadIn) {mel.noForceX = true};
@@ -250,7 +250,7 @@ function beautifyScore(pref, score) {
       // of measures.
       if (staffMel.b && staffMel.b.isLeadIn) {m--;}
       //logit(dumpNotes(a));
-
+      
       // Set the width of each beat in pixels.
       BEATLENGTH = FORCEWIDTH/(staffMel.b.beatsPerBar*m);
       offSet = spaceForLeadIn;
@@ -266,7 +266,7 @@ function beautifyScore(pref, score) {
       }      
     };
     
-
+    
     // Now, we walk through the data once more -- backwards.
     // And we shift most of the other mel's around to slide back in front
     // of the melody note they are attached to.
@@ -295,4 +295,119 @@ function beautifyScore(pref, score) {
   
   setSpacing();
 }
+
+
+hdots_prefs.registerPlugin("beauty_engine", "old", "Testing Style", beautifyScore2);
+
+/*  hdots_prefs.registerPluginPreference("beauty_engine", "old",
+{
+type: "text",
+label: "Length of line, in pixels",
+name: "linelen",
+def:  "2000"
+});
+*/
+
+
+
+
+function beautifyScore2(pref, score) {
+var BASEPULSE = 78125;
+var beatFixRate = {
+	/*
+  For right now, we are going to pretend these don't exist for melody notes 
+  128: 1 * BASEPULSE,
+  64: 2 * BASEPULSE,
+  32: 3 * BASEPULSE,
+  16: 4 * BASEPULSE,
+  8: 8 * BASEPULSE,
+  4: 16 * BASEPULSE,
+  2: 32 * BASEPULSE,
+  1: 64 * BASEPULSE
+  */
+	
+  16: 1 * BASEPULSE,
+  8: 2 * BASEPULSE,
+  4: 4 * BASEPULSE,
+  2: 8 * BASEPULSE,
+  1: 16 * BASEPULSE
+	
+};
+
+
+  // The smallest unit of sound that is ever used is a 1/128th note.
+  // In decimal:  1 / 128 = 0.0078125
+  
+  
+  
+  // FIXME: This number pulled out of thin air.  It should come from the timesig.
+  var beatInPixels = 200;  
+  
+  var beatUnit; // What length note takes one beat...
+  var beatCount = 0; // Count up parts of a beat...
+  
+  var beatFraction;
+  
+  var beatWidth;
+  var w;
+  
+  var lastx;
+  
+  
+  var lastMel; 
+  score.data.forEach(function(mel) {
+                     var currentBeatCount;
+                     
+                     switch(mel.type) {
+                     case "melody":
+                       if (lastMel) {
+                         
+                         currentBeatCount = beatFixRate[lastMel.duration];                         
+                         lastMel.beatFraction = beatUnit/lastMel.duration; 
+                         
+                         
+                         if (lastMel.dotType === "dot") {
+                           lastMel.beatFraction *= 1.5;
+                           currentBeatCount *= 1.5;
+                         }
+                         if (lastMel.dotType === "doubledot") {
+                           lastMel.beatFraction *= 1.75;
+                           currentBeatCount *= 1.75;
+                         }
+                         
+                         beatWidth = (beatInPixels * lastMel.beatFraction); 
+                         lastx = lastMel.c.x /* + lastMel.rect.width  + lastMel.paddingRight */;
+                         
+                         w = mel.c.x - lastx; 
+                         lastMel.paddingRight +=  beatWidth - w;
+                         
+                         beatCount += currentBeatCount;
+                         lastMel.beatCount = beatCount;
+                         lastMel.currentBeatCount = currentBeatCount;
+                         
+                         //logit(["Beauty " + mel.note + ":" + mel.duration ,  beatWidth, mel.beatFraction, lastMel.paddingRight, beatWidth, w]);
+                         
+                       }
+                       lastMel = mel;
+                       break;
+                       
+                     case "timesig":
+                       beatUnit = mel.beatUnit; 
+                       //logit(["Beauty Beat Unit", beatUnit]);
+                       break;
+                     }
+                     
+                     if (mel.newBar) {
+                       mel.beatCount = beatCount;
+                       beatCount = 0;
+                     }
+                     
+                     if (mel.staffEnd) {
+                       lastMel = undefined;
+                     }
+                     
+  }
+  );
+}
+
 
