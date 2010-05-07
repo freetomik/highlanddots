@@ -19,8 +19,7 @@ as opposed to having it static on the page.-->
 <script src="jslib/excanvas.js"></script>
 <![endif]-->
 
-<script src="manager.js"></script>
-<script src="HDotsLoader.js"></script>
+<script src="hdotsloader.js"></script>
 
 
 
@@ -301,7 +300,7 @@ var fileOpenData = {
 //  fileUrl: "./mystuff.bww";
 //  tuneTxt: "";
 //  errorMsg = "";
-  onSuccess:  function() {uiLoadTune('bww', API.getEBI("editor").value);closeInputDialog(); },
+  onSuccess:  function() {closeInputDialog();uiLoadTune('bww', API.getEBI("editor").value);},
 //  onFailure:  function() {API.getEBI(displayElemId+"Content").innerHTML=errorMsg; },
   useForUi:  API.getEBI(displayElemId+"Content"),
   useForEditor:  API.getEBI("editor")
@@ -313,8 +312,6 @@ var fileOpenData = {
   if (node.childNodes.length) node.removeChild(node.childNodes[0]);
 
   fileOpener(fileOpenData).filePicker();
-
-  alert("UI HTML="+fileOpenData.useForUi.innerHTML);
 
 
   p = srcElem.parentNode;
@@ -367,16 +364,7 @@ function doEval(elemId) {
 
 function initHtmlGui() {
 
-  // set various UI related DOM elements
-  HD.ui.setDocument(document);
-  HD.ui.setCanvas(document.getElementById("scoreCanvas"));
-  HD.ui.setEditor(document.getElementById("editor"));
-  HD.ui.setLog(document.getElementById("log"));
-  HD.ui.setStatus(document.getElementById("status"));
-
-  // include UI service components
-  HDL.include("fileopener.js");
-
+  scriptLoader.loadHDots();
 
 
 }
@@ -485,7 +473,9 @@ function initHtmlGui() {
     </span>
   </div>
   <div id="canvas_div" style="margin-left:auto;margin-right:auto;height:375px;width:790px; overflow:scroll;border-left:solid 1px #cccccc;">
-  <p id="hdots_canvas">The music goes here</p>
+  <div id="imagemap_div">
+    <p id="hdots_canvas">The music goes here</p>
+  </div>
   </div>
 </div>
 

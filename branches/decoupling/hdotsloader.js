@@ -1,17 +1,7 @@
 "use strict";
 
-function HDotsLoader() {
-  var i;
-
-  var ieJsScripts = [
-    "jslib/excanvas.js"
-  ];
-  var wkJsScripts = [
-  ];
-  var mozScripts = [
-  ];
-
-  var jsScripts = [
+var scriptLoader = (function HDotsLoader() {
+  var hdotsScripts = [
     "jslib/canvas.text.js",
     "jslib/helvetiker-normal-normal.js",
     "jslib/helvetiker-bold-normal.js",
@@ -33,48 +23,46 @@ function HDotsLoader() {
     "metadata.js",
     "imagemap.js",
     "beautifyscore.js",
-    "manager.js"
   ];
 
-  var jsPlugins = [
+  var hdotsPlugins = [
   ];
 
-  var jsComponents = [
-//    "fileopener.js"
+  var hdotsComponents = [
+    "fileopener.js"
   ];
 
-
-  this.include = function(jsFile) {
+  var include = function(jsFile) {
     var he = document.getElementsByTagName('head').item(0);
     var js = document.createElement('script');
     js.setAttribute('src', jsFile);
     he.appendChild(js);
-  }
+  };
 
-//  for (i=0; i< jsScripts.length; i++) {
-//    include(ieJsScripts[i]);
-//  }
-//  for (i=0; i< wkScripts.length; i++) {
-//    include(wkJsScripts[i]);
-//  }
-//  for (i=0; i< mozScripts.length; i++) {
-//    include(mozJsScripts[i]);
-//  }
+  var load = function(scripts) {
+    var i;
+    for (i=0; i< scripts.length; i++) {
+      include(scripts[i]);
+    }
+  };
 
 
-  for (i=0; i< jsScripts.length; i++) {
-    include(jsScripts[i]);
-  }
-  for (i=0; i< jsPlugins.length; i++) {
-    include(jsPlugins[i]);
-  }
-  for (i=0; i< jsComponents.length; i++) {
-    include(jsComponents[i]);
-  }
+
+  return (function() {
+    return {
+      loadHDots: function() {
+        load(hdotsScripts);
+        load(hdotsPlugins);
+        load(hdotsComponents);
+
+      },
+      loadScript: function(script) {
+        include(script);
+      }
+    }
+
+  });
 
 
-  return this;
+}())();
 
-};
-
-var HDL = HDotsLoader();
