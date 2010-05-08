@@ -17,7 +17,7 @@ var beamGroupDef = {
   start:  {sectionStart: true},
   end:    {sectionEnd: true}
 };
- 
+
 
 
 function parseBWW(dots) {
@@ -48,7 +48,7 @@ var grok_metaData = (function() {
                      TuneFormat: {ignore: true},
                      TuneTempo: {ignore: false}
                      };
-                     
+
                      function isType(s) {
                        // Look for things that start with a quote.
                        if (s.substring(0,1) === '"') {
@@ -62,24 +62,24 @@ var grok_metaData = (function() {
                        }
                        return false;
                      }
-                     
+
                      function setData(data, s) {
                        var i, mode;
                        var l, name, val;
-                       
+
                        // If it is one of those that starts in a quote
                        // handle it.
                        if (s.substring(0,1) === '"') {
                          i = s.indexOf(',(');
                          mode = s.substring(i+2, i+3);
-                         
+
                          name = {
                            T: "Title",
                            Y: "Genre",
                            M: "Composer",
                            F: "Footer"
                          }[mode];
-                         
+
                          if (name) {
                            val = s.split(",")[0].replace(/"/g, '')
                            data[name] = val;
@@ -88,13 +88,13 @@ var grok_metaData = (function() {
                          }
                          return;
                        }
-                       
+
                        l = s.split(",");
                         name = l[0];
-                       
+
                        l.splice(0,1);
                         val = l.join(" , ");
-                       
+
                        data[name] = val;
                      }
                      return {
@@ -113,13 +113,13 @@ var z_beat = (function() {
               // We don't need a class for this silly thing.
               // Thats the beauty of dynamic languages.
               var mel = z_staffControl.create(s);
-              
+
               if (s === "~") {return true;}
               if (mel.newBar) {return true;}
               return false;
               };
-              
-              
+
+
               function create(s) {
                 var mel = new ScoreElement();
                 mel.type = "beat";
@@ -129,7 +129,7 @@ var z_beat = (function() {
                 isType: isType,
                 create: create
               };
-              
+
 }());
 
 
@@ -155,15 +155,15 @@ var z_graphic = (function() {
                  "naturalla": {name: "natural", staffNote: GHPRef.LA},
                  "naturallg": {name: "natural", staffNote: GHPRef.LG}
                  };
-                 
+
                  function isType(s) {
                    return (typeof a[s] !== "undefined");
                  }
-                 
+
                  function create(s) {
                    var mel = score.createGraphic(a[s].name);
                    meldObjectToObject(a[s], mel);
-                   
+
                    // HACK: All new lines start off with a staff bar
                    if (s === '&') {
                      return [z_staffControl.create("!"), mel]; // Special handling
@@ -175,45 +175,45 @@ var z_graphic = (function() {
                    isType: isType,
                    create: create
                  };
-                 
-                 
+
+
 }());
 
 var z_timesig = (function() {
-                 
+
                  var a = ["5_8","12_8","2_4","3_2","3_4","4_4","5_4","6_4","6_8",
                  "7_4","9_8","C","C_","15_8","18_8","21_8","2_2","2_8","3_8","4_8","7_8",
                  "8_8","10_8","11_8","2_16","3_16","4_16","5_16","6_16","7_16","8_16",
                  "9_16","10_16","11_16","12_16"];
-                 
+
                  function isType(s) {
                    return (a.indexOf(s) !== -1);
                  }
-                 
+
                  function create(s)
                  {
                    var mel = score.createTimeSig();
                    var s1 = s.split("_");
                    mel.beatsPerBar = +s1[0];
-                   mel.beatUnit = +s1[1];      
+                   mel.beatUnit = +s1[1];
                    // TJM don't overwrite metadata,
                    //    it should only be set once per score
                    //    as tempo changes don't effect text titles
                    if (!score.metaData.beatUnit)
                      score.metaData.beatUnit = mel.beatUnit;
                    return mel;
-                   
+
                  }
                  return {
                    isType: isType,
                    create: create
                  };
-                 
+
 }());
 
 
 var z_ghbgrace = (function() {
-                  var a = {   
+                  var a = {
                   "hgrpla": {category: "EMBELISHMENTS", dots: "agdg*"},
                   "hgrpd": {category: "EMBELISHMENTS", dots: "dgdg*"},
                   "hgrpdb": {category: "EMBELISHMENTS", dots: "dgbg*"},
@@ -607,7 +607,7 @@ var z_ghbgrace = (function() {
                 function isType(s) {
                   return (typeof a[s] !== "undefined");
                 }
-    
+
                 function create(s) {
                   var note;
                   var notes;
@@ -615,7 +615,7 @@ var z_ghbgrace = (function() {
                   var mel, bg;
                   var mels = [];
                   var i;
-      
+
                   notes = b.dots.match(/[aA-zZ]/g);
                   for (i = 0; i < notes.length; i++) {
                     note = notes[i];
@@ -625,7 +625,7 @@ var z_ghbgrace = (function() {
                       g: "LG",
                       a: "LA"
                     }[notes[i]];
-        
+
                     if (!note) {note =notes[i].toUpperCase();}
                     mel = score.createEmbellishment();
                     mel.note = note;
@@ -643,7 +643,7 @@ var z_ghbgrace = (function() {
                     bg = score.createBeamGroup();
                     bg.elementType = "gracenote";
                     meldObjectToObject(beamGroupDef.end, bg);
-                    mels.push(bg); 
+                    mels.push(bg);
                   }
                   return (mels);
                 }
@@ -651,12 +651,12 @@ var z_ghbgrace = (function() {
                 return {
                   isType: isType,
                   create: create
-                };                  
+                };
 }());
 
 
 var z_melody = (function() {
-                
+
                 var a = ["B_16", "B_8", "C_16", "C_2", "C_32", "C_4", "C_8", "D_16",
                 "D_2", "D_32", "D_4", "D_8", "E_16", "E_2", "E_32", "E_4", "E_8", "F_16",
                 "F_2", "F_32", "F_4", "F_8", "HA_16", "HA_2", "HA_32", "HA_4", "HA_8",
@@ -671,44 +671,44 @@ var z_melody = (function() {
                 "Fr_8", "HAl_16", "HAl_32", "HAl_8", "HAr_16", "HAr_32", "HAr_8", "B_2",
                 "B_32", "B_4"
                 ];
-                
+
                 function isType(s) {
                   return (a.indexOf(s) !== -1);
                 }
-                
+
                 function create(note)
                 {
-                  
+
                   var s, chunk;
                   var mel = score.createMelodyNote();
-                  
+
                   chunk = note.split("_");
                   mel.duration = +chunk[1];
-                  
+
                   s = chunk[0].match(/^(LG|LA|B|C|D|E|F|HG|HA)/);
                   if (s) {
                     mel.note = s[0];
                     mel.staffPosition = GHPRef[mel.note];
-                  } 
-                  
+                  }
+
                   s = chunk[0].match(/(l|r)$/);
                   if (s) {
-                    mel.tail = s[0]; 
+                    mel.tail = s[0];
                     mel.grouped = true;
-                  } 
-                  
+                  }
+
                   return mel;
-                  
+
                 }
                 return {
                   isType: isType,
                   create: create
                 };
-                
+
 }());
 
 var z_phrasegroup = (function() {
-                     
+
                      /* *************************************** */
                      /* * Volta, or repeated section            */
                      /* * BWW syntax '1      [music]  _'        */
@@ -723,7 +723,7 @@ var z_phrasegroup = (function() {
                      /* *   where missing part # implies        */
                      /* *   current part                        */
                      /* *************************************** */
-                     
+
                      var a = {"^ts":    {collectionName: "ties", sectionStart: true, style: "arc"},
                        "^te":    {collectionName: "ties", sectionEnd: true},
                        "^3s":    {collectionName: "triplets", sectionStart: true, label: "3", style: "arc"},
@@ -731,7 +731,8 @@ var z_phrasegroup = (function() {
                        "'bis":   {collectionName: "voltas", sectionStart: true, label: "bis", style: "straight"},
                        "'1":     {collectionName: "voltas", sectionStart: true, label: "1st", style: "straight"},
                        "'2":     {collectionName: "voltas", sectionStart: true, label: "2nd", style: "straight"},
-                       "'23":    {collectionName: "voltas", sectionStart: true, label: "3rd of part 2", style: "straight"},
+                       "'22":    {collectionName: "voltas", sectionStart: true, label: "2nd of part 2", style: "straight"},
+                       "'23":    {collectionName: "voltas", sectionStart: true, label: "2nd of part 2", style: "straight"},
                        "'24":    {collectionName: "voltas", sectionStart: true, label: "4th of part 2", style: "straight"},
                        "'25":    {collectionName: "voltas", sectionStart: true, label: "5th of part 2", style: "straight"},
                        "'26":    {collectionName: "voltas", sectionStart: true, label: "6th of part 2", style: "straight"},
@@ -739,30 +740,35 @@ var z_phrasegroup = (function() {
                        "'28":    {collectionName: "voltas", sectionStart: true, label: "8th of part 2", style: "straight"},
                        "'224":   {collectionName: "voltas", sectionStart: true, label: "2nd of parts 2 and 4", style: "straight"},
                        "'intro": {collectionName: "voltas", sectionStart: true, label: "Introduction", style: "straight"},
-                       "'_":     {collectionName: "voltas", sectionEnd: true}
+                       "_'":     {collectionName: "voltas", sectionEnd: true}
                      };
-                     
+
                      function isType(s) {
                        return (typeof a[s] !== "undefined");
                      }
-                     
+
                      function create(s)
                      {
                        var mel = score.createPhraseGroup();
                        meldObjectToObject(a[s], mel);
+staff.details.logging=true;
+logit("-----");
+logit(mel);
+logit("    -");
+staff.details.logging=false;
                        return mel;
-                       
+
                      }
                      return {
                        isType: isType,
                        create: create
                      };
-                     
+
 }());
 
 var z_staffControl = (function() {
                       var a = {
-                      "!": {newBar: true}, 
+                      "!": {newBar: true},
                       "I!''": {newBar: true, sectionStart: true, repeatStart: true},
                       "I!": {newBar: true, sectionStart: true},
                       "!I": {sectionEnd: true,staffEnd: true, newBar: true},
@@ -770,12 +776,12 @@ var z_staffControl = (function() {
                       "''!I": {sectionEnd: true, repeatEnd: true, staffEnd: true, newBar: true},
                       "!!": {sectionEnd: true, staffEnd: true, newBar: true}
                       };
-                      
-                      
+
+
                       function isType(s) {
                         return (typeof a[s] !== "undefined");
                       }
-                      
+
                       function create(s) {
                         var mel = score.createStaffControl();
                         meldObjectToObject(a[s], mel);
@@ -785,8 +791,8 @@ var z_staffControl = (function() {
                         isType: isType,
                         create: create
                       };
-                      
-                      
+
+
 }());
 
 var z_noteDot = (function() {
@@ -810,12 +816,12 @@ var z_noteDot = (function() {
                  "''hg": {dotType: "doubledot"},
                  "''ha": {dotType: "doubledot"}
                  };
-                 
-                 
+
+
                  function isType(s) {
                    return (typeof a[s] !== "undefined");
                  }
-                 
+
                  function create(s) {
                    score.getLastElementByType("melody").dotType = a[s].dotType;
                    return undefined;
@@ -823,7 +829,7 @@ var z_noteDot = (function() {
                  return {
                    isType: isType,
                    create: create
-                 };                 
+                 };
 }());
 
 
@@ -831,7 +837,7 @@ var z_noteDot = (function() {
   // This doesn't really fix anything,
   //  it just tires to replicate the rules
   //  BP appears to use when beaming.
-  //  
+  //
   function fixBeamGroups() {
     var i;
     var inBeam = false;
@@ -886,22 +892,22 @@ var z_noteDot = (function() {
     }
 
   }
-  
+
   function parseBits(b) {
     var i, l = b.length;
     var s, mel;
     for (i = 0; i < l; i++) {
       s = b[i];
-      
+
       // List of things to ignore for now.
       if ([""].indexOf(s) !== -1) {
         continue;
       }
-      
+
       mel = undefined;
-      
+
       // Loop through our melody element types and add it if a match is
-      // found.  Don't abort the loop eary because some elements will 
+      // found.  Don't abort the loop eary because some elements will
       // create more than one node.
       // Order kinda matters here.  z_beat has to be before z_staffControl
       [
@@ -924,9 +930,9 @@ var z_noteDot = (function() {
       });
     }
   }
-  
-  
-//  score.metaData = {};  
+
+
+//  score.metaData = {};
   score.metaData = score.createMetadata();
 
   var i, l = dots.length;
@@ -934,21 +940,21 @@ var z_noteDot = (function() {
   for (i = 0; i < l; i++) {
     s = dots[i];
     if (s === "") {continue;}
-    
+
     if (grok_metaData.isType(s)) {
       grok_metaData.setData(score.metaData, s)
       continue;
     }
-    
+
     bits = s.split(/\s|~/);
     //logit(bits);
     parseBits(bits);
   }
-  
+
   // This doesn't really fix anything,
   //  it just tires to replicate the rules
   //  BP appears to use when beaming.
-  //  
+  //
   fixBeamGroups();
 
   score.buildCollections();

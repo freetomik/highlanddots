@@ -15,19 +15,19 @@ Score.graphicsList = {
    this.c = {};                  // Storage area for some commonly used calcuations.
    return this;
  }
- 
+
  ThisType.inherits(ScoreElement);
  ThisType.prototype.type = THISTYPE;
- 
+
  ThisType.prototype.glyphInfo  =   {
     "treble-clef" : {width : 480, height : 1200, scaleFromHeight: 1200},
     "natural" : {width : 160, height : 480, scaleFromHeight: 1200},
     "sharp" : {width : 180, height : 480, scaleFromHeight: 1200},
     "flat" : {width : 180, height : 480, scaleFromHeight: 1200}
  };
-   
+
  ThisType.prototype.c = {};
- 
+
  ThisType.prototype.calc = function(staff) {
    var sdet = staff.details;
    var dx = sdet.x;
@@ -45,7 +45,7 @@ Score.graphicsList = {
    height = this.glyphInfo[this.name].height;
 
    var dh = height /  ratio;
-   var dw = width / ratio;  
+   var dw = width / ratio;
 
    this.c.size = size;
    this.c.ratio = ratio;
@@ -55,13 +55,13 @@ Score.graphicsList = {
    this.c.originy = origin;
    this.c.dw = dw;
    this.c.dh = dh;
-  
-   logit([THISTYPE, size, ratio, dx, dy, dw, dh]);
+
+//   logit([THISTYPE, size, ratio, dx, dy, dw, dh]);
  }
 
 ThisType.prototype.getBoundingRect = function(staff) {
   var c = this.c;
-  
+
   var o = {
     x: c.dx,
     y: c.dy,
@@ -72,12 +72,12 @@ ThisType.prototype.getBoundingRect = function(staff) {
   return o;
 }
 
- 
+
 
 /*
 DATA FORMAT
 --------------
-new path, fill previous path  []   
+new path, fill previous path  []
 move to    [X,Y]
 line to    [sX,sY], [eX,eY]
 quadratic curve to  [sX,sY], [cpX,cpY], [eX,eY]
@@ -105,7 +105,7 @@ following Glyph information:
     Co-ordinates are relative to the G note's staff line
     and go clockwise from left to right. this means that all
     Y co-ordinates need to be multiplied by -1 to correct
-    for expecting absolute co-ords for drawing. 
+    for expecting absolute co-ords for drawing.
     The Glyph starts at X=-1;
 
 */
@@ -166,14 +166,14 @@ ThisType.prototype.natural = [
 
 ThisType.prototype.trebleclef = [[[-1, 52]], [[-1, 52], [-1, 103], [45, 176]], [[45, 176], [76, 226], [133, 288]], [[133, 228], [175, 334], [183, 339]], [[183, 339], [178, 349], [161, 439]], [[161, 439], [157, 468], [157, 483]], [[157, 483], [157, 545], [214, 673], [251, 673]], [[251, 673], [276, 673], [321, 552], [321, 505]], [[321, 505], [321, 441], [302, 385]], [[302, 385], [275, 306], [214, 256]], [[214, 256], [202, 246]], [[202, 246], [191, 238], [135, 176], [119, 155]], [[119, 155], [90, 118], [75, 87]], [[75, 87], [55, 46], [55, 7]], [[55, 7], [55, -14], [61, -35]], [[61, -35], [74, -79], [131, -119]], [[131, -119], [177, -151], [288, -151]], [[288, -151], [244, -151], [258, -147], [276, -141]], [[276, -141], [289, -134]], [[289, -134], [331, -124], [380, -63], [380, -22]], [[380, -22], [379, -14], [379, -10]], [[379, -10], [374, 37], [306, 96], [261, 96]], [[261, 96], [250, 96], [244, 95]], [[244, 95], [228, 95]], [[228, 95], [181, 89], [157, 51]], [[157, 51], [138, 21], [138, -14]], [[138, -14], [138, -52], [180, -86]], [[180, -86], [216, -115], [238, -115]], [[238, -115], [237, -122]], [[237, -122], [209, -118], [173, -93]], [[173, -93], [124, -58], [114, -9]], [[114, -9], [111, 6], [111, 20]], [[111, 20], [111, 69], [170, 146], [219, 158]], [[219, 158], [233, 159]], [[233, 159], [251, 162], [267, 162]], [[267, 162], [342, 162], [383, 104]], [[383, 104], [418, 55], [418, -15]], [[418, -15], [418, -69], [349, -146], [294, -159]], [[294, -159], [320, -302]], [[320, -302], [322, -314], [322, -319]], [[322, -319], [322, -359], [265, -416], [222, -426]], [[222, -426], [215, -420], [203, -428]], [[203, -428], [162, -428], [98, -362], [98, -328]], [[-230], [98, -322], [99, -319]], [[99, -319], [104, -291], [142, -258], [170, -258]], [[-88], [197, -258], [237, -294], [237, -320]], [[237, -320], [237, -348], [200, -389], [171, -389]], [[171, -389], [164, -388], [161, -388]], [[161, -388], [172, -398], [182, -403]], [[182, -403], [201, -413], [219, -413]], [[219, -413], [249, -413], [282, -380]], [[282, -380], [308, -354], [308, -319]], [[308, -319], [308, -314], [306, -300]], [[306, -300], [282, -164]], [[282, -164], [269, -167], [237, -169], [220, -169]], [[220, -169], [131, -169], [-1, -39], [-1, 52]], [[196, 348]], [[196, 348], [219, 368]], [[219, 368], [243, 380], [274, 437]], [[274, 437], [297, 479], [297, 518]], [[297, 518], [297, 525], [295, 539]], [[295, 539], [290, 572], [287, 579]], [[287, 579], [278, 599], [257, 599]], [[257, 599], [237, 599], [193, 512], [184, 461]], [[184, 461], [182, 448], [192, 361], [196, 348]], [], [[202, 246]], [[202, 246], [214, 256]], [[214, 256], [233, 159]], [[233, 159], [244, 95]], [[244, 95], [289, -134]], [[289, -134], [276, -141]], [[276, -141], [228, 95]], [[228, 95], [219, 158]], [[219, 158], [202, 246]]];
 
-////////////////////////// 
+//////////////////////////
  ThisType.prototype.paint = function(staff) {
    var i, startx, starty, ratio, points;
    var sdet = staff.details;
    var ctx = sdet.ctx;
    var c = this.c;
    //this.calc(staff);
-   
+
 //   sdet.ctx.drawImage(c.img, c.dx, c.dy, c.dw, c.dh);
 
    startx = c.originx;
@@ -181,19 +181,19 @@ ThisType.prototype.trebleclef = [[[-1, 52]], [[-1, 52], [-1, 103], [45, 176]], [
    ratio = c.ratio;
 
    points = this[Score.graphicsList[this.name]];
-   
+
 
 //   this.renderGlyph(ctx, clef.originX, clef.originY, points);
 //function Renderer_render_glyph(ctx, startx, starty, points) {
 
 // FIXME: set correct glyph point set based on clef type
- 
+
    ctx.beginPath();
 
    for (i=0; i<points.length;i++) {
      if (points[i].length == 1) {
        ctx.moveTo(startx+(points[i][0][0])/ratio, starty+(points[i][0][1]*-1)/ratio);
-     
+
      } else if (points[i].length == 2) {
        // draw line
        ctx.lineTo(startx+(points[i][1][0])/ratio, starty+(points[i][1][1]*-1)/ratio);
@@ -205,7 +205,7 @@ ThisType.prototype.trebleclef = [[[-1, 52]], [[-1, 52], [-1, 103], [45, 176]], [
      } else if (points[i].length == 4) {
        ctx.bezierCurveTo(      startx+(points[i][1][0])/ratio, starty+(points[i][1][1]*-1)/ratio, // CP1 XY
                                startx+(points[i][2][0])/ratio, starty+(points[i][2][1]*-1)/ratio, // CP2 XY
-						startx+(points[i][3][0])/ratio, starty+(points[i][3][1]*-1)/ratio); // end XY
+            startx+(points[i][3][0])/ratio, starty+(points[i][3][1]*-1)/ratio); // end XY
 
      } else if (points[i].length == 0) {
        ctx.fill();
@@ -215,7 +215,7 @@ ThisType.prototype.trebleclef = [[[-1, 52]], [[-1, 52], [-1, 103], [45, 176]], [
    }
    ctx.fill();
  };
- 
+
  Score.prototype.createGraphic = function(fname) {
    return new ThisType(fname);
  };
