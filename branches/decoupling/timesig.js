@@ -10,31 +10,64 @@
  
  ThisType.inherits(ScoreElement);
  
+ 
  ThisType.prototype.calc = function(staff) {
    var c = this.c;
    var sdet = staff.details;
    var ctx = sdet.ctx;
    var tf = c.font;
-   var dim;
-   c.x = sdet.x;
-   c.y = sdet.noteInfo.f2.y;
 
-   c.bigNum = Math.max(this.beatsPerBar, this.beatUnit);
+   if (this.beatSymbol === "C" || this.beatSymbol === "C_") {
+     this.calc2(staff);     
+   } else {
+     this.calc1(staff);
+   }
+
    
    c.font = "" + (sdet.space*2.5) + "px sans-serif";
    ctx.font = c.font;
-   c.height = sdet.noteInfo.e1.y - sdet.noteInfo.f2.y; 
    c.width = 0;
    if (API.isHostMethod(ctx, 'measureText')) {
-     c.width = ctx.measureText("" + c.bigNum).width;
+     c.width = ctx.measureText("" + c.longestCharsToDraw).width;
    }
    
    // Alas, not all canvas have a measureText that actually works.
    if (!c.width) {c.width = c.height * 0.5;} 
    ctx.font = tf;
 
-   c.y1 = sdet.noteInfo.b2.y;
+ };
+
+ 
+ 
+ 
+ ThisType.prototype.calc2 = function(staff) {
+   var c = this.c;
+   var sdet = staff.details;
+   var ctx = sdet.ctx;
+   var dim;
+   c.x = sdet.x;
+   c.y = sdet.noteInfo.g1.y;
+   c.height = sdet.noteInfo.e1.y - sdet.noteInfo.f2.y; 
+   
+   c.y1 = c.y;
+   c.y2 = sdet.noteInfo.d2.y;
+      
+   c.longestCharsToDraw = "C";
+ }
+ 
+ ThisType.prototype.calc1 = function(staff) {
+   var c = this.c;
+   var sdet = staff.details;
+   var ctx = sdet.ctx;
+   var dim;
+   c.x = sdet.x;
+   c.y = sdet.noteInfo.f2.y;
+   c.height = sdet.noteInfo.e1.y - sdet.noteInfo.f2.y; 
+   c.longestCharsToDraw = Math.max(this.beatsPerBar, this.beatUnit);
+
+      c.y1 = sdet.noteInfo.b2.y;
    c.y2 = sdet.noteInfo.e1.y;
+
  }
  
  ThisType.prototype.getBoundingRect = function(staff) {
@@ -58,14 +91,26 @@
    var sdet = staff.details;
    var ctx = sdet.ctx;
    var c = this.c;
-   
+   var crossX = c.x + (c.width/2);
+   var crossYDelta = sdet.space * 0.40;
    var tf = ctx.font;
    var ta = ctx.textAlign;
    ctx.font = c.font;
    ctx.textAlign = 'start';
 
-   ctx.fillText(""+this.beatsPerBar, c.x, c.y1, c.width);
-   ctx.fillText(""+this.beatUnit, c.x, c.y2, c.width);
+   if (this.beatSymbol === "C" || this.beatSymbol === "C_") {
+     ctx.fillText("C", c.x, c.y1, c.width);
+     if (this.beatSymbol === "C_") {
+       ctx.beginPath();
+       ctx.moveTo(crossX, c.y1 + crossYDelta);
+       ctx.lineTo(crossX, c.y2 - crossYDelta);
+       ctx.stroke();
+       ctx.closePath();
+     }
+   } else {
+     ctx.fillText(""+this.beatsPerBar, c.x, c.y1, c.width);
+     ctx.fillText(""+this.beatUnit, c.x, c.y2, c.width);
+   }
    ctx.font = tf;
    ctx.textAlign = ta;   
  }
