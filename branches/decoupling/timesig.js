@@ -4,7 +4,7 @@
  var THISTYPE = "timesig";
  function ThisType() {
    this.type = THISTYPE;
-     this.c = {};                  // Storage area for some commonly used calcuations.
+   this.c = {};                  // Storage area for some commonly used calcuations.
    return this;
  }
  
@@ -18,9 +18,9 @@
    var tf = c.font;
 
    if (this.beatSymbol === "C" || this.beatSymbol === "C_") {
-     this.calc2(staff);     
+     this.singleCharacterSize(staff);     
    } else {
-     this.calc1(staff);
+     this.fractionalSize(staff);
    }
 
    
@@ -37,10 +37,7 @@
 
  };
 
- 
- 
- 
- ThisType.prototype.calc2 = function(staff) {
+ ThisType.prototype.singleCharacterSize = function(staff) {
    var c = this.c;
    var sdet = staff.details;
    var ctx = sdet.ctx;
@@ -55,7 +52,7 @@
    c.longestCharsToDraw = "C";
  }
  
- ThisType.prototype.calc1 = function(staff) {
+ ThisType.prototype.fractionalSize = function(staff) {
    var c = this.c;
    var sdet = staff.details;
    var ctx = sdet.ctx;
@@ -65,7 +62,7 @@
    c.height = sdet.noteInfo.e1.y - sdet.noteInfo.f2.y; 
    c.longestCharsToDraw = Math.max(this.beatsPerBar, this.beatUnit);
 
-      c.y1 = sdet.noteInfo.b2.y;
+   c.y1 = sdet.noteInfo.b2.y;
    c.y2 = sdet.noteInfo.e1.y;
 
  }

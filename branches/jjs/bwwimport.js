@@ -103,18 +103,19 @@ var grok_metaData = (function() {
 // Is this a beat? Which would end a beam?
 var z_beat = (function() {
               function isType(s) {
-              // We don't need a class for this silly thing.
-              // Thats the beauty of dynamic languages.
               var mel = z_staffControl.create(s);
               
               if (s === "~") {return true;}
+              if (s === "\t") {return true;}
               if (mel.newBar) {return true;}
               return false;
               };
               
               
               function create(s) {
-                var mel = new ScoreElement();
+             // We don't need a class for this silly thing.
+              // Thats the beauty of dynamic languages.
+                 var mel = new ScoreElement();
                 mel.type = "beat";
                 return mel;
               }
@@ -187,18 +188,36 @@ var z_timesig = (function() {
                  {
                    var mel = score.createTimeSig();
                    var s1 = s.split("_");
-                   mel.beatsPerBar = +s1[0];
-                   mel.beatUnit = +s1[1];      
+                   
+                   mel.beatSymbol = s;
+                   switch(s) {
+                   case "C":
+                     mel.beatsPerBar = 4;
+                     mel.beatUnit = 4;
+                     break;
+                   case "C_":
+                     mel.beatsPerBar = 2;
+                     mel.beatUnit = 2;
+                     break;
+                   default:
+                     mel.beatsPerBar = +s1[0];
+                     mel.beatUnit = +s1[1];
+                     break;
+                   }
+                   
+                   // TJM don't overwrite metadata,
+                   //    it should only be set once per score
+                   //    as tempo changes don't effect text titles
+                   if (!score.metaData.beatUnit)
+                     score.metaData.beatUnit = mel.beatUnit;
                    return mel;
                    
                  }
                  return {
                    isType: isType,
                    create: create
-                 };
-                 
+                 };                 
 }());
-
 
 var z_ghbgrace = (function() {
                   var a = {   
