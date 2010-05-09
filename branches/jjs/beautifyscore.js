@@ -20,8 +20,7 @@ function dummy(pref, staff) {
 function beautifyScore(pref, staff, pass) {
   if (pass === 2) {return;}  // Second pass not needed
   
-  var FORCEWIDTH = +pref.linelen; //2000;   // Forced for now.  It is the width of the the bar, minus "headers" 
-  
+  var FORCEWIDTH = +pref.linelen; 
   
   var i, l, data;
   var mel, mel2, measureList, melodyNoteList;
@@ -300,7 +299,7 @@ function beautifyScore(pref, staff, pass) {
 
 
 (function() {
- hdots_prefs.registerPlugin("beauty_engine", "pportion", "Proportial Layout", beautifyScore2);
+ hdots_prefs.registerPlugin("beauty_engine", "pportion", "Proportional Layout", beautifyScore2);
  
  hdots_prefs.registerPluginPreference("beauty_engine", "pportion",
                                       {
@@ -426,8 +425,7 @@ function beautifyScore(pref, staff, pass) {
       IncLineData();
     }
     
-    }
-    );
+    });
  }
 }());
 
