@@ -59,7 +59,7 @@ function beautifyScore(pref, score) {
     */
   for (i = 0; i < l; i++) {
     mel = data[i];
-    mel.b = {};
+    mel.beauty = {};
     
     switch(mel.type) {
     case "melody":
@@ -67,12 +67,12 @@ function beautifyScore(pref, score) {
       if (mel.dotType === "dot") { t *= 1.5;  }
       if (mel.dotType === "doubledot") { t *= 1.75; }
       
-      mel.b.beatWeight = t;
+      mel.beauty.beatWeight = t;
       beatCount += t;
-      mel.b.beatCountOnLine = beatCountOnLine;
+      mel.beauty.beatCountOnLine = beatCountOnLine;
       beatCountOnLine += t;
       melodyNoteList.push(mel);
-      //logit(["BW",mel.b.beatWeight]); 
+      //logit(["BW",mel.beauty.beatWeight]); 
       break;
     case "timesig":
       beatUnit = mel.beatUnit;
@@ -91,19 +91,19 @@ function beautifyScore(pref, score) {
         
         if (beatCount !== beatsPerBar) {
           if (lineMeasureNumber === 0) {
-            lastBarMel.b.isLeadIn = true;
+            lastBarMel.beauty.isLeadIn = true;
           } else {
-            lastBarMel.b.isLeadOut = true;
+            lastBarMel.beauty.isLeadOut = true;
           }
         }
         
         lineMeasureNumber++;
-        lastBarMel.b.str = lineNumber + ":" + lineMeasureNumber;
-        lastBarMel.b.lineNumber = lineNumber;
-        lastBarMel.b.lineMeasureNumber = lineMeasureNumber;
-        lastBarMel.b.beatsPerBar = beatsPerBar;
-        lastBarMel.b.measureNumber = measureList.length;
-        lastBarMel.b.beatWeight = beatCount;
+        lastBarMel.beauty.str = lineNumber + ":" + lineMeasureNumber;
+        lastBarMel.beauty.lineNumber = lineNumber;
+        lastBarMel.beauty.lineMeasureNumber = lineMeasureNumber;
+        lastBarMel.beauty.beatsPerBar = beatsPerBar;
+        lastBarMel.beauty.measureNumber = measureList.length;
+        lastBarMel.beauty.beatWeight = beatCount;
         maxMeasuresInLine = Math.max(maxMeasuresInLine, lineMeasureNumber);
         beatCount = 0;
         measureList.push(tmp);
@@ -158,7 +158,7 @@ function beautifyScore(pref, score) {
       while (idx < len) {
         mel = data[idx];
         idx++;
-        if (mel.newBar && mel.b.beatWeight) {return mel; }
+        if (mel.newBar && mel.beauty.beatWeight) {return mel; }
       }
     }
     
@@ -209,7 +209,7 @@ function beautifyScore(pref, score) {
        mel = data[i];
        if (!mel.c) {continue;}
        
-       if (mel.b && mel.b.isLeadIn) {
+       if (mel.beauty && mel.beauty.isLeadIn) {
          inLeadIn = true;
          getNextMelodyX = true;
        } else if (mel.newBar) {
@@ -248,11 +248,11 @@ function beautifyScore(pref, score) {
       
       // If the first measure is a lead in, don't count it towards the nummber
       // of measures.
-      if (staffMel.b && staffMel.b.isLeadIn) {m--;}
+      if (staffMel.beauty && staffMel.beauty.isLeadIn) {m--;}
       //logit(dumpNotes(a));
 
       // Set the width of each beat in pixels.
-      BEATLENGTH = FORCEWIDTH/(staffMel.b.beatsPerBar*m);
+      BEATLENGTH = FORCEWIDTH/(staffMel.beauty.beatsPerBar*m);
       offSet = spaceForLeadIn;
       
       // Run through the melody notes on the line.
@@ -261,7 +261,7 @@ function beautifyScore(pref, score) {
         if (mel.noForceX) {continue;}  // Some of them are to be left alone.
         
         newX = offSet;                 // The position for this note
-        offSet += BEATLENGTH * mel.b.beatWeight; // And for the next note..
+        offSet += BEATLENGTH * mel.beauty.beatWeight; // And for the next note..
         setFixedPosition(mel, newX);
       }      
     };
@@ -294,5 +294,108 @@ function beautifyScore(pref, score) {
   }
   
   setSpacing();
+}
+
+
+hdots_prefs.registerPlugin("beauty_engine", "pportion", "Proportial Layout", beautifyScore2);
+
+ hdots_prefs.registerPluginPreference("beauty_engine", "pportion",
+{
+type: "text",
+label: "One beat, in pixels",
+name: "beatInPixels",
+def:  "200"
+});
+
+
+function beautifyScore2(pref, score) {
+  var BASEPULSE = 78125;   // 1/128 = 0.0078125 
+  var beatFixRate = {
+    /*
+    For right now, we are going to pretend these don't exist for melody notes 
+    128: 1 * BASEPULSE,
+    64: 2 * BASEPULSE,
+    32: 3 * BASEPULSE,
+    16: 4 * BASEPULSE,
+    8: 8 * BASEPULSE,
+    4: 16 * BASEPULSE,
+    2: 32 * BASEPULSE,
+    1: 64 * BASEPULSE
+    */
+    
+    16: 1 * BASEPULSE,
+    8: 2 * BASEPULSE,
+    4: 4 * BASEPULSE,
+    2: 8 * BASEPULSE,
+    1: 16 * BASEPULSE
+    
+  };
+    
+  var beatInPixels = pref.beatInPixels;  
+  
+  var beatUnit; // What length note takes one beat...
+  var beatCount = 0; // Count up parts of a beat...
+  
+  var beatFraction;
+  var beatWidth;
+  var w;
+  var padding;
+  var lastx;
+  
+  var lastMel; 
+  score.data.forEach
+  (function(mel)
+   {
+   var currentBeatCount;
+   
+   if (mel.type === "melody" || mel.staffEnd) { // We like having the end of the staff padding out as well
+     if (lastMel) {
+       
+       currentBeatCount = beatFixRate[lastMel.duration];                         
+       lastMel.beatFraction = beatUnit/lastMel.duration; 
+              
+       if (lastMel.dotType === "dot") {
+         lastMel.beatFraction *= 1.5;
+         currentBeatCount *= 1.5;
+       }
+       if (lastMel.dotType === "doubledot") {
+         lastMel.beatFraction *= 1.75;
+         currentBeatCount *= 1.75;
+       }
+       
+       beatWidth = (beatInPixels * lastMel.beatFraction); 
+       lastx = lastMel.c.x /* + lastMel.rect.width  + lastMel.paddingRight */;
+       
+       w = mel.c.x - lastx; 
+       padding = beatWidth - w;
+       if (padding > 0) {
+         lastMel.paddingRight +=  padding;
+       }
+       beatCount += currentBeatCount;
+       lastMel.beatCount = beatCount;
+       lastMel.currentBeatCount = currentBeatCount;
+       
+       //logit(["Beauty " + mel.note + ":" + mel.duration ,  beatWidth, mel.beatFraction, lastMel.paddingRight, beatWidth, w]);
+       
+     }
+     lastMel = mel;
+   }
+    
+   if (mel.type === "timesig") {
+     beatUnit = mel.beatUnit; 
+     //logit(["Beauty Beat Unit", beatUnit]);
+   }
+   
+   if (mel.newBar) {
+     mel.beatCount = beatCount;
+     beatCount = 0;
+   }
+   
+   if (mel.staffEnd) {
+     lastMel = undefined;
+   }
+   
+   }
+   );
 }
 

@@ -242,6 +242,8 @@ dots.push('"Jeremy J Starcher",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)');
 dots.push('"It just is",(F,R,0,0,Times New Roman,10,400,0,0,18,0,0,0)');
 dots.push('');
 
+/*
+
 dots.push('& sharpf sharpc 4_4');
 dots.push('!	 LG_1');
 dots.push('!	 LA_1');
@@ -250,6 +252,7 @@ dots.push('!	 C_1');
 dots.push('!t');
 dots.push('');
 dots.push('');
+
 dots.push('& sharpf sharpc 4_4');
 dots.push('!	 D_2				E_2');
 dots.push('!	 F_2				HA_2');
@@ -257,6 +260,7 @@ dots.push('!	 HA_2				LG_2');
 dots.push('!	 LA_2				B_2');
 dots.push('!t');
 dots.push('');
+
 dots.push('& sharpf sharpc 4_4');
 dots.push('!	 E_4				E_4			E_4				E_4');
 dots.push('!	 E_4				E_4			E_4				E_4');
@@ -264,12 +268,14 @@ dots.push('!	 E_4				E_4			E_4				E_4');
 dots.push('!	 E_4				E_4			E_4				E_4');
 dots.push('!t');
 dots.push('');
+
 dots.push('& sharpf sharpc 4_4');
 dots.push('!	 E_8				E_8			E_8				E_8	 E_8				E_8			E_8				E_8');
 dots.push('!	 E_8				E_8			E_8				E_8	 E_8				E_8			E_8				E_8');
 dots.push('!	 E_8				E_8			E_8				E_8	 E_8				E_8			E_8				E_8');
 dots.push('!	 E_8				E_8			E_8				E_8	 E_8				E_8			E_8				E_8');
 dots.push('!t');
+
 dots.push('');
 dots.push('& sharpf sharpc 4_4');
 dots.push('!	 thrd E_4				thrd E_4			thrd E_4				thrd E_4');
@@ -309,6 +315,7 @@ dots.push('!	 gg E_8				gg E_8			gg E_8				gg E_8	 gg E_8				gg E_8			gg E_8				
 dots.push('!	 gg E_8				gg E_8			gg E_8				gg E_8	 gg E_8				gg E_8			gg E_8				gg E_8');
 dots.push('!t');
 dots.push('');
+//*/
 
 
   // Greensleeves
