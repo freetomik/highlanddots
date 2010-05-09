@@ -535,9 +535,11 @@ function plotMusic(score)
   
   
   var f = hdots_prefs.getPluginFunction("beauty_engine");
-  f(score);
+  f(staff, 1);  // Pass 1
+  reFlowAndReDraw(false); // Readjust everything
+  f(staff, 2);  // Pass 2
   
-  //beautifyScore(score);  
+
   
   reFlowAndReDraw(false); // Calculate sizes
 
