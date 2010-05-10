@@ -1,0 +1,518 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<title>Classes.Binary Parser - JSFromHell.com: JavaScript Repository</title>
+	<link rel="shortcut icon" href="http://jsfromhell.com/favicon.ico" type="image/x-icon"/>
+	<link rel="add icon" href="http://jsfromhell.com/addicon.ico" type="image/x-icon"/>
+	<meta http-equiv="content-type" content="application/xhtml+xml;charset=utf-8"/>
+	<meta http-equiv="content-language" content="en-us"/>
+	<meta http-equiv="content-style-type" content="text/css"/>
+	<meta http-equiv="content-script-type" content="text/javascript"/>
+	<meta name="resource-type" content="document"/>
+	<meta name="revisit-after" content="5"/>
+	<meta name="robots" content="all"/>
+	<meta name="author" content="Carlos R. L. Rodrigues, Jonas Raoni Soares Silva"/>
+	<meta name="description" content="Serializes and unserializes binary data. JavaScript source code repository"/>
+	<meta name="classification" content="development"/>
+	<meta name="robots" content="all"/>
+	<meta name="keywords" content="Jonas, Raoni, Soares, Silva, Classes, Binary, Parser, binário, parser, binary, ieee754, javascript, jscript, repository, codes"/>
+	<link rel="alternate" href="http://jsfromhell.com/en/feed/atom.xml" type="application/atom+xml" title="Atom"/>
+	<link rel="stylesheet" href="binary-parser_files/main.css" media="all" type="text/css"/>
+	<!--[if lte IE 7]>
+	<style type="text/css">
+	legend{margin-top: -10px;}
+	</style>
+	<![endif]-->
+	<script src="binary-parser_files/event.js" type="text/javascript"/>
+	
+</head>
+<body>
+		<div id="header">
+		<div id="title">
+			<h2><a href="http://jsfromhell.com/">JSFromHell.com</a></h2>
+			<div id="languages">
+				<a href="http://jsfromhell.com/en/classes/binary-parser" title="English version">English</a>
+				: <a href="http://jsfromhell.com/pt/classes/binary-parser" title="Versão em português">Português</a>
+			</div>
+		</div>
+		<div class="clear"/>
+		<div id="menu" class="clear">
+			<ul>
+				<li><a href="http://jsfromhell.com/array" title="Array">Array</a></li>
+				<li><a href="http://jsfromhell.com/classes" title="Classes">Classes</a></li>
+				<li><a href="http://jsfromhell.com/dhtml" title="DHTML">DHTML</a></li>
+				<li><a href="http://jsfromhell.com/forms" title="Forms">Forms</a></li>
+				<li><a href="http://jsfromhell.com/geral" title="Geral">Geral</a></li>
+				<li><a href="http://jsfromhell.com/math" title="Math">Math</a></li>
+				<li><a href="http://jsfromhell.com/number" title="Number">Number</a></li>
+				<li><a href="http://jsfromhell.com/string" title="String">String</a></li>
+				<li><a href="http://jsfromhell.com/samples" title="Samples">Samples</a></li>
+			</ul>
+			<div class="clear"/>
+		</div>
+	</div>
+	<div id="all">
+		<div id="content">
+		 	<div id="navigation">
+				<a href="#description-header">Description</a>
+				: <a href="#code-header">Code</a>
+				: <a href="#example-header">Example</a>
+				: <a href="#help-header">Help</a>
+				: <a href="#rank-header">Rank</a>
+			</div>
+			<h1>
+				Binary Parser
+				<span>//JavaScript Repository</span>
+			</h1>
+
+			<h2 id="description-header" class="clear">Description</h2>
+			<div id="description">
+				Serializes and unserializes binary data.
+				<br/>Created: 2005.08.08 
+			</div>
+			
+
+			<h2 id="code-header">Code (<a href="http://jsfromhell.com/classes/binary-parser/download" rel="nofollow" title="Download the code">Download</a>)</h2>
+			<div id="code">
+				<pre><code>//+ Jonas Raoni Soares Silva
+//@ http://jsfromhell.com/classes/binary-parser [rev. #1]
+
+BinaryParser = function(bigEndian, allowExceptions){
+    this.bigEndian = bigEndian, this.allowExceptions = allowExceptions;
+};
+with({p: BinaryParser.prototype}){
+    p.encodeFloat = function(number, precisionBits, exponentBits){
+        var bias = Math.pow(2, exponentBits - 1) - 1, minExp = -bias + 1, maxExp = bias, minUnnormExp = minExp - precisionBits,
+        status = isNaN(n = parseFloat(number)) || n == -Infinity || n == +Infinity ? n : 0,
+        exp = 0, len = 2 * bias + 1 + precisionBits + 3, bin = new Array(len),
+        signal = (n = status !== 0 ? 0 : n) &lt; 0, n = Math.abs(n), intPart = Math.floor(n), floatPart = n - intPart,
+        i, lastBit, rounded, j, result;
+        for(i = len; i; bin[--i] = 0);
+        for(i = bias + 2; intPart &amp;&amp; i; bin[--i] = intPart % 2, intPart = Math.floor(intPart / 2));
+        for(i = bias + 1; floatPart &gt; 0 &amp;&amp; i; (bin[++i] = ((floatPart *= 2) &gt;= 1) - 0) &amp;&amp; --floatPart);
+        for(i = -1; ++i &lt; len &amp;&amp; !bin[i];);
+        if(bin[(lastBit = precisionBits - 1 + (i = (exp = bias + 1 - i) &gt;= minExp &amp;&amp; exp &lt;= maxExp ? i + 1 : bias + 1 - (exp = minExp - 1))) + 1]){
+            if(!(rounded = bin[lastBit]))
+                for(j = lastBit + 2; !rounded &amp;&amp; j &lt; len; rounded = bin[j++]);
+            for(j = lastBit + 1; rounded &amp;&amp; --j &gt;= 0; (bin[j] = !bin[j] - 0) &amp;&amp; (rounded = 0));
+        }
+        for(i = i - 2 &lt; 0 ? -1 : i - 3; ++i &lt; len &amp;&amp; !bin[i];);
+
+        (exp = bias + 1 - i) &gt;= minExp &amp;&amp; exp &lt;= maxExp ? ++i : exp &lt; minExp &amp;&amp;
+            (exp != bias + 1 - len &amp;&amp; exp &lt; minUnnormExp &amp;&amp; this.warn("encodeFloat::float underflow"), i = bias + 1 - (exp = minExp - 1));
+        (intPart || status !== 0) &amp;&amp; (this.warn(intPart ? "encodeFloat::float overflow" : "encodeFloat::" + status),
+            exp = maxExp + 1, i = bias + 2, status == -Infinity ? signal = 1 : isNaN(status) &amp;&amp; (bin[i] = 1));
+        for(n = Math.abs(exp + bias), j = exponentBits + 1, result = ""; --j; result = (n % 2) + result, n = n &gt;&gt;= 1);
+        for(n = 0, j = 0, i = (result = (signal ? "1" : "0") + result + bin.slice(i, i + precisionBits).join("")).length, r = [];
+            i; n += (1 &lt;&lt; j) * result.charAt(--i), j == 7 &amp;&amp; (r[r.length] = String.fromCharCode(n), n = 0), j = (j + 1) % 8);
+        r[r.length] = n ? String.fromCharCode(n) : "";
+        return (this.bigEndian ? r.reverse() : r).join("");
+    };
+    p.encodeInt = function(number, bits, signed){
+        var max = Math.pow(2, bits), r = [];
+        (number &gt;= max || number &lt; -(max &gt;&gt; 1)) &amp;&amp; this.warn("encodeInt::overflow") &amp;&amp; (number = 0);
+        number &lt; 0 &amp;&amp; (number += max);
+        for(; number; r[r.length] = String.fromCharCode(number % 256), number = Math.floor(number / 256));
+        for(bits = -(-bits &gt;&gt; 3) - r.length; bits--; r[r.length] = "\0");
+        return (this.bigEndian ? r.reverse() : r).join("");
+    };
+    p.decodeFloat = function(data, precisionBits, exponentBits){
+        var b = ((b = new this.Buffer(this.bigEndian, data)).checkBuffer(precisionBits + exponentBits + 1), b),
+            bias = Math.pow(2, exponentBits - 1) - 1, signal = b.readBits(precisionBits + exponentBits, 1),
+            exponent = b.readBits(precisionBits, exponentBits), significand = 0,
+            divisor = 2, curByte = b.buffer.length + (-precisionBits &gt;&gt; 3) - 1,
+            byteValue, startBit, mask;
+        do
+            for(byteValue = b.buffer[ ++curByte ], startBit = precisionBits % 8 || 8, mask = 1 &lt;&lt; startBit;
+                mask &gt;&gt;= 1; (byteValue &amp; mask) &amp;&amp; (significand += 1 / divisor), divisor *= 2);
+        while(precisionBits -= startBit);
+        return exponent == (bias &lt;&lt; 1) + 1 ? significand ? NaN : signal ? -Infinity : +Infinity
+            : (1 + signal * -2) * (exponent || significand ? !exponent ? Math.pow(2, -bias + 1) * significand
+            : Math.pow(2, exponent - bias) * (1 + significand) : 0);
+    };
+    p.decodeInt = function(data, bits, signed){
+        var b = new this.Buffer(this.bigEndian, data), x = b.readBits(0, bits), max = Math.pow(2, bits);
+        return signed &amp;&amp; x &gt;= max / 2 ? x - max : x;
+    };
+    with({p: (p.Buffer = function(bigEndian, buffer){
+        this.bigEndian = bigEndian || 0, this.buffer = [], this.setBuffer(buffer);
+    }).prototype}){
+        p.readBits = function(start, length){
+            //shl fix: Henri Torgemane ~1996 (compressed by Jonas Raoni)
+            function shl(a, b){
+                for(++b; --b; a = ((a %= 0x7fffffff + 1) &amp; 0x40000000) == 0x40000000 ? a * 2 : (a - 0x40000000) * 2 + 0x7fffffff + 1);
+                return a;
+            }
+            if(start &lt; 0 || length &lt;= 0)
+                return 0;
+            this.checkBuffer(start + length);
+            for(var offsetLeft, offsetRight = start % 8, curByte = this.buffer.length - (start &gt;&gt; 3) - 1,
+                lastByte = this.buffer.length + (-(start + length) &gt;&gt; 3), diff = curByte - lastByte,
+                sum = ((this.buffer[ curByte ] &gt;&gt; offsetRight) &amp; ((1 &lt;&lt; (diff ? 8 - offsetRight : length)) - 1))
+                + (diff &amp;&amp; (offsetLeft = (start + length) % 8) ? (this.buffer[ lastByte++ ] &amp; ((1 &lt;&lt; offsetLeft) - 1))
+                &lt;&lt; (diff-- &lt;&lt; 3) - offsetRight : 0); diff; sum += shl(this.buffer[ lastByte++ ], (diff-- &lt;&lt; 3) - offsetRight)
+            );
+            return sum;
+        };
+        p.setBuffer = function(data){
+            if(data){
+                for(var l, i = l = data.length, b = this.buffer = new Array(l); i; b[l - i] = data.charCodeAt(--i));
+                this.bigEndian &amp;&amp; b.reverse();
+            }
+        };
+        p.hasNeededBits = function(neededBits){
+            return this.buffer.length &gt;= -(-neededBits &gt;&gt; 3);
+        };
+        p.checkBuffer = function(neededBits){
+            if(!this.hasNeededBits(neededBits))
+                throw new Error("checkBuffer::missing bytes");
+        };
+    }
+    p.warn = function(msg){
+        if(this.allowExceptions)
+            throw new Error(msg);
+        return 1;
+    };
+    p.toSmall = function(data){return this.decodeInt(data, 8, true);};
+    p.fromSmall = function(number){return this.encodeInt(number, 8, true);};
+    p.toByte = function(data){return this.decodeInt(data, 8, false);};
+    p.fromByte = function(number){return this.encodeInt(number, 8, false);};
+    p.toShort = function(data){return this.decodeInt(data, 16, true);};
+    p.fromShort = function(number){return this.encodeInt(number, 16, true);};
+    p.toWord = function(data){return this.decodeInt(data, 16, false);};
+    p.fromWord = function(number){return this.encodeInt(number, 16, false);};
+    p.toInt = function(data){return this.decodeInt(data, 32, true);};
+    p.fromInt = function(number){return this.encodeInt(number, 32, true);};
+    p.toDWord = function(data){return this.decodeInt(data, 32, false);};
+    p.fromDWord = function(number){return this.encodeInt(number, 32, false);};
+    p.toFloat = function(data){return this.decodeFloat(data, 23, 8);};
+    p.fromFloat = function(number){return this.encodeFloat(number, 23, 8);};
+    p.toDouble = function(data){return this.decodeFloat(data, 52, 11);};
+    p.fromDouble = function(number){return this.encodeFloat(number, 52, 11);};
+}</code></pre>
+			</div>
+
+
+			<h2 id="example-header">Example (<a href="http://jsfromhell.com/classes/binary-parser/example" title="Functional example">Example</a>)</h2>
+			<div id="example">
+				<pre><code>&lt;form action=""&gt;
+    &lt;fieldset&gt;
+        &lt;br /&gt;&lt;input type="radio" name="endian" value="0" checked="checked" /&gt;Big Endian
+        &lt;input type="radio" name="endian" value="1" /&gt;Little Endian
+        &lt;br /&gt;&lt;br /&gt;
+    &lt;fieldset&gt;
+        &lt;legend&gt;Número &gt; Hexadecimal&lt;/legend&gt;
+        Converter número &lt;input type="text" name="fromNumber" value="123" /&gt; para
+        &lt;select name="toHex"&gt;
+            &lt;option value="Small"&gt;Small&lt;/option&gt;
+            &lt;option value="Byte"&gt;Byte&lt;/option&gt;
+            &lt;option value="Short"&gt;Short&lt;/option&gt;
+            &lt;option value="Word"&gt;Word&lt;/option&gt;
+            &lt;option value="Int"&gt;Int&lt;/option&gt;
+            &lt;option value="DWord"&gt;DWord&lt;/option&gt;
+            &lt;option value="Float"&gt;Float&lt;/option&gt;
+            &lt;option value="Double"&gt;Double&lt;/option&gt;
+        &lt;/select&gt;
+        &lt;br /&gt;&lt;input type="button" name="n2h" value="Converter" /&gt;
+    &lt;/fieldset&gt;
+    &lt;br /&gt;
+    &lt;fieldset&gt;
+        &lt;legend&gt;Hexadecimal &gt; Número&lt;/legend&gt;
+        Converter hexadecimal &lt;input type="text" name="fromHex" value="7b" /&gt; para número
+        &lt;select name="toNumber"&gt;
+            &lt;option value="Small"&gt;Small&lt;/option&gt;
+            &lt;option value="Byte"&gt;Byte&lt;/option&gt;
+            &lt;option value="Short"&gt;Short&lt;/option&gt;
+            &lt;option value="Word"&gt;Word&lt;/option&gt;
+            &lt;option value="Int"&gt;Int&lt;/option&gt;
+            &lt;option value="DWord"&gt;DWord&lt;/option&gt;
+            &lt;option value="Float"&gt;Float&lt;/option&gt;
+            &lt;option value="Double"&gt;Double&lt;/option&gt;
+        &lt;/select&gt;
+        &lt;br /&gt;&lt;input type="button" name="h2n" value="Converter" /&gt;
+    &lt;/fieldset&gt;
+    &lt;/fieldset&gt;
+&lt;/form&gt;
+
+&lt;script type="text/javascript"&gt;
+//&lt;![CDATA[
+
+f = document.forms[0];
+//http://www.jsfromhell.com/geral/event-listener
+addEvent(f.n2h, "click", function(e){
+    function char2hex(s){
+        for(var k, i = s.length, r = ""; i; r = ((k = s.charCodeAt(--i).toString(16 )).length - 1 ? k : "0" + k) + r);
+        return r;
+    }
+    try{
+        alert(char2hex((new BinaryParser(f.endian[0].checked, true))["from" + f.toHex.value](f.fromNumber.value - 0)));
+    }
+    catch(e){
+        alert('Erro\n'+e.message);
+    }
+});
+
+//http://www.jsfromhell.com/geral/event-listener
+addEvent(f.h2n, "click", function(e){
+    function hex2bin(s){
+        for(var i = 0, l = s.length, r = ""; i &lt; l; r += String.fromCharCode(parseInt(s.substr(i, 2), 16)), i += 2);
+        return r;
+    }
+    try{
+        alert((new BinaryParser(f.endian[0].checked, true))["to" + f.toNumber.value](hex2bin(f.fromHex.value)));
+    }
+    catch(e){
+        alert('Erro\n'+e.message);
+    }
+} );
+
+//]]&gt;
+&lt;/script&gt;</code></pre>
+			</div>
+
+
+			<h2 id="help-header">Help</h2>
+			<div id="help">
+				<p>This class is able to serialize and unserialize binary data, so you can read files generated with C, pascal, etc as well as generate such data.
+It's also able to handle the byte order (big/little endian) and supports the following types: signed integer (small 8 bits, short 16 bits, int 32 bits), unsigned integer (byte 8 bits, word 16 bits, dword 32 bits) and floating point (IEEE754 float 32 bits and double 64 bits).</p>
+
+<h4>Constructor</h4>
+<dl>
+	<dt><strong>BinaryParser([bigEndian: Boolean = false], [allowExceptions: Boolean = false])</strong></dt>
+	<dd>
+		Generates an instance of BinaryParser.
+		<dl>
+			<dt>bigEndian</dt> <dd>if true, the class will assume the bigEndian format for the input and output, otherwise, it will assume the little endian format.</dd>
+			<dt>allowExceptions</dt> <dd>if true, when number=&gt;binary conversion error occur an <i>exception</i> will be raised (which can be caught through a "try..except" block)</dd>
+		</dl>
+	</dd>
+</dl>
+
+<h4>Properties</h4>
+<dl>
+	<dt>BinaryParser<strong>.bigEndian: Boolean</strong></dt> <dd>if true, the class will assume the bigEndian format for the input and output, otherwise, it will assume the little endian format.</dd>
+	<dt>BinaryParser<strong>.allowExceptions: Boolean</strong></dt> <dd>if true, when number=&gt;binary conversion error occur an <i>exception</i> will be raised (which can be caught through a "try..except" block)</dd>
+</dl>
+
+<h4>Gerenic Methods</h4>
+<dl>
+	<dt>BinaryParser<strong>.decodeFloat(data: String, precisionBits: Integer, exponentBits: Integer): Float</strong></dt>
+	<dd>
+		Decodes a string containing the binary representation of a number in the IEEE-754 pattern and returns the number or the following special values: NaN, +Infinity, -Infinity.
+		<dl>
+			<dt>data</dt> <dd>string containing the binary representation of the number (must contain at least "ceil((exponentBits + precisionBits + 1) / 8)" bytes)</dd>
+			<dt>precisionBits</dt> <dd>amount of bits that specifies the precision/mantisse</dd>
+			<dt>exponentBits</dt> <dd>amount of bits that specifies the exponent</dd>
+		</dl>
+	</dd>
+	<dt>BinaryParser<strong>.encodeFloat(number: Float, precisionBits: Integer, exponentBits: Integer): String</strong></dt>
+	<dd>
+		Encodes a number into the IEEE-754 pattern and returns the binary representation of it in a string containing "ceil((exponentBits + precisionBits + 1) / 8)" bytes.
+		<dl>
+			<dt>number</dt> <dd>number to be converted</dd>
+			<dt>precisionBits</dt> <dd>amount of bits that specifies the precision/mantisse</dd>
+			<dt>exponentBits</dt> <dd>amount of bits that specifies the exponent</dd>
+		</dl>
+	</dd>
+	<dt>BinaryParser<strong>.decodeInt(data: String, bits: Integer, signed: Boolean): Integer</strong></dt>
+	<dd>
+		Decodes a string containing binary data and returns the number that it represents.
+		<dl>
+			<dt>data</dt> <dd>string containing the binary representation of the number (must contain at least "ceil(bits / 8)" bytes)</dd>
+			<dt>bits</dt> <dd>amount of bits that specifies the quantity of numbers that can be represented</dd>
+			<dt>signed</dt> <dd>indicates if the number must be decoded with signal or without signal</dd>
+		</dl>
+	</dd>
+	<dt>BinaryParser<strong>.encodeInt(number: Int, bits: Integer, signed: Boolean): Integer</strong></dt>
+	<dd>
+		Encodes an integer number and returns it's binary representation on a string containing "ceil(bits / 8)" bytes.
+		<dl>
+			<dt>number</dt> <dd>number to be converted</dd>
+			<dt>bits</dt> <dd>amount of bits that specifies the quantity of numbers that can be represented</dd>
+			<dt>signed</dt> <dd>indicates if the number must be encoded with signal or without signal</dd>
+		</dl>
+	</dd>
+</dl>
+
+<h4>Methods (Float Point)</h4>
+<dl>
+	<dt>BinaryParser<strong>.toFloat(data: String): Float</strong></dt>
+	<dd>
+		Returns a number or a special value (NaN, +Infinity, -Infinity).
+		<dl>
+			<dt>data</dt> <dd>string containing at least 4 bytes</dd>
+		</dl>
+	</dd>
+	<dt>BinaryParser<strong>.fromFloat(number: Float): String</strong></dt>
+	<dd>
+		Returns the binary representation of a number in a string, the method can raise exceptions if the property "allowExceptions" is true and the number is an special value (NaN, +Infinity, -Infinity) or if it can't be represented (overflow, underflow).
+		<dl>
+			<dt>number</dt> <dd>number to be converted to binary</dd>
+		</dl>
+	</dd>
+	<dt>BinaryParser<strong>.toDouble(data: String): Float</strong></dt>
+	<dd>
+		Returns a number or a special value (NaN, +Infinity, -Infinity).
+		<dl>
+			<dt>data</dt> <dd>string containing at least 8 bytes</dd>
+		</dl>
+	</dd>
+	<dt>BinaryParser<strong>.fromDouble(number: Float): String</strong></dt>
+	<dd>
+		Returns the binary representation of a number in a string, the method can raise exceptions if the property "allowExceptions" is true and the number is an special value (NaN, +Infinity, -Infinity) or if it can't be represented (overflow, underflow).
+		<dl>
+			<dt>number</dt> <dd>number to be converted to binary</dd>
+		</dl>
+	</dd>
+</dl>
+
+<h4>Methods (Integer Numbers)</h4>
+<dl>
+	<dt>BinaryParser<strong>.toSmall(data: String): Integer</strong></dt>
+	<dd>
+		Receives a string and returns its integer value with signal.
+		<dl>
+			<dt>data</dt> <dd>string containing at least 1 bytes</dd>
+		</dl>
+	</dd>
+	<dt>BinaryParser<strong>.fromSmall(number: Integer): String</strong></dt>
+	<dd>
+		Receives an integer and returns its binary representation in a string with 1 byte, the method can raise an exception if the number is too big to be represented and the property "allowExceptions" is true.
+		<dl>
+			<dt>number</dt> <dd>number to be converted to binary</dd>
+		</dl>
+	</dd>
+	<dt>BinaryParser<strong>.toByte(data: String): Integer</strong></dt>
+	<dd>
+		Receives a string and returns its integer value without signal.
+		<dl>
+			<dt>data</dt> <dd>string containing at least 1 bytes</dd>
+		</dl>
+	</dd>
+	<dt>BinaryParser<strong>.fromByte(number: Integer): String</strong></dt>
+	<dd>
+		Receives an integer and returns its binary representation in a string with 1 byte, the method can raise an exception if the number is too big to be represented and the property "allowExceptions" is true.
+		<dl>
+			<dt>number</dt> <dd>number to be converted to binary, the class ignores if the number is negative or not (in the two's complement, "-1" is represented in the same way as "255")</dd>
+		</dl>
+	</dd>
+	<dt>BinaryParser<strong>.toShort(data: String): Integer</strong></dt>
+	<dd>
+		Receives a string and returns its integer value with signal.
+		<dl>
+			<dt>data</dt> <dd>string containing at least 2 bytes</dd>
+		</dl>
+	</dd>
+	<dt>BinaryParser<strong>.fromShort(number: Integer): String</strong></dt>
+	<dd>
+		Receives an integer and returns its binary representation in a string with 2 bytes, the method can raise an exception if the number is too big to be represented and the property "allowExceptions" is true.
+		<dl>
+			<dt>number</dt> <dd>number to be converted to binary</dd>
+		</dl>
+	</dd>
+	<dt>BinaryParser<strong>.toWord(data: String): Integer</strong></dt>
+	<dd>
+		Receives a string and returns its integer value without signal.
+		<dl>
+			<dt>data</dt> <dd>string containing at least 2 bytes</dd>
+		</dl>
+	</dd>
+	<dt>BinaryParser<strong>.fromWord(number: Integer): String</strong></dt>
+	<dd>
+		Receives an integer and returns its binary representation in a string with 2 bytes, the method can raise an exception if the number is too big to be represented and the property "allowExceptions" is true.
+		<dl>
+			<dt>number</dt> <dd>number to be converted to binary, the class ignores if the number is negative or not (in the two's complement, "-1" is represented in the same way as "255")</dd>
+		</dl>
+	</dd>
+	<dt>BinaryParser<strong>.toInt(data: String): Integer</strong></dt>
+	<dd>
+		Receives a string and returns its integer value with signal.
+		<dl>
+			<dt>data</dt> <dd>string containing at least 4 bytes</dd>
+		</dl>
+	</dd>
+	<dt>BinaryParser<strong>.fromInt(number: Integer): String</strong></dt>
+	<dd>
+		Receives an integer and returns its binary representation in a string with 4 bytes, the method can raise an exception if the number is too big to be represented and the property "allowExceptions" is true.
+		<dl>
+			<dt>number</dt> <dd>number to be converted to binary</dd>
+		</dl>
+	</dd>
+	<dt>BinaryParser<strong>.toDWord(data: String): Integer</strong></dt>
+	<dd>
+		Receives a string and returns its integer value without signal.
+		<dl>
+			<dt>data</dt> <dd>string containing at least 4 bytes</dd>
+		</dl>
+	</dd>
+	<dt>BinaryParser<strong>.fromDWord(number: Integer): String</strong></dt>
+	<dd>
+		Receives an integer and returns its binary representation in a string with 4 bytes, the method can raise an exception if the number is too big to be represented and the property "allowExceptions" is true.
+		<dl>
+			<dt>number</dt> <dd>number to be converted to binary, the class ignores if the number is negative or not (in the two's complement, "-1" is represented in the same way as "255")</dd>
+		</dl>
+	</dd>
+</dl>
+			</div>
+
+
+			<h2 id="rank-header">Rank (Votes: 57)</h2>
+			<div id="rank">
+				<div id="progress">
+					<div class="bar good" style="width: 49%;"/>
+					<div class="text">2.47</div>
+				</div>
+				<form method="post" action="" id="formVote">
+					<div>
+						<input type="radio" name="rate" value="0" id="vote-0"/> <label class="inline" for="vote-0">0</label>
+						<input type="radio" name="rate" value="1" id="vote-1"/> <label class="inline" for="vote-1">1</label>
+						<input type="radio" name="rate" value="2" id="vote-2"/> <label class="inline" for="vote-2">2</label>
+						<input type="radio" name="rate" value="3" id="vote-3"/> <label class="inline" for="vote-3">3</label>
+						<input type="radio" name="rate" value="4" id="vote-4"/> <label class="inline" for="vote-4">4</label>
+						<input type="radio" name="rate" value="5" id="vote-5"/> <label class="inline" for="vote-5">5</label>
+						<input type="submit" name="submit" value="Vote"/>
+					</div>
+				</form>
+
+				<script type="text/javascript" src="binary-parser_files/code.js"/>
+				<script type="text/javascript">
+				//<![CDATA[
+				code("Select a grade.");
+				//]]>
+				</script>
+				<div class="clear"/>
+			</div>
+		</div>
+				<div class="clear"/>
+		<div id="footer">
+			<a href="http://jsfromhell.com/en/feed/atom.xml" title="Feed ATOM."><img src="binary-parser_files/feed.gif" alt="feed icon"/> Sign up the ATOM feed</a>
+			| <a href="http://jsfromhell.com/contact" title="If you have a non-trivial code or a good idea, send us">Send your code</a>
+			| <a href="http://jsfromhell.com/contact" title="If you've found an error on the site, contact us">Problems on the site</a>
+			| <strong>Support us:</strong>
+			<form action="https://www.paypal.com/cgi-bin/webscr" method="post" style="display: inline;">
+				<p class="inline">
+				<input type="image" style="border: medium none ; vertical-align: middle;" src="binary-parser_files/paypal.gif" name="submit" alt="PayPal - The safer, easier way to pay online!"/>
+				<img width="1" height="1" alt="" src="binary-parser_files/pixel.gif"/>
+				<input type="hidden" name="cmd" value="_donations"/>
+				<input type="hidden" name="business" value="jonas@jonasraoni.org"/>
+				<input type="hidden" name="item_name" value="JSFromHell Donation"/>
+				<input type="hidden" name="item_number" value="JSFromHell"/>
+				<input type="hidden" name="no_shipping" value="1"/>
+				<input type="hidden" name="cn" value="Se quiser, deixe sua mensagem"/>
+				<input type="hidden" name="currency_code" value="USD"/>
+				<input type="hidden" name="tax" value="0"/>
+				<input type="hidden" name="lc" value="BR"/>
+				<input type="hidden" name="bn" value="PP-DonationsBF"/>
+				</p>
+			</form>
+		</div>
+		<script src="binary-parser_files/urchin.js" type="text/javascript"/>
+		<script type="text/javascript">
+		//<![CDATA[
+		_uacct = "UA-163788-1";
+		urchinTracker();
+		//]]>
+		</script>
+	</div>
+</body>
+</html>

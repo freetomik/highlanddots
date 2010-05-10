@@ -1,0 +1,355 @@
+/* COMMON */
+img{
+	border: 0;
+	vertical-align: middle;
+}
+.clear{
+	clear: both;
+}
+.inline{
+	display: inline;
+	clear: none;
+}
+.full-width{
+	width: 100%;
+}
+.text-right{
+	text-align: right;
+}
+.float-left{
+	float: left;
+}
+
+
+
+
+/* LAYOUT */
+body{
+	background: #fff;
+	font: 12px verdana, sans-serif;
+	margin: 0;
+	padding: 0px;
+}
+#title{
+	margin: auto;
+	width: 767px;
+}
+#header{
+	background: #ddd url(/img/bar.png) repeat-x;
+}
+#header h2 a{
+	display: block;
+	float: left;
+	margin: 4px 0 4px 15px;
+	color: #000;
+	font: 40px impact, verdana, sans-serif;
+	font-weight: bold;
+	text-decoration: none;
+	font-style: italic;
+}
+#languages{
+	float: right;
+	margin: 30px 8px 0 0;
+	font-weight: bold;
+}
+#languages a{
+	color: #666;
+}
+#menu{
+	background: #fafafa url(/img/border.png) bottom left repeat-x;
+	border-top: 1px solid #999;
+	height: 31px;
+}
+#menu ul{
+	width: 767px;
+	margin: auto;
+	padding: 0;
+	list-style-type: none;
+}
+#menu li{
+	margin: 0;
+	padding: 0;
+	width: 85px;
+	float: left;
+}
+#menu a{
+	float: left;
+	padding: 7px 0;
+	width: 100%;
+	text-align: center;
+	color: #000;
+	background: #fafafa;
+	text-decoration: none;
+	border-bottom: 3px solid #bbb;
+}
+#menu a:hover{
+	background: #eee;
+	font-weight: bold;
+	border-bottom: 3px solid #b00;
+}
+#content{
+	width: 767px;
+	margin: auto;
+	padding: 20px;
+}
+#content h1 span, #example-body h1 span{
+	display: block;
+	clear: both;
+	color: #ccc;
+	font-size: 12px;
+}
+#footer{
+	width: 767px;
+	margin: auto;
+	border: 1px solid #999;
+	padding: 8px 0;
+	text-align: center;
+	background: #eee url(/img/bar.png) repeat-x;
+}
+#footer a{
+	color: #009;
+}
+h1, h2, h3, h4{
+	font-family: georgia, verdana, sans-serif;
+ 	margin: 0;
+}
+h1{
+	font-size: 16px;
+	margin: 10px 0;
+	padding: 0;
+	color: #d00;
+	display: block;
+}
+h2{
+	font-size: 14px;
+}
+h4{
+	font-size: 11px;
+	color: #900;
+ 	margin: 20px 0 5px 0;
+	border-bottom: 1px dashed #999;
+}
+p{
+	margin: 3px 0;
+	padding: 0;
+	text-align: justify;
+	color: #000;
+}
+ul, ol{
+	margin: 0 0 0 15px;
+	padding: 0;
+	list-style-type: square;
+}
+.error{
+	border: 1px #900 solid;
+	font: 14px georgia, monospace;
+	font-weight: bold;
+	padding: 10px;
+	margin: 20px 0;
+	background: #fee;
+	color: #900;
+}
+
+
+
+
+/* FORM */
+.field-error{
+	border: 1px #900 solid;
+	background: #fee;
+}
+fieldset{
+	margin: 0;
+	margin-top: 0px;
+	background: url(/img/back.png) #fafafa;
+	border: 1px solid #bbb;
+ 	padding: 0px 20px 20px 20px;
+}
+fieldset.no-padding{
+
+}
+label{
+	display: block;
+	clear: both;
+}
+legend{
+	margin: 20px 0 20px 0;
+	padding: 2px;
+	background: #eef;
+	border: 1px solid #999;
+	font-weight: bold;
+}
+select, textarea, input{
+	margin: 4px 0;
+}
+select:focus, select:hover, textarea:focus, textarea:hover, input]:hover, input:focus{
+	/*background: #eee;*/
+}
+
+
+
+
+/* LIST */
+#list{
+	width: 100%;
+	border-collapse: collapse;
+	clear:both;
+}
+#list td a{
+	text-decoration: none;
+}
+#list td a:hover{
+	text-decoration: underline;
+}
+#list th, #list tr, #list td{
+	font: 12px courier new, monospace;
+	padding: 5px;
+	border-bottom: 1px solid #ccc;
+	background: #f3f3ff;
+}
+#list th{
+	border-bottom: 1px solid #999;
+	padding: 0;
+	text-align: left;
+	font-weight: bold;
+}
+th.sortable a{
+	background: #eee;
+	color: #000;
+	text-decoration: none;
+	padding: 5px;
+	display: block;
+}
+th.sortable a:hover{
+	background-color: #ddd;
+}
+th.sorted-up a, th.sorted-down a{
+	padding-left: 20px;
+	background: #ddd no-repeat 5px center;
+}
+th.sorted-up a{
+	background-image: url(/img/up.gif);
+}
+th.sorted-down a{
+	background-image: url(/img/down.gif);
+}
+
+
+
+
+/* CODE */
+#navigation{
+	clear: both;
+}
+#navigation a{
+	color: #00a;
+	font: 12px monospace;
+}
+#code, #description, #example, #rank, #help, #dependency{
+	width: 757px;
+	font: 12px monospace;
+	margin-bottom: 20px;
+	padding: 15px 5px;
+}
+#code, #example{
+ 	overflow: auto;
+	padding: 0 5px;
+}
+#code pre, #example pre{
+ 	padding: 15px 0px;
+	overflow: auto;
+	margin: 0;
+}
+#dependency{
+	border: 2px solid #f5e3fe;
+	background: #F9EFFF;
+}
+#description{
+	border: 2px solid #e2e2Fe;
+	background: #f5f5ff;
+}
+#code{
+	border: 2px solid #e1e1e1;
+	background: #fafafa;
+}
+#example{
+	border: 2px solid #defede;
+	background: #f6fff6;
+}
+#help{
+	border: 2px solid #fdf4c9;
+	background: #fffcee;
+	font: 11px verdana, sans-serif;
+}
+#help code{
+	font: 12px monospace;
+	color: #909;
+}
+#help p{
+	font: 11px verdana, sans-serif;
+	padding: 0;
+}
+#help dl{
+	margin-bottom: 20px;
+}
+#help dt{
+	color: #00a;
+	font-style: italic;
+}
+#help dt strong{
+	color: #b00;
+}
+#help dd{
+	margin: 3px 0 20px 0;
+}
+#help dd dl{
+	margin-top: 0px;
+}
+#help dd dt{
+	float: left;
+	margin-right: 5px;
+	color: #090;
+}
+#help dd dd{
+	margin-bottom: 3px;
+	display: block;
+}
+#rank{
+	border: 2px solid #fed4d4;
+	background: #fee;
+}
+#rank form{
+	margin: 0;
+}
+#progress{
+	margin: 5px 5px 0 0;
+	float:right;
+	position: relative;
+	font-size: 0;
+	height: 10px;
+	width: 100px;
+	border: 1px solid #000;
+	background: white;
+}
+#progress .bar{
+	position:absolute;
+	height: 100%;
+	background: #ccc;
+}
+#progress .bad{
+	background: #f00;
+}
+#progress .good{
+	background: #ff0;
+}
+#progress .excelent{
+	background: #0f0;
+}
+#progress .text{
+	text-align: center;
+	font: 11px/8px verdana, sans-serif;
+	font-weight: bold;
+	position: absolute;
+	height: 100%;
+	width: 100%;
+}
