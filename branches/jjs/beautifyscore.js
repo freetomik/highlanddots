@@ -120,17 +120,6 @@ function beautifyScore(pref, staff, pass) {
     }
   }
   
-  /* Debugging, can be dropped later */  
-  function dumpNotes(a) {
-    var o;
-    var i;
-    var mel;
-    var s = [];
-    for (i = 0; i < a.length; i++) {
-      s.push(a[i].bww);
-    }
-    return s.join(" ");
-  }
   
   
   /* Here is were the real work is done.  We set the spaing for each note
@@ -428,4 +417,17 @@ function beautifyScore(pref, staff, pass) {
     });
  }
 }());
+
+
+  /* Debugging, can be dropped later */  
+  function dumpNotes(a) {
+    var o;
+    var i;
+    var mel;
+    var s = [];
+    for (i = 0; i < a.length; i++) {
+      s.push(a[i].bww);
+    }
+    return s.join(" ");
+  }
 

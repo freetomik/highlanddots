@@ -546,6 +546,8 @@ function plotMusic(score)
   reFlowAndReDraw(true);  // and draw.
   makeImageMap(staff, score);
   
+
+  scoretoaudio(score);
   
   //logit(sdet);  
   
