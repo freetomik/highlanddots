@@ -157,24 +157,3 @@
       return new ThisType();
     };
 }());
-
-/*
-var n = score.createMelodyNote();
-n.duration = m.beatUnit;
-n.staffPosition = 'floating';
-n.stemDir = "up";
-sdet.x = sdet.leftMargin;
-var s = sdet.space
-sdet.space = o.size * 1.25;
-sdet.x = sdet.leftMargin;
-
-sdet.noteInfo.floating.x = sdet.x;
-sdet.noteInfo.floating.y = o.y;
-
-n.calc(staff);
-n.paint(staff);
-
-        score.createText().paintAt(staff, "= " + m["TuneTempo"], o)
-        moveToY += o.size + sdet.space;
-        sdet.space = s;
-*/
