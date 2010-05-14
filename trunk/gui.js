@@ -124,9 +124,9 @@ var hdots_prefs = (
                          // Capture those values in a closure, and create a function to pass
                          // the parameters through.
                          var r = (function(_name, _pref) {
-                                  return function(p1) {
-                                  pluginTracker[_name](_pref, p1);
-                                  }
+                             return function(p1, p2, p3) {
+                               pluginTracker[_name](_pref, p1, p2, p3);
+                             }
                          }(pluginName,localPrefs) );
                          return r;
                        }

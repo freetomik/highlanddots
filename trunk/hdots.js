@@ -523,21 +523,17 @@ function plotMusic(score)
       delay[i]();
     }
   }
+
+  var f = hdots_prefs.getPluginFunction("beauty_engine");
   
   reFlowAndReDraw(false); // Calculate sizes
-  
-  
-  var f = hdots_prefs.getPluginFunction("beauty_engine");
-  f(score);
-  
-  //beautifyScore(score);  
-  
+  f(staff, 1);  // Pass 1
+  reFlowAndReDraw(false); // Readjust everything
+  f(staff, 2);  // Pass 2
   reFlowAndReDraw(false); // Calculate sizes
 
   reFlowAndReDraw(true);  // and draw.
-  makeImageMap(staff, score);
-  
-  
+  //makeImageMap(staff, score);
   //logit(sdet);  
   
 }
