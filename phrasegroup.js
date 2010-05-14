@@ -72,8 +72,6 @@
 
           if (j == 2) {
             if (mel.sectionStart && mel.type === self.type && mel.collectionName === self.collectionName) {
-
-alert(JSON.stringify(mel, undefined, 2));
               self.style = mel.style;
               self.label = mel.label;
               self.c.originy = mel.c.originy;
@@ -266,6 +264,7 @@ alert(JSON.stringify(mel, undefined, 2));
           }
           c.labely = c.originy + (c.height*.75);
         }
+
 
       } else {
         c.originx = first.x + last.width/2;

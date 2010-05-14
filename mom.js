@@ -10,11 +10,11 @@ Score.prototype = {
   },
     appendNode: function(mel) {
       if (mel instanceof Array) {
-  var o;
-  for (o in mel) {
+	var o;
+	for (o in mel) {
           this.data.push(mel[o]);
           mel.scoreIndex = this.data.length-1;
-        }
+        }	
       } else {
         this.data.push(mel);
         mel.scoreIndex = this.data.length-1;
@@ -68,4 +68,3 @@ Score.prototype.find = function(mel) {
 Score.prototype.get = function(scoreIndex) {
   return (score.data[scoreIndex]);
 }
-
