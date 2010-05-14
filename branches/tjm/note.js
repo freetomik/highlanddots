@@ -4,7 +4,7 @@ function Note() {
   this.isPrintable = true;
   this.scaleFactor = 1.0;
   this.stemDir = "down";
-  this.autoStemmed = true;
+  this.autoStemmed = false;
   this.grouped = false;         // note is part of group
   this.b = {};                  // Storage area beaming calcuations.
   this.c = {};                  // Storage area for co-ords and dimensions
