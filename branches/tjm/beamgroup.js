@@ -79,6 +79,31 @@
         }
       }
 
+      function autoStemGroup() {
+       // iterate through, figure out how many are above/below
+       // middle C, restem and scall calc for each melody note in group
+        var x;
+        var q = 0;
+        for (i=0; i<grp.length; i++) {
+          note = grp[i];
+          if (note.c.y <= sdet.noteInfo.c2.y) { q++ }
+          else { q--; }
+        }
+
+        for (i=0; i<grp.length; i++) {
+          note = grp[i];
+          if (q < 0) {
+            note.stemDirection("up");
+            meldObjectToObject(note.c.upStem, note.c);
+          } else {
+            note.stemDirection("down");
+            meldObjectToObject(note.c.downStem, note.c);
+          }
+
+        }
+      }
+
+
       function beamStraight () {
         var hd = 0;
         var ld = 0;
@@ -173,6 +198,8 @@
       }
 
 
+      if (this.sectionStart) return;         // 'look back' paint strategy
+
       grp = this.getNoteGroup();
 
       if (grp.length == 0) {
@@ -181,6 +208,11 @@
           logit("Error: End");
           return;
       }
+
+      if (grp[0].type == "melody" && grp[0].autoStemmed) {
+        autoStemGroup();
+      }
+
 
       calcBoundingNotes();
 

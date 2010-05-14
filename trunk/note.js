@@ -4,6 +4,7 @@ function Note() {
   this.isPrintable = true;
   this.scaleFactor = 1.0;
   this.stemDir = "down";
+  this.autoStemmed = true;
   this.grouped = false;         // note is part of group
   this.b = {};                  // Storage area beaming calcuations.
   this.c = {};                  // Storage area for co-ords and dimensions
@@ -24,9 +25,24 @@ Note.prototype.countTails = function() {
 
 
 Note.prototype.stemDirection = function() {
-  return this.stemDir;
+  if (arguments.length == 1) {
+    var arg = arguments[0];
+    if (arg === "up" || arg === "down")
+      this.stemDir = arg;
+  } else {
+    return this.stemDir;
+  }
 };
 
+Note.prototype.autoStem = function() {
+  if (arguments.length == 1) {
+    var arg = arguments[0];
+    if (typeof arg === boolean)
+      this.autoStemmed = arg;
+  } else {
+    return this.autoStemmed;
+  }
+}
 
 Note.prototype.calcBeams = function(toNote) {  
   /* calc number of full beams to paint
@@ -137,8 +153,12 @@ Note.prototype.calc = function(staff) {
   o.topy = o.stemy1 - h;
   o.bottomy = o.stemy2;
   c.downStem = o;
-  
-  
+
+  // autosteming here
+  if (!this.grouped && this.autoStemmed)
+    this.stemDir = (this.c.y <= sdet.noteInfo.c2.y) ? "down" : "up";
+
+
   if (this.stemDirection() == "up") {
     meldObjectToObject(c.upStem, this.c);
   } else {

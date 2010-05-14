@@ -737,14 +737,16 @@ var z_phrasegroup = (function() {
                      /* *   where missing part # implies        */
                      /* *   current part                        */
                      /* *************************************** */
-                     
-                     var a = {"^ts":    {collectionName: "ties", sectionStart: true, style: "arc"},
+
+                     var a = {
+                       "^ts":    {collectionName: "ties", sectionStart: true, style: "arc"},
                        "^te":    {collectionName: "ties", sectionEnd: true},
                        "^3s":    {collectionName: "triplets", sectionStart: true, label: "3", style: "arc"},
                        "^3e":    {collectionName: "triplets", sectionEnd: true},
                        "'bis":   {collectionName: "voltas", sectionStart: true, label: "bis", style: "straight"},
                        "'1":     {collectionName: "voltas", sectionStart: true, label: "1st", style: "straight"},
                        "'2":     {collectionName: "voltas", sectionStart: true, label: "2nd", style: "straight"},
+                       "'22":    {collectionName: "voltas", sectionStart: true, label: "2nd of part 2", style: "straight"},
                        "'23":    {collectionName: "voltas", sectionStart: true, label: "3rd of part 2", style: "straight"},
                        "'24":    {collectionName: "voltas", sectionStart: true, label: "4th of part 2", style: "straight"},
                        "'25":    {collectionName: "voltas", sectionStart: true, label: "5th of part 2", style: "straight"},
@@ -753,7 +755,7 @@ var z_phrasegroup = (function() {
                        "'28":    {collectionName: "voltas", sectionStart: true, label: "8th of part 2", style: "straight"},
                        "'224":   {collectionName: "voltas", sectionStart: true, label: "2nd of parts 2 and 4", style: "straight"},
                        "'intro": {collectionName: "voltas", sectionStart: true, label: "Introduction", style: "straight"},
-                       "'_":     {collectionName: "voltas", sectionEnd: true}
+                       "_'":     {collectionName: "voltas", sectionEnd: true}
                      };
                      
                      function isType(s) {
@@ -965,7 +967,6 @@ var z_noteDot = (function() {
   //  
   fixBeamGroups();
 
-  score.buildCollections();
   //alert(score.metaData.toSource());
   //logit(score);
 }

@@ -2,17 +2,17 @@
 
 (function() {
     var THISTYPE = "beamgroup";
-    
-    function ThisType() {   
+
+    function ThisType() {
       this.c = {};
       return this;
     }
 
     ThisType.inherits(ScoreElement);
-    
+
     ThisType.prototype.type = THISTYPE;
     ThisType.prototype.isPrintable = true;
-        
+
     ThisType.prototype.getBoundingRect = function(staff) {
       return null;
 
@@ -27,7 +27,7 @@
       if (!pos) {
         return;
       }
-        
+
       while (--pos >= 0) {
         mel = score.get(pos);
         if (mel.type === this.type) {
@@ -53,7 +53,7 @@
 
 
 
-    ThisType.prototype.calc = function(staff) {  
+    ThisType.prototype.calc = function(staff) {
       if (this.sectionStart) return;         // 'look back' calc strategy
 
       var i, o, note, highest, lowest, grp;
@@ -79,6 +79,31 @@
         }
       }
 
+      function autoStemGroup() {
+       // iterate through, figure out how many are above/below
+       // middle C, restem and scall calc for each melody note in group
+        var x;
+        var q = 0;
+        for (i=0; i<grp.length; i++) {
+          note = grp[i];
+          if (note.c.y <= sdet.noteInfo.c2.y) { q++ }
+          else { q--; }
+        }
+
+        for (i=0; i<grp.length; i++) {
+          note = grp[i];
+          if (q < 0) {
+            note.stemDirection("up");
+            meldObjectToObject(note.c.upStem, note.c);
+          } else {
+            note.stemDirection("down");
+            meldObjectToObject(note.c.downStem, note.c);
+          }
+
+        }
+      }
+
+
       function beamStraight () {
         var hd = 0;
         var ld = 0;
@@ -98,7 +123,7 @@
           o.topy = o.stemy2;
           o.bottomy = note.c.stemy1 + note.c.h ;
           c.upStem = o;
-  
+
           o = {};
           o.beamSlope = 0;
           o.stemlen = lowest.c.stemlen + Math.abs(lowest.c.y - note.c.y) + ld;
@@ -106,7 +131,7 @@
           o.topy = o.stemy2;
           o.bottomy = note.c.stemy1 + note.c.h ;
           c.downStem = o;
-         
+
           if (note.stemDirection() === "up") {
             meldObjectToObject(c.upStem, note.c);
           } else {
@@ -114,27 +139,27 @@
           }
         }
       }
-      
+
       function beamBww () {
-      	var deltas = [0, 0];
-//      	deltas[0] = highest.c.y - sdet.noteInfo.a3.y;
-//      	deltas[1] = sdet.noteInfo.g1.y - lowest.c.y;
-      
-      	beamStraight(deltas[0],deltas[1]);
-      
+        var deltas = [0, 0];
+//        deltas[0] = highest.c.y - sdet.noteInfo.a3.y;
+//        deltas[1] = sdet.noteInfo.g1.y - lowest.c.y;
+
+        beamStraight(deltas[0],deltas[1]);
+
       }
 
       function beamSloped () {
         var pivot, slope, pivoty, firsty, lasty, xspan;
         var first = grp[0];
         var last = grp[grp.length-1];
-     
+
         if (first.stemDirection() == "up") {
           pivot = highest;
         } else {
           pivot = lowest;
         }
-     
+
         if (c.rect.height < 1 ) {
           slope = 0;
         } else {
@@ -153,7 +178,7 @@
           o.topy = o.stemy2;
           o.bottomy = note.c.stemy1 + note.c.h ;
           c.upStem = o;
-  
+
           o = {};
           o.beamSlope = slope;
           o.stemy2 = note.c.y + Math.abs(note.c.y - pivot.c.y) + pivot.c.stemlen - ((pivot.c.x - note.c.x) * slope);
@@ -161,8 +186,8 @@
           o.topy = note.c.y - note.c.h;
           o.bottomy = o.stemy2 ;
           c.downStem = o;
-         
-         
+
+
           if (note.stemDirection() === "up") {
             meldObjectToObject(c.upStem, note.c);
           } else {
@@ -174,7 +199,7 @@
 
 
       if (this.sectionStart) return;         // 'look back' paint strategy
-      
+
       grp = this.getNoteGroup();
 
       if (grp.length == 0) {
@@ -183,6 +208,11 @@
           logit("Error: End");
           return;
       }
+
+      if (grp[0].type == "melody" && grp[0].autoStemmed) {
+        autoStemGroup();
+      }
+
 
       calcBoundingNotes();
 
@@ -193,8 +223,8 @@
       o.y = highest.c.y;
       o.width = grp[grp.length-1].c.x - grp[0].c.x;
 // FIXME : should include stems
-//      o.height = lowest.getBoundingRect(staff).y + 
-//                   lowest.getBoundingRect(staff).height - 
+//      o.height = lowest.getBoundingRect(staff).y +
+//                   lowest.getBoundingRect(staff).height -
 //                   highest.getBoundingRect(staff).y;
       o.height = lowest.c.y - highest.c.y;
 
@@ -228,7 +258,7 @@
           note.c.lastInGroup = false;
           note.calcBeams(grp[i+1]);
         }
-      
+
       }
     };
 
@@ -241,7 +271,7 @@
         grp[i].paint2(staff);
       }
     };
-    
+
     Score.prototype.createBeamGroup = function() {
       return new ThisType();
     };
