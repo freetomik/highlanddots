@@ -2,30 +2,30 @@
 
 (function() {
     var THISTYPE = "metadata";
-    
-    function ThisType() { 
+
+    function ThisType() {
       this.c = {};                  // Storage area for some commonly used calcuations.
       return this;
     }
 
     ThisType.inherits(ScoreElement);
-    
+
     ThisType.prototype.type = THISTYPE;
     ThisType.prototype.isPrintable = true;
-        
+
     ThisType.prototype.getBoundingRect = function(staff) {
 
       return this.c.rect;
 
     };
 
-     ThisType.prototype.calc = function(staff) {  
+     ThisType.prototype.calc = function(staff) {
       var sdet = staff.details;
       var ctx = sdet.ctx;
       var c = this.c;
       var rect = {};
       var o;
-      
+
       c.rect = rect;
       rect.x = sdet.x;
       rect.y = sdet.top;
@@ -47,7 +47,7 @@
         rect.height += c.title.height;
 
       }
-      
+
       if (this.Genre) {
         o = {};
         o.x = sdet.leftMargin;
@@ -66,7 +66,7 @@
 
       if (this.Composer) {
         o = {};
-	o.x = sdet.canvas.width - sdet.leftMargin;
+  o.x = sdet.canvas.width - sdet.leftMargin;
         o.y = rect.y + rect.height;
         o.height = sdet.space*2.5;
         o.width = ctx.measureText(this.Composer).width;
@@ -79,7 +79,7 @@
         rect.height += c.composer.height;
 
       }
-      
+
       if (this.TuneTempo && this.beatUnit) {
         o = {};
         o.notex = sdet.leftMargin;
@@ -104,6 +104,7 @@
 
 
     ThisType.prototype.paint = function(staff) {
+
       var sdet = staff.details;
       var ctx = sdet.ctx;
       var c = this.c;
@@ -112,7 +113,7 @@
       function paintText(txt, metrics) {
         tf = ctx.font;
         ta = ctx.textAlign;
-        
+
         ctx.font = metrics.style +" "+ metrics.size + "px " + metrics.font;
         ctx.textAlign = metrics.align;
         ctx.fillText(txt, metrics.x, metrics.y);
@@ -124,10 +125,10 @@
       if (this.Title) paintText(this.Title, c.title);
       if (this.Genre) paintText(this.Genre, c.genre);
       if (this.Composer) paintText(this.Composer, c.composer);
-      
+
       if (this.TuneTempo) {
         var ts, tx;
-        
+
         paintText(" =  " + this.TuneTempo, c.tempo);
 
         var n = score.createMelodyNote();
@@ -148,33 +149,13 @@
 
         sdet.x = tx;
         sdet.space = ts;
-      
+
       }
-    
+
     };
-    
+
     Score.prototype.createMetadata = function() {
       return new ThisType();
     };
 }());
 
-/*
-var n = score.createMelodyNote();
-n.duration = m.beatUnit;
-n.staffPosition = 'floating';
-n.stemDir = "up";
-sdet.x = sdet.leftMargin;
-var s = sdet.space
-sdet.space = o.size * 1.25;
-sdet.x = sdet.leftMargin;
-
-sdet.noteInfo.floating.x = sdet.x;
-sdet.noteInfo.floating.y = o.y;
-
-n.calc(staff);
-n.paint(staff);
-
-        score.createText().paintAt(staff, "= " + m["TuneTempo"], o)
-        moveToY += o.size + sdet.space;
-        sdet.space = s;
-*/

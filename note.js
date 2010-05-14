@@ -1,9 +1,10 @@
 "use strict";
 
-function Note() {  
+function Note() {
   this.isPrintable = true;
   this.scaleFactor = 1.0;
   this.stemDir = "down";
+  this.autoStemmed = true;
   this.grouped = false;         // note is part of group
   this.b = {};                  // Storage area beaming calcuations.
   this.c = {};                  // Storage area for co-ords and dimensions
@@ -24,11 +25,26 @@ Note.prototype.countTails = function() {
 
 
 Note.prototype.stemDirection = function() {
-  return this.stemDir;
+  if (arguments.length == 1) {
+    var arg = arguments[0];
+    if (arg === "up" || arg === "down")
+      this.stemDir = arg;
+  } else {
+    return this.stemDir;
+  }
 };
 
+Note.prototype.autoStem = function() {
+  if (arguments.length == 1) {
+    var arg = arguments[0];
+    if (typeof arg === boolean)
+      this.autoStemmed = arg;
+  } else {
+    return this.autoStemmed;
+  }
+}
 
-Note.prototype.calcBeams = function(toNote) {  
+Note.prototype.calcBeams = function(toNote) {
   /* calc number of full beams to paint
    * number of half beams to paint
    * calc dimensions of :
@@ -41,27 +57,27 @@ Note.prototype.calcBeams = function(toNote) {
 
   if (!this.b.fullBeam) this.b.fullBeam = {};
   if (!this.b.halfBeam) this.b.halfBeam = {};
-  
+
   b = this.b;
   b.xMult = (c.lastInGroup) ? -1 : 1;
   b.yMult = (this.stemDirection() == "down") ? -1 : 1;  // this looks backwards but isn't - if stems are down
                                                         //  tails are painted starting from the end of the tail
   b.yInc = ((c.height/2) + c.barthick) * b.yMult;  // amount to increment Y between tails
-  
-  
+
+
   if (this.countTails() <= toNote.countTails() ) {
     b.fullBeams = this.countTails();
     b.halfBeams = 0;
 
-  } else {    
+  } else {
     b.fullBeams = toNote.countTails();
     b.halfBeams = this.countTails() - toNote.countTails();
-  
+
   }
-  
+
   o = {};
   o.width = Math.abs(this.c.x - toNote.c.x);
-  o.height = c.height/3; 				// should be 1/2 space, but llooks better as 1/3rd
+  o.height = c.height/3;        // should be 1/2 space, but llooks better as 1/3rd
   o.startx = c.stemx2;
   o.starty = c.stemy2;
   o.endx = toNote.c.stemx2;
@@ -70,7 +86,7 @@ Note.prototype.calcBeams = function(toNote) {
 
   o = {};
   o.width = c.width;
-  o.height = c.height/3; 				// should be 1/2 space, but llooks better as 1/3rd
+  o.height = c.height/3;        // should be 1/2 space, but llooks better as 1/3rd
   o.startx = c.stemx2;
   o.starty = c.stemy2;
   o.endx = c.stemx2 + (o.width * b.xMult);
@@ -79,16 +95,16 @@ Note.prototype.calcBeams = function(toNote) {
 
 };
 
-Note.prototype.calc = function(staff) {  
+Note.prototype.calc = function(staff) {
   var c = this.c;
   var slMult = 3.2;       // stem length multiplier for more than 2 tails
   var w;
   var h;
   var o;
   var sdet = staff.details;
-  
+
   c.width = sdet.space * this.scaleFactor;
-  c.height = c.width; // what should this be? sdet.height; 
+  c.height = c.width; // what should this be? sdet.height;
 
   w = c.width/2;
   h = c.height/2;
@@ -100,13 +116,13 @@ Note.prototype.calc = function(staff) {
 
   c.endX = c.x + c.width;
   c.endY = c.y;
-    
+
   // note head bezier control points
   c.cp1x1 = c.x + w;
   c.cp1y1 = c.y - h;
   c.cp2x1 = c.endX + w;
   c.cp2y1 = c.endY - h;
-  
+
   c.cp1x2 = c.endX - w;
   c.cp1y2 = c.endY + h;
   c.cp2x2 = c.x - w;
@@ -119,7 +135,7 @@ Note.prototype.calc = function(staff) {
 
   c.barthick = sdet.barthick * this.scaleFactor;
   if (c.barthick < 1) {c.barthick = 1;}
-  
+
   o = {};
   o.stemx1 = c.x + (c.width*1.1);
   o.stemx2 = o.stemx1;
@@ -128,7 +144,7 @@ Note.prototype.calc = function(staff) {
   o.topy = o.stemy2;
   o.bottomy = o.stemy1 + h ;
   c.upStem = o;
-  
+
   o = {};
   o.stemx1 = c.x - (c.r/2) + (c.width*0.1);
   o.stemx2 = o.stemx1;
@@ -137,14 +153,18 @@ Note.prototype.calc = function(staff) {
   o.topy = o.stemy1 - h;
   o.bottomy = o.stemy2;
   c.downStem = o;
-  
-  
+
+  // autosteming here
+  if (!this.grouped && this.autoStemmed)
+    this.stemDir = (this.c.y <= sdet.noteInfo.c2.y) ? "down" : "up";
+
+
   if (this.stemDirection() == "up") {
     meldObjectToObject(c.upStem, this.c);
   } else {
     meldObjectToObject(c.downStem, this.c);
   }
-  
+
   c.dotGap2 = 0;
   if (this.dotCount() >= 1) {
     c.dotyOffset = 0
@@ -153,7 +173,7 @@ Note.prototype.calc = function(staff) {
     }
     c.dotGap1 = c.barthick*3;
     c.dotGap2 = c.dotGap1;
-    c.dotSize = c.r/3;  
+    c.dotSize = c.r/3;
   }
   if (this.dotCount() >= 2) {
     c.dotGap2 = c.dotGap1*2;
@@ -165,7 +185,7 @@ Note.prototype.getBoundingRect = function(staff) {
   var sdet = staff.details;
   var ctx = sdet.ctx;
   var c = this.c;
-  
+
   var o = {
     x: c.downStem.stemx1,
     y: c.topy,
@@ -178,7 +198,7 @@ Note.prototype.getBoundingRect = function(staff) {
     o.y += c.dotyOffset;
     o.height -= c.dotyOffset;
   }
-  
+
   return o;
 }
 
@@ -203,14 +223,14 @@ Note.prototype.paint = function(staff) {
     // FIXME : This only draws line under note. Lines should be drawn
     //         for each line extended over staff
     ctx.fillRect(c.x -(c.width*0.75), c.y, c.width*2.25, sdet.thick)
-    
+
   }
 
 
   function drawDot() {
     var y = c.y + c.dotyOffset;
     var x = c.upStem.stemx1
-    
+
     ctx.beginPath();
     ctx.arc(x+c.dotGap1, y, c.dotSize, 0, Math.PI*2, true);
     if (self.dotCount() === 2) {
@@ -219,21 +239,21 @@ Note.prototype.paint = function(staff) {
     ctx.closePath();
     ctx.fill();
   }
-    
 
-  
+
+
   function paintStem() {
-    
+
     var tails = self.countTails();
     var lw = ctx.lineWidth;
     var i,tailx,taily;
     var yMult = 1;
-    
+
     if (self.stemDirection() == "up")
       yMult = -1;
 
     // FIXME : scale factor on line width?
-    ctx.lineWidth = sdet.thick; 
+    ctx.lineWidth = sdet.thick;
     ctx.beginPath();
     ctx.moveTo(c.stemx1, c.stemy1);
     ctx.lineTo(c.stemx2, c.stemy2);
@@ -251,7 +271,7 @@ Note.prototype.paint = function(staff) {
 
     if (tails < 1) return;
 
-    yInc = (c.height/2) + c.barthick;		// amount to increment Y between tails
+    yInc = (c.height/2) + c.barthick;   // amount to increment Y between tails
     if (self.stemDirection() == "up") {
       yMult = 1;
     }
@@ -267,15 +287,15 @@ Note.prototype.paint = function(staff) {
       ctx.moveTo(c.stemx2, taily);
       if (self.stemDir === "up") {
 
-	if (i == tails-1) {
-          ctx.bezierCurveTo(c.stemx2, taily+(c.width), 
+  if (i == tails-1) {
+          ctx.bezierCurveTo(c.stemx2, taily+(c.width),
                             c.stemx2+(c.width*1.5), taily+(c.width*0.5),
                             c.stemx2+(c.width*0.83), taily+(c.width*2.33));
 
-          ctx.bezierCurveTo(c.stemx2+(c.width*0.83), taily+(c.width*2.3), 
+          ctx.bezierCurveTo(c.stemx2+(c.width*0.83), taily+(c.width*2.3),
                             c.stemx2+(c.width*1.33), taily+(c.width*0.83),
                             c.stemx2, taily+(c.width*0.63));
-        
+
         } else {
           ctx.bezierCurveTo(c.stemx2, taily+(c.width),
                             c.stemx2+(c.width), taily+(c.width*0.5),
@@ -288,15 +308,15 @@ Note.prototype.paint = function(staff) {
 
       } else {
 
-	if (i == tails-1) {
-          ctx.bezierCurveTo(c.stemx2, taily-(c.width), 
+  if (i == tails-1) {
+          ctx.bezierCurveTo(c.stemx2, taily-(c.width),
                             c.stemx2+(c.width*1.5), taily-(c.width*0.5),
                             c.stemx2+(c.width*0.83), taily-(c.width*2.33));
 
-          ctx.bezierCurveTo(c.stemx2+(c.width*0.83), taily-(c.width*2.3), 
+          ctx.bezierCurveTo(c.stemx2+(c.width*0.83), taily-(c.width*2.3),
                             c.stemx2+(c.width*1.33), taily-(c.width*0.83),
                             c.stemx2, taily-(c.width*0.63));
-        
+
         } else {
           ctx.bezierCurveTo(c.stemx2, taily-(c.width),
                             c.stemx2+(c.width), taily-(c.width*0.5),
@@ -319,7 +339,7 @@ Note.prototype.paint = function(staff) {
   ctx.moveTo(c.x, c.y);
   ctx.bezierCurveTo(c.cp1x1, c.cp1y1, c.cp2x1, c.cp2y1, c.endX, c.endY);
   ctx.bezierCurveTo(c.cp1x2, c.cp1y2, c.cp2x2, c.cp2y2, c.x, c.y);
-  
+
   // nice thick line for note outlines :)
   var lw = ctx.lineWidth;
   ctx.lineWidth = sdet.thick * 1.5 * this.scaleFactor;
@@ -330,7 +350,7 @@ Note.prototype.paint = function(staff) {
   if (this.duration > 2 ) {
     ctx.fill();
   }
-  
+
   if (this.c.y <= sdet.noteInfo.a3.y && this.c.y != sdet.noteInfo.floating.y) {
     drawExtendedStaff();
   }
@@ -338,7 +358,7 @@ Note.prototype.paint = function(staff) {
   if (this.dotType) {
     drawDot();
   }
-  
+
   if (this.hasStem()) {
     if (!this.grouped) {
       paintStem();
@@ -355,14 +375,14 @@ Note.prototype.paint2 = function(staff) {
   var self = this;
 
   function paintStem() {
-    
+
     var tails = self.countTails();
     var lw = ctx.lineWidth;
     var i,tailx,taily;
     var yMult = 1;
-    
+
     // FIXME : scale factor on line width?
-    ctx.lineWidth = sdet.thick; 
+    ctx.lineWidth = sdet.thick;
     ctx.beginPath();
     ctx.moveTo(c.stemx1, c.stemy1);
     ctx.lineTo(c.stemx2, c.stemy2);
@@ -374,7 +394,7 @@ Note.prototype.paint2 = function(staff) {
   function paintBeam() {
     var i, endy, yInc;
     var b = self.b;
-    
+
     yInc = 0;
 
     for (i = 0; i < b.fullBeams; i++) {
@@ -402,10 +422,10 @@ Note.prototype.paint2 = function(staff) {
     }
 
   }
-  
+
   paintStem();
   paintBeam();
-  
+
 };
 
 

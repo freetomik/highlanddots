@@ -30,12 +30,12 @@ var staff =
    height: -1,  // Calculated at run time
    width: 700,  // The width of the staff
    thick: 1,    // Thickness of staff line segment
-   space: 6,   // The thickness of each space
+   space: 10,   // The thickness of each space
    leftMargin: 10, // Margin for a new staff line
    newTop: 50,   // Top of a new score
    top: -1,     // Where to draw the top line of the CURRENT line of music
    x: 0,        // Cursor postion
-   maxX: 800      // Max width of score
+   maxX: 0      // Max width of score
  };
  details.barthick = details.space /10;
  details.beamStyle = "bww";  // can be "bww" or "straight" or "sloped"
@@ -78,7 +78,7 @@ var staff =
          n = s1[j] + i;
          o = {
            drawnOnLine: onLine,  // Is this note drawn on the line 'true' or the space 'false'
-           needsLedgerLine: notesOnStaff.indexOf(n) === -1 // Do we need a ledger line for this note.
+           needsLedgerLine: notesOnStaff.indexOf(n) === -1 // Do we need a ledger line for this note. 
          };
          onLine = !onLine;
          details.noteInfo[n] = o;
@@ -250,6 +250,7 @@ dots.push('!   C_1');
 dots.push('!t');
 dots.push('');
 dots.push('');
+
 dots.push('& sharpf sharpc 4_4');
 dots.push('!   D_2        E_2');
 dots.push('!   F_2        HA_2');
@@ -257,6 +258,7 @@ dots.push('!   HA_2       LG_2');
 dots.push('!   LA_2       B_2');
 dots.push('!t');
 dots.push('');
+
 dots.push('& sharpf sharpc 4_4');
 dots.push('!   E_4        E_4     E_4       E_4');
 dots.push('!   E_4        E_4     E_4       E_4');
@@ -264,12 +266,14 @@ dots.push('!   E_4        E_4     E_4       E_4');
 dots.push('!   E_4        E_4     E_4       E_4');
 dots.push('!t');
 dots.push('');
+
 dots.push('& sharpf sharpc 4_4');
 dots.push('!   E_8        E_8     E_8       E_8  E_8        E_8     E_8       E_8');
 dots.push('!   E_8        E_8     E_8       E_8  E_8        E_8     E_8       E_8');
 dots.push('!   E_8        E_8     E_8       E_8  E_8        E_8     E_8       E_8');
 dots.push('!   E_8        E_8     E_8       E_8  E_8        E_8     E_8       E_8');
 dots.push('!t');
+
 dots.push('');
 dots.push('& sharpf sharpc 4_4');
 dots.push('!   thrd E_4       thrd E_4      thrd E_4        thrd E_4');
@@ -367,7 +371,7 @@ dots.push('');
   dots.push("& sharpf sharpc 4_4 ");
   dots.push("! ^ts D_4 D_8 ^te El_8~dbf ^ts Fr_8 Dl_8 ^te ~gg ^ts Fr_8 HGl_8 ^te");
   dots.push("! ^3s D_4 D_8 El_8 ^3e ~dbf ^3s Fr_8 Dl_8 ~gg Fr_8 ^3e HGl_8");
-  dots.push("! '1 D_4 F_8 _' El_8~dbf Br_8 '2 Cl_8 ~gg Fr_8 HGl_8 _' !t");
+  dots.push("! '1 D_4 F_8 '_ El_8~dbf Br_8 '2 Cl_8 ~gg Fr_8 HGl_8 _' !t");
   dots.push("");
   //*/
 
@@ -529,9 +533,9 @@ function plotMusic(score)
 
   var f = hdots_prefs.getPluginFunction("beauty_engine");
   f(score);
-
-  //beautifyScore(score);
-
+  
+  //beautifyScore(score);  
+  
   reFlowAndReDraw(false); // Calculate sizes
 
   reFlowAndReDraw(true);  // and draw.
@@ -543,7 +547,7 @@ function plotMusic(score)
 }
 
 function logit(s) {
-//  if (hdots_prefs.getValueOf("logging") !== "true") {return;}
+  if (hdots_prefs.getValueOf("logging") !== "true") {return;}
 
 
   if (typeof s === "object") { // Yes, it catches arrays.  That is good.

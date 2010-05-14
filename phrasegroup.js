@@ -30,37 +30,99 @@
     };
 
     ThisType.prototype.getPhraseGroup = function() {
-      var mel;
-      var nested = 0;
+      var mel, pos;
       var grp = [];
-      var pos = score.find(this);
+      var self = this;
+
+      function getVolta() {
+        var nested = 0;
+        while (--pos >= 0) {
+          mel = score.get(pos);
+          if (mel.type === self.type && mel.collectionName === self.collectionName) {
+            if (mel.sectionStart && nested == 0 ) {
+              self.style = mel.style;
+              self.label = mel.label;
+              self.c.originy = mel.c.originy;
+              break;
+
+            } else if (mel.sectionStart) {
+              nested--;
+              continue;
+
+            } else if (mel.sectionEnd) {
+              nested++;
+              continue;
+           }
+          } else {
+            if (nested == 0 && mel.getBoundingRect) // only add elements that have bounding boxes
+              grp.push(mel);
+          }
+        }
+      }
+
+      function getTie() {
+        var j = 0;
+        while (--pos >= 0) {
+          if (j > 2) {
+            grp = [];
+            break;
+          }
+
+          mel = score.get(pos);
+
+          if (j == 2) {
+            if (mel.sectionStart && mel.type === self.type && mel.collectionName === self.collectionName) {
+
+alert(JSON.stringify(mel, undefined, 2));
+              self.style = mel.style;
+              self.label = mel.label;
+              self.c.originy = mel.c.originy;
+              break;
+            }
+
+          } else if (mel.getBoundingRect) {
+            grp.push(mel);
+            if (mel.type === "melody")
+              j++;
+          }
+        }
+      }
+
+      function getTriplet() {
+        var inTriplet = true;
+        while (--pos >= 0) {
+          mel = score.get(pos);
+          if (mel.sectionStart && mel.collectionName === "triplets") {
+            self.style = mel.style;
+            self.label = mel.label;
+            self.c.originy = mel.c.originy;
+            break;
+
+          } else {
+            if (mel.getBoundingRect) //mel.type === "melody")// || mel.type === "gracenote")
+              grp.push(mel);
+
+          }
+        }
+      }
+
+
+
+      pos = score.find(this);
 
       if (!pos) {
         return;
       }
 
-      while (--pos >= 0) {
-        mel = score.get(pos);
-        if (mel.type === this.type) {
-          if (mel.sectionStart && nested == 0) // FIXME : for completeness, test for collectionName
-            this.style = mel.style;
-            this.label = mel.label;
-            break;
-          if (mel.sectionEnd) {
-            nested++;
-            continue;
-          } else if (mel.sectionStart) {
-            nested--;
-            continue;
-          }
-        } else {
-          //if (mel.type === this.type) {
-            if (nested == 0)
-//alert(JSON.stringify(mel, undefined, 2));
-              grp.push(mel)
-            }
-//        }
+      switch (this.collectionName) {
+        case "voltas":   getVolta();
+                         break;
+        case "ties":     getTie();
+                         break;
+        case "triplets": getTriplet();
+                         break;
       }
+
       grp.reverse();
       return grp;
     }
@@ -68,7 +130,15 @@
 
 
     ThisType.prototype.calc = function(staff) {
-      if (this.sectionStart) return;         // 'look back' calc strategy
+      // in case this turns out to be a 'broken' volta spanning
+      // staff lines, we need a current staff Y co-ord.
+      // In other respects use a 'look back' calc strategy
+      this.c.originy = staff.details.noteInfo.a3.y - (staff.details.space * 3.2); // ( (first.c.height + first.c.stemlen)/1.5);
+
+      if (this.sectionStart) {
+        return;
+      }
+
       var i, o, first, last, grp;
       var originx, originy, endx, endy,cp1x1, cp1y1, cp2x1, cp2y1 = 0;
       var yMult = -1;
@@ -79,28 +149,57 @@
       var self = this;
 
       function calcBoundingMels() {
+        var brokenAt;
+       // FIXME : this needs to be rethought to get non-note elements
+       //          determine first, last, highest, lowest, and
+       //          (for ties/slurs) note stem direction
+
+        first = grp[0].getBoundingRect(staff);
+        last = grp[grp.length-1].getBoundingRect(staff);
+
         var mel;
         for (i=0; i<grp.length; i++) {
           mel = grp[i];
-//alert(JSON.stringify(mel, undefined, 2));
           if (mel.type === "melody" || mel.type === "gracenote") {
-            first = mel;
+            first = mel.getBoundingRect(staff);
+            firstNote = mel;
             break;
           }
         }
         for (i=grp.length-1; i >= 0; i--) {
           mel = grp[i];
-          if (mel.type === "melody" || mel.type === "gracenote") {
-            last = mel;
+          if (mel.isPrintable) {
+//          if (mel.type === "melody" || mel.type === "gracenote") {
+            last = mel.getBoundingRect(staff);
             break;
           }
         }
+
+        for (i=0; i< grp.length; i++) {
+          mel = grp[i];
+          if (mel.type === "graphic" && mel.name === "treble-clef") {
+            // if we get here we've encountered a volta that spans staff lines
+            var br = {};
+            var j=i;
+            while (--j > 0) {
+              // go back to the previous staff line end bar and get it's X co-ord
+              if (grp[j].type === "staffControl" && grp[j].staffEnd) {
+                br.x1 = grp[j].c.x;
+                br.x2 = grp[i].c.dx;
+                c.break = br;
+
+                break;
+              }
+            }
+          }
+        }
+
       }
+
 
       grp = this.getPhraseGroup();
 
       if (grp.length == 0) {
-alert("Group == 0");
           logit("Error: Start : Calc cannot find mel in score.");
           logit(self);
           logit("Error: End");
@@ -134,7 +233,7 @@ alert("Group == 0");
       //         from the gracenote head
       // FIXME : Assumes all notes in group are stemmed the same way, which
       //         may not be the case.
-      if (first.stemDirection() == "up") {
+      if (firstNote.stemDirection() == "up") {
        yMult = 1;
        this.over  = false;
       } else {
@@ -144,35 +243,35 @@ alert("Group == 0");
       }
 
       if (this.style == "straight") {
-        y = sdet.noteInfo.a3.y - ( (first.c.height + first.c.stemlen)/1.5);
         yDelta = 0;
-        for (i=0; i<grp.length; i++) {
-          // TODO : check for dynamics/articulations, adjust Y accordingly
-        }
 
         c.height = sdet.space*2;
-        c.originx = first.c.x - first.c.width/2;
-        c.originy = y;//+ c.height;
-        c.endx = last.c.x + last.c.width;
-        c.endy = y;
+        c.originx = first.x - first.width/2;
+        // originy set at start of calc function
+        c.endx = last.x + last.width;
+        c.endy = sdet.noteInfo.a3.y - (sdet.space * 3.2);
+
+        for (i=0; i<grp.length; i++) {
+          // TODO : check for dynamics/articulations, adjust Y accordingly
+          // NOTE: this probably won't work for broken volta Y adjustment
+        }
 
         c.width = c.endx - c.originx;
 
         if (this.label) {
           if (this.collectionName == "voltas") {
-            c.labelx = c.originx + (c.width/5);
+            c.labelx = c.originx + sdet.space;
           } else {
             c.labelx = c.originx + (c.width/2);
           }
           c.labely = c.originy + (c.height*.75);
         }
 
-
       } else {
-        c.originx = first.c.x + last.c.width/2;
-        c.originy = first.c.y + (first.c.height * yMult);
-        c.endx = last.c.x + (last.c.width/2);
-        c.endy = last.c.y + (last.c.height * yMult);
+        c.originx = first.x + last.width/2;
+        c.originy = first.y + (first.height * yMult);
+        c.endx = last.x + (last.width/2);
+        c.endy = last.y + (last.height * yMult);
 
       // FIXME: need proper control points!! should be proportional to tie length
         c.cp1x1 = c.originx + 10;
@@ -191,7 +290,7 @@ alert("Group == 0");
 
         if (this.label) {
           if (this.collectionName == "voltas") {
-            c.labelx = c.originx + (c.width/5);
+            c.labelx = c.originx + (sdet.space);
             c.labely = c.originy - (c.height);
           } else {
             c.labelx = c.originx + (c.width/2);
@@ -212,12 +311,19 @@ alert("Group == 0");
       var lw = ctx.lineWidth;
       var c = this.c;
 
-logit("phrase group :"+ this.collectionName +",start:"+ this.sectionStart+", label:"+this.label);
-
       if (this.style == "straight") {
         ctx.beginPath();
         ctx.moveTo(c.originx, c.originy+c.height);
         ctx.lineTo(c.originx, c.originy);
+
+        if (c.break) {
+          ctx.lineTo(c.break.x1, c.originy);
+          ctx.stroke();
+          ctx.closePath();
+          ctx.beginPath();
+          ctx.moveTo(c.break.x2, c.endy);
+
+        }
         ctx.lineTo(c.endx, c.endy);
         ctx.lineTo(c.endx, c.endy+c.height);
         ctx.stroke();
@@ -228,6 +334,7 @@ logit("phrase group :"+ this.collectionName +",start:"+ this.sectionStart+", lab
         ctx.moveTo(c.originx, c.originy);
         ctx.bezierCurveTo(c.cp1x1, c.cp1y1, c.cp2x1, c.cp2y1, c.endx, c.endy);
         ctx.stroke();
+        ctx.closePath();
       }
 
       if (this.label) {
@@ -245,7 +352,6 @@ logit("phrase group :"+ this.collectionName +",start:"+ this.sectionStart+", lab
 
 
     ctx.lineWidth = lw;
-logit("        painted");
 
     };
 

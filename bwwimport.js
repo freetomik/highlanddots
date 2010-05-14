@@ -110,18 +110,19 @@ var grok_metaData = (function() {
 // Is this a beat? Which would end a beam?
 var z_beat = (function() {
               function isType(s) {
-              // We don't need a class for this silly thing.
-              // Thats the beauty of dynamic languages.
               var mel = z_staffControl.create(s);
 
               if (s === "~") {return true;}
+              if (s === "\t") {return true;}
               if (mel.newBar) {return true;}
               return false;
               };
 
 
               function create(s) {
-                var mel = new ScoreElement();
+             // We don't need a class for this silly thing.
+              // Thats the beauty of dynamic languages.
+                 var mel = new ScoreElement();
                 mel.type = "beat";
                 return mel;
               }
@@ -194,8 +195,23 @@ var z_timesig = (function() {
                  {
                    var mel = score.createTimeSig();
                    var s1 = s.split("_");
-                   mel.beatsPerBar = +s1[0];
-                   mel.beatUnit = +s1[1];
+
+                   mel.beatSymbol = s;
+                   switch(s) {
+                   case "C":
+                     mel.beatsPerBar = 4;
+                     mel.beatUnit = 4;
+                     break;
+                   case "C_":
+                     mel.beatsPerBar = 2;
+                     mel.beatUnit = 2;
+                     break;
+                   default:
+                     mel.beatsPerBar = +s1[0];
+                     mel.beatUnit = +s1[1];
+                     break;
+                   }
+
                    // TJM don't overwrite metadata,
                    //    it should only be set once per score
                    //    as tempo changes don't effect text titles
@@ -208,9 +224,7 @@ var z_timesig = (function() {
                    isType: isType,
                    create: create
                  };
-
 }());
-
 
 var z_ghbgrace = (function() {
                   var a = {
@@ -724,7 +738,8 @@ var z_phrasegroup = (function() {
                      /* *   current part                        */
                      /* *************************************** */
 
-                     var a = {"^ts":    {collectionName: "ties", sectionStart: true, style: "arc"},
+                     var a = {
+                       "^ts":    {collectionName: "ties", sectionStart: true, style: "arc"},
                        "^te":    {collectionName: "ties", sectionEnd: true},
                        "^3s":    {collectionName: "triplets", sectionStart: true, label: "3", style: "arc"},
                        "^3e":    {collectionName: "triplets", sectionEnd: true},
@@ -732,7 +747,7 @@ var z_phrasegroup = (function() {
                        "'1":     {collectionName: "voltas", sectionStart: true, label: "1st", style: "straight"},
                        "'2":     {collectionName: "voltas", sectionStart: true, label: "2nd", style: "straight"},
                        "'22":    {collectionName: "voltas", sectionStart: true, label: "2nd of part 2", style: "straight"},
-                       "'23":    {collectionName: "voltas", sectionStart: true, label: "2nd of part 2", style: "straight"},
+                       "'23":    {collectionName: "voltas", sectionStart: true, label: "3rd of part 2", style: "straight"},
                        "'24":    {collectionName: "voltas", sectionStart: true, label: "4th of part 2", style: "straight"},
                        "'25":    {collectionName: "voltas", sectionStart: true, label: "5th of part 2", style: "straight"},
                        "'26":    {collectionName: "voltas", sectionStart: true, label: "6th of part 2", style: "straight"},
@@ -751,11 +766,6 @@ var z_phrasegroup = (function() {
                      {
                        var mel = score.createPhraseGroup();
                        meldObjectToObject(a[s], mel);
-staff.details.logging=true;
-logit("-----");
-logit(mel);
-logit("    -");
-staff.details.logging=false;
                        return mel;
 
                      }
@@ -951,13 +961,13 @@ var z_noteDot = (function() {
     parseBits(bits);
   }
 
-  // This doesn't really fix anything,
-  //  it just tires to replicate the rules
-  //  BP appears to use when beaming.
+  // This doesn't really 'fix' anything;
+  //  it tries to replicate the rules BP
+  //  appears to use (for beaming) by injecting
+  //  beam group pseudo elements between notes
   //
   fixBeamGroups();
 
-  score.buildCollections();
   //alert(score.metaData.toSource());
   //logit(score);
 }
