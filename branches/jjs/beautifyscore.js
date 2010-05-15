@@ -337,8 +337,8 @@ function beautifyScore(pref, staff, pass) {
      lineLength = line[melsThisLine-1].c.x;
      padding = (maxX - lineLength) / melsThisLine;
 
-     //alert([maxX, melsThisLine, line[melsThisLine-1].toSource(), line[melsThisLine-1].c.x]);
-     //alert("Padding = " + padding);
+     logit([maxX, melsThisLine, line[melsThisLine-1].toSource(), line[melsThisLine-1].c.x]);
+     logit("Padding = " + padding);
      
      for (j = 0; j < melsThisLine-1; j++) { // Don't do the staffControl
        mel  = line[j];
