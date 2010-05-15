@@ -369,13 +369,13 @@ dots.push('');
   dots.push("!~dbe E_4~~strla E_4~F_4~~dbf Fr_8 El_8");
   dots.push("!~thrd D_4~gstd Dr_8 El_8~thrd D_4 !I");
   
-  /*
+  //*
   // Notation tests
   dots.push("");
   dots.push("& sharpf sharpc 4_4 ");
   dots.push("! ^ts D_4 D_8 ^te El_8~dbf ^ts Fr_8 Dl_8 ^te ~gg ^ts Fr_8 HGl_8 ^te");
   dots.push("! ^3s D_4 D_8 El_8 ^3e ~dbf ^3s Fr_8 Dl_8 ~gg Fr_8 ^3e HGl_8");
-  dots.push("! '1 D_4 F_8 '_ El_8~dbf Br_8 '2 Cl_8 ~gg Fr_8 HGl_8 '_ !t");
+  dots.push("! '1 D_4 F_8 _' El_8~dbf Br_8 '2 Cl_8 ~gg Fr_8 HGl_8 _' !t");
   dots.push("");
   //*/
   
