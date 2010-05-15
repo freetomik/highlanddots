@@ -14,8 +14,7 @@
     ThisType.prototype.isPrintable = true;
         
     ThisType.prototype.getBoundingRect = function(staff) {
-
-      return this.c.rect;
+      return this.rect;
 
     };
 
@@ -98,6 +97,7 @@
 
       }
 
+      this.rect = rect;
    };
 
 
