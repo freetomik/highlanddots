@@ -2,47 +2,34 @@
 
 function makeImageMap(staff, score) {
   function getInfo(mel) {
-    var o ={"Note" : mel.note,
-      "Dur" : mel.duration,
-      "padding" : mel.paddingRight,
-      "x": mel.rect.x,
-    };  
-    
-    o.idx = score.data.indexOf(mel);
-    
-    if (mel.forceToX2) {
-      o.forceToX2 = mel.forceToX2;
-    }    
-    
-    
-    if (mel.beatFraction) {
-      o.beatFraction = mel.beatFraction;
+    function setIfExists(src, dest, prop) {
+      if (src && src[prop]) {
+        dest[prop] = src[prop];
+      }
     }
     
+    var o = {};
     
-    if (mel.beauty) {  
-      if (mel.beauty.beatWeight) {
-        o.beatWeight = mel.beauty.beatWeight;
-      }
-      
-      if (mel.beauty.beatCountOnLine) {
-        o.beatCountOnLine = mel.beauty.beatCountOnLine;
-      }
-      
-      
-      if (mel.beauty.isLeadIn) {
-        o.extra = "lead in";
-      }
-      if (mel.beauty.isLeadOut) {
-        o.extra = "lead out";
-      }    
+    o.idx = score.data.indexOf(mel);
+    setIfExists(mel, o, "note");
+    setIfExists(mel, o, "duration");
+    setIfExists(mel, o, "beatFraction");
+    setIfExists(mel, o, "measureLength");
+    
+    setIfExists(mel, o, "paddingRight");
+    setIfExists(mel, o, "forceToX2");
+    if (mel.rect) {
+      setIfExists(mel.rect, o, "x");
+    }
+    
+    if (mel.beauty) {      
+      setIfExists(mel.beauty, o, "isLeadIn");
+      setIfExists(mel.beauty, o, "isLeadOut");
     }    
     
-    
-    
     return o; 
+    
   }
-  
   
   var sdet = staff.details;
   
