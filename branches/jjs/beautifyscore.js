@@ -103,7 +103,7 @@ function beautifyScore(pref, staff, pass) {
         lastBarMel.beauty.lineNumber = lineNumber;
         lastBarMel.beauty.lineMeasureNumber = lineMeasureNumber;
         lastBarMel.beauty.beatsPerBar = beatsPerBar;
-        lastBarMel.beauty.measureNumber = measureList.length;
+        //lastBarMel.measureNumber = measureList.length;
         lastBarMel.beauty.beatWeight = beatCount;
         maxMeasuresInLine = Math.max(maxMeasuresInLine, lineMeasureNumber);
         beatCount = 0;
