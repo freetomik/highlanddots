@@ -41,249 +41,164 @@ function beautifyScore(pref, staff, pass) {
   measureNumber = 0;
   lineNumber = 1;
   lineMeasureNumber = 0;
+
+
+  var spaceForLeadIn = 0;  // How much space to reserve for lead ins.
   
+  var BEATLENGTH;
   
+  var idx = 0;
+  var len = data.length;
+  var a;
+  var mel, prevMel, staffMel;
+  var newX;
   
-  /*
-  Pass  1:
-  
-  Loop through all of the mels in order.
-  Save off the time signature every time it changes, we use that to calcuate
-  beat size and things.
-  
-  Then, for each melody note, calcuate the actual duration of that note,
-  
-  Count up the number of beats and squirrel them away.  For any measure
-  that has less than the proper beats per measure, set a isLeadIn.
-  
-  This is used later
-  */
-  for (i = 0; i < l; i++) {
-    mel = data[i];
-    mel.beauty = {};
-    
-    switch(mel.type) {
-    case "melody":
-      t = beatUnit / mel.duration;
-      if (mel.dotType === "dot") { t *= 1.5;  }
-      if (mel.dotType === "doubledot") { t *= 1.75; }
-      
-      mel.beauty.beatWeight = t;
-      beatCount += t;
-      mel.beauty.beatCountOnLine = beatCountOnLine;
-      beatCountOnLine += t;
-      melodyNoteList.push(mel);
-      //logit(["BW",mel.beauty.beatWeight]); 
-      break;
-    case "timesig":
-      beatUnit = mel.beatUnit;
-      beatsPerBar = mel.beatsPerBar;
-      //logit(["Beauty Beat Unit", beatUnit]);
-      break;
-    }
-    
-    if (mel.newBar) {
-      if (melodyNoteList.length > 0) {
-        tmp = {
-          melodyNoteList: melodyNoteList,
-          beatCount: beatCount,
-          beatsPerBar: beatsPerBar
-        };
-        
-        if (beatCount !== beatsPerBar) {
-          if (lineMeasureNumber === 0) {
-            lastBarMel.beauty.isLeadIn = true;
-          } else {
-            lastBarMel.beauty.isLeadOut = true;
-          }
-        }
-        
-        lineMeasureNumber++;
-        lastBarMel.beauty.str = lineNumber + ":" + lineMeasureNumber;
-        lastBarMel.beauty.lineNumber = lineNumber;
-        lastBarMel.beauty.lineMeasureNumber = lineMeasureNumber;
-        lastBarMel.beauty.beatsPerBar = beatsPerBar;
-        //lastBarMel.measureNumber = measureList.length;
-        lastBarMel.beauty.beatWeight = beatCount;
-        maxMeasuresInLine = Math.max(maxMeasuresInLine, lineMeasureNumber);
-        beatCount = 0;
-        measureList.push(tmp);
-      }
-      melodyNoteList = [];
-      lastBarMel = mel;
-      
-      if (mel.staffEnd) {
-        lineNumber++;
-        lineMeasureNumber = 0;
-        beatCountOnLine = 1;
-      }
+  // Find the next start of a measure bar.
+  // Sometimes there are measure bars with no melody notes inside, such
+  // as when a bar starts off the beginning of a line, then a repeat bar
+  // shows up after the time sig.  Basicly, any melody bar that indicates
+  // it has beats.
+  function getMeasureStart() {
+    var mel;
+    while (idx < len) {
+      mel = data[idx];
+      idx++;
+      if (mel.newBar && mel.measureLength && mel.beatsPerBar) {return mel; }
     }
   }
   
-  
-  
-  /* Here is were the real work is done.  We set the spaing for each note
-  based on various factors, including the length of each note, the number
-  of measures in a bar (not counting leadins) and the like.
-  */
-  function setSpacing() {
-    //FIXEME: Should be based off scaling.
-    var spaceForLeadIn = 0;  // How much space to reserve for lead ins.
+  // And read off the melody notes to the end of the line.  Also return
+  // the number of measures in this line for later calculation.
+  function getlineMels() {
+    var mel;
+    var a = [];
+    var i;
+    var m = 0;
     
-    var BEATLENGTH;
-    
-    var idx = 0;
-    var len = data.length;
-    var a;
-    var mel, prevMel, staffMel;
-    var newX;
-    
-    // Find the next start of a measure bar.
-    // Sometimes there are measure bars with no melody notes inside, such
-    // as when a bar starts off the beginning of a line, then a repeat bar
-    // shows up after the time sig.  Basicly, any melody bar that indicates
-    // it has beats.
-    function getMeasureStart() {
-      var mel;
-      while (idx < len) {
-        mel = data[idx];
-        idx++;
-        if (mel.newBar && mel.beauty.beatWeight) {return mel; }
-      }
-    }
-    
-    // And read off the melody notes to the end of the line.  Also return
-    // the number of measures in this line for later calculation.
-    function getlineMels() {
-      var mel;
-      var a = [];
-      var i;
-      var m = 0;
+    while (idx < len) {
+      mel = data[idx];
+      idx++;
+      if (mel.type === "melody") {a.push(mel);}
+      if (mel.newBar) {m++;}
       
-      while (idx < len) {
-        mel = data[idx];
-        idx++;
-        if (mel.type === "melody") {a.push(mel);}
-        if (mel.newBar) {m++;}
-        
-        if (mel.staffEnd) {idx--; break;}
-      }
-      return {
-        a: a,
-        m:m
-      };
+      if (mel.staffEnd) {idx--; break;}
     }
-    
-    
-    // This sets a mel's position as fixed.  It is used by the drawing 
-    // routine to forceably set the note position and work from there.
-    function setFixedPosition(mel, toX) {
-      mel.forceToX = toX;
-      //prevMel.paddingRight = 0;
-    }
-    
-    // There are some things that should be immune from being forced.
-    // Things like the clef, key signatures, time signatures.
-    // Also, the leadins are left alone.
-    // 
-    // But we do measure the length of the longest lead in and set the
-    // spaceForLeadIn to that.
-    (function() {       
-     var inLeadIn = false;
-     var isMeasureStart = true;
-     var getNextMelodyX = false;
+    return {
+      a: a,
+      m:m
+    };
+  }
+  
+  
+  // This sets a mel's position as fixed.  It is used by the drawing 
+  // routine to forceably set the note position and work from there.
+  function setFixedPosition(mel, toX) {
+    mel.forceToX = toX;
+  }
+  
+  // There are some things that should be immune from being forced.
+  // Things like the clef, key signatures, time signatures.
+  // Also, the leadins are left alone.
+  // 
+  // But we do measure the length of the longest lead in and set the
+  // spaceForLeadIn to that.
+  (function() {       
+   var inLeadIn = false;
+   var isMeasureStart = true;
+   var getNextMelodyX = false;
+   
+   isMeasureStart = true;
+   l = data.length;      
+   for (i = 0; i < l; i++) {
+     mel = data[i];
+     if (!mel.c) {continue;}
      
-     isMeasureStart = true;
-     l = data.length;      
-     for (i = 0; i < l; i++) {
-       mel = data[i];
-       if (!mel.c) {continue;}
-       
-       if (mel.beauty && mel.beauty.isLeadIn) {
-         inLeadIn = true;
-         getNextMelodyX = true;
-       } else if (mel.newBar) {
-         inLeadIn = false;
-       }
-       
-       if (inLeadIn) {
-         mel.noForceX = true;
-       } else {
-         
-         if (mel.type === "melody") {
-           if (getNextMelodyX) {
-             if (mel.c && typeof mel.c.x === "number") {spaceForLeadIn = Math.max(spaceForLeadIn, mel.c.x)};
-             getNextMelodyX = false;
-           }
-           
-           isMeasureStart = false;
-         }
-         if (inLeadIn) {mel.noForceX = true};
-         if (mel.type === "gracenote") { isMeasureStart = false; }
-         if (mel.staffEnd) { isMeasureStart = true;}
-         if (isMeasureStart) { mel.noForceX = true;}
-       }
+     if (mel.isLeadIn) {
+       inLeadIn = true;
+       getNextMelodyX = true;
+     } else if (mel.newBar) {
+       inLeadIn = false;
      }
      
-    }());
-    
-    var offSet;
-    var m;
-    // Start collecting data
-    while (((staffMel = getMeasureStart()) !== undefined)) {
-      // Get the info for this linei of music.
-      a = getlineMels();
-      m = a.m; // The number of measures
-      a = a.a; // and the melody note list.
-      
-      // If the first measure is a lead in, don't count it towards the nummber
-      // of measures.
-      if (staffMel.beauty && staffMel.beauty.isLeadIn) {m--;}
-      //logit(dumpNotes(a));
-      
-      // Set the width of each beat in pixels.
-      BEATLENGTH = FORCEWIDTH/(staffMel.beauty.beatsPerBar*m);
-      offSet = spaceForLeadIn;
-      
-      // Run through the melody notes on the line.
-      for (i = 0; i < a.length; i++) {
-        mel = a[i];
-        if (mel.noForceX) {continue;}  // Some of them are to be left alone.
-        
-        newX = offSet;                 // The position for this note
-        offSet += BEATLENGTH * mel.beauty.beatWeight; // And for the next note..
-        setFixedPosition(mel, newX);
-      }      
-    };
-    
-    
-    // Now, we walk through the data once more -- backwards.
-    // And we shift most of the other mel's around to slide back in front
-    // of the melody note they are attached to.
-    l = data.length;      
-    var offSet = 0;
-    for (i = 0; i < l; i++) {
-      mel = data[l-i];
-      
-      if (!mel) {continue;}
-      if (!mel.c) {continue;}      
-      
-      if (mel.type === "melody") {
-        isMeasureStart = false;
-        mel2 = mel;
-        offSet = mel.c.x - mel.forceToX;        
-      } else  {
-        //logit(mel.type + " offset = " + offSet);
-        if (!mel.noForceX) { 
-          mel.forceToX = mel.c.x - offSet;
-        }
-      }
-      
-      if (mel.staffEnd) { mel.forceToX  = FORCEWIDTH + spaceForLeadIn;}
-    }
-  }
+     if (inLeadIn) {
+       mel.noForceX = true;
+     } else {
+       
+       if (mel.type === "melody") {
+         if (getNextMelodyX) {
+           if (mel.c && typeof mel.c.x === "number") {spaceForLeadIn = Math.max(spaceForLeadIn, mel.c.x)};
+           getNextMelodyX = false;
+         }
+         
+         isMeasureStart = false;
+       }
+       if (inLeadIn) {mel.noForceX = true};
+       if (mel.type === "gracenote") { isMeasureStart = false; }
+       if (mel.staffEnd) { isMeasureStart = true;}
+       if (isMeasureStart) { mel.noForceX = true;}
+     }
+   }
+   
+  }());
   
-  setSpacing();
+  logit("Checkpoint 1");
+  var offSet;
+  var m;
+  // Start collecting data
+  while (((staffMel = getMeasureStart()) !== undefined)) {
+    logit(["StaffMel", staffMel]);
+    // Get the info for this linei of music.
+    a = getlineMels();
+    //logit(a);
+    m = a.m; // The number of measures
+    a = a.a; // and the melody note list.
+    
+    // If the first measure is a lead in, don't count it towards the nummber
+    // of measures.
+    if ( staffMel.isLeadIn) {m--;}
+    //logit(dumpNotes(a));
+    
+    // Set the width of each beat in pixels.
+    BEATLENGTH = FORCEWIDTH/(staffMel.beatsPerBar*m);
+    offSet = spaceForLeadIn;
+    
+    // Run through the melody notes on the line.
+    for (i = 0; i < a.length; i++) {
+      mel = a[i];
+      if (mel.noForceX) {continue;}  // Some of them are to be left alone.
+      
+      newX = offSet;                 // The position for this note
+      offSet += BEATLENGTH * mel.beatFraction; // And for the next note..
+      //logit(["Adjusting", staffMel.beatsPerBar, m, BEATLENGTH, mel.beatFraction, newX]);
+      setFixedPosition(mel, newX);
+    }      
+  };
+  
+  
+  // Now, we walk through the data once more -- backwards.
+  // And we shift most of the other mel's around to slide back in front
+  // of the melody note they are attached to.
+  l = data.length;      
+  var offSet = 0;
+  for (i = 0; i < l; i++) {
+    mel = data[l-i];
+    
+    if (!mel) {continue;}
+    if (!mel.c) {continue;}      
+    
+    if (mel.type === "melody") {
+      isMeasureStart = false;
+      mel2 = mel;
+      offSet = mel.c.x - mel.forceToX;        
+    } else  {
+      //logit(mel.type + " offset = " + offSet);
+      if (!mel.noForceX) { 
+        mel.forceToX = mel.c.x - offSet;
+      }
+    }
+    
+    if (mel.staffEnd) { mel.forceToX  = FORCEWIDTH + spaceForLeadIn;}
+  }
 }
 
 
@@ -318,8 +233,8 @@ function beautifyScore(pref, staff, pass) {
      break;
    }
  }
-
-
+ 
+ 
  function beautifyScorePassTwo(pref, staff) {
    var maxX = staff.details.maxX;
    var i = 0, j;
@@ -336,7 +251,7 @@ function beautifyScore(pref, staff, pass) {
      melsThisLine = line.length;
      lineLength = line[melsThisLine-1].c.x;
      padding = (maxX - lineLength) / melsThisLine;
-
+     
      logit([maxX, melsThisLine, line[melsThisLine-1].toSource(), line[melsThisLine-1].c.x]);
      logit("Padding = " + padding);
      
@@ -419,15 +334,15 @@ function beautifyScore(pref, staff, pass) {
 }());
 
 
-  /* Debugging, can be dropped later */  
-  function dumpNotes(a) {
-    var o;
-    var i;
-    var mel;
-    var s = [];
-    for (i = 0; i < a.length; i++) {
-      s.push(a[i].bww);
-    }
-    return s.join(" ");
+/* Debugging, can be dropped later */  
+function dumpNotes(a) {
+  var o;
+  var i;
+  var mel;
+  var s = [];
+  for (i = 0; i < a.length; i++) {
+    s.push(a[i].bww);
   }
+  return s.join(" ");
+}
 

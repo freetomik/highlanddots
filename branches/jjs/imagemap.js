@@ -15,17 +15,19 @@ function makeImageMap(staff, score) {
     setIfExists(mel, o, "duration");
     setIfExists(mel, o, "beatFraction");
     setIfExists(mel, o, "measureLength");
+    setIfExists(mel, o, "beatsPerBar");
     
     setIfExists(mel, o, "paddingRight");
-    setIfExists(mel, o, "forceToX2");
+    setIfExists(mel, o, "forceToX2"); 
+    setIfExists(mel, o, "noForceX");
+
+    
     if (mel.rect) {
       setIfExists(mel.rect, o, "x");
     }
     
-    if (mel.beauty) {      
-      setIfExists(mel.beauty, o, "isLeadIn");
-      setIfExists(mel.beauty, o, "isLeadOut");
-    }    
+    setIfExists(mel, o, "isLeadIn");
+    setIfExists(mel, o, "isLeadOut");
     
     return o; 
     
