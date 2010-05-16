@@ -42,7 +42,6 @@ function beautifyScore(pref, staff, pass) {
   lineNumber = 1;
   lineMeasureNumber = 0;
 
-
   var spaceForLeadIn = 0;  // How much space to reserve for lead ins.
   
   var BEATLENGTH;
@@ -141,13 +140,13 @@ function beautifyScore(pref, staff, pass) {
    
   }());
   
-  logit("Checkpoint 1");
   var offSet;
   var m;
   // Start collecting data
   while (((staffMel = getMeasureStart()) !== undefined)) {
-    logit(["StaffMel", staffMel]);
-    // Get the info for this linei of music.
+    //logit(["StaffMel", staffMel]);
+    
+    // Get the info for this line of music.
     a = getlineMels();
     //logit(a);
     m = a.m; // The number of measures
@@ -217,7 +216,6 @@ function beautifyScore(pref, staff, pass) {
  var lineMels;
  var lineCount;
  
- 
  function IncLineData() {
    lineCount++;
    lineMels[lineCount] = [];
@@ -233,7 +231,6 @@ function beautifyScore(pref, staff, pass) {
      break;
    }
  }
- 
  
  function beautifyScorePassTwo(pref, staff) {
    var maxX = staff.details.maxX;
@@ -289,16 +286,6 @@ function beautifyScore(pref, staff, pass) {
       lineMels[lineCount].push(mel);
       
       if (lastMel) {
-        
-        lastMel.beatFraction = beatUnit/lastMel.duration; 
-        
-        if (lastMel.dotType === "dot") {
-          lastMel.beatFraction *= 1.5;
-        }
-        if (lastMel.dotType === "doubledot") {
-          lastMel.beatFraction *= 1.75;
-        }
-        
         beatWidth = (beatInPixels * lastMel.beatFraction); 
         lastx = lastMel.c.x /* + lastMel.rect.width  + lastMel.paddingRight */;
         
