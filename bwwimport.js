@@ -744,8 +744,8 @@ var z_phrasegroup = (function() {
                        "^3s":    {collectionName: "triplets", sectionStart: true, label: "3", style: "arc"},
                        "^3e":    {collectionName: "triplets", sectionEnd: true},
                        "'bis":   {collectionName: "voltas", sectionStart: true, label: "bis", style: "straight"},
-                       "'1":     {collectionName: "voltas", sectionStart: true, label: "1st", style: "straight"},
-                       "'2":     {collectionName: "voltas", sectionStart: true, label: "2nd", style: "straight"},
+                       "'1":     {collectionName: "voltas", sectionStart: true, label: "1st", style: "straight", repeatOnPasses: [1]},
+                       "'2":     {collectionName: "voltas", sectionStart: true, label: "2nd", style: "straight", repeatOnPasses: [2]},
                        "'22":    {collectionName: "voltas", sectionStart: true, label: "2nd of part 2", style: "straight"},
                        "'23":    {collectionName: "voltas", sectionStart: true, label: "3rd of part 2", style: "straight"},
                        "'24":    {collectionName: "voltas", sectionStart: true, label: "4th of part 2", style: "straight"},
@@ -967,6 +967,8 @@ var z_noteDot = (function() {
   //  
   fixBeamGroups();
 
+  postImport(score);
+  
   //alert(score.metaData.toSource());
   //logit(score);
 }
