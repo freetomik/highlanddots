@@ -56,7 +56,7 @@ Score.graphicsList = {
    this.c.dw = dw;
    this.c.dh = dh;
   
-   logit([THISTYPE, size, ratio, dx, dy, dw, dh]);
+   //logit([THISTYPE, size, ratio, dx, dy, dw, dh]);
  }
 
 ThisType.prototype.getBoundingRect = function(staff) {

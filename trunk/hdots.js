@@ -242,8 +242,7 @@ dots.push('"Jeremy J Starcher",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)');
 dots.push('"It just is",(F,R,0,0,Times New Roman,10,400,0,0,18,0,0,0)');
 dots.push('');
 
-//*
-
+/*
 dots.push('& sharpf sharpc 4_4');
 dots.push('!	 LG_1');
 dots.push('!	 LA_1');
@@ -368,7 +367,8 @@ dots.push('');
   dots.push("!~HA_4~~gg HAr_8 HGl_8~hdbf F_4~Er_8 Dl_8"); 
   dots.push("!~dbe E_4~~strla E_4~F_4~~dbf Fr_8 El_8");
   dots.push("!~thrd D_4~gstd Dr_8 El_8~thrd D_4 !I");
-  
+ 
+  //*
   //*
   // Notation tests
   dots.push("");
