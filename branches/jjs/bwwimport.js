@@ -956,7 +956,18 @@ var z_noteDot = (function() {
       continue;
     }
     
-    bits = s.split(/\s|~/);
+    
+    // DEBUGGING BLOCK.  Clean up after issue 32 is resolved.
+    // To use the old behavior, change this block to if (1)
+    // To use the new and correct behavior, change to if (0)
+    if (1) {
+      bits = s.split(/\s|~/);
+    } else {
+      s = s.replace(/~/g, "\t"); 
+      s = s.replace(/\t+/g, "\t");
+      bits = s.split(/(\s)/);
+    }
+    
     //logit(bits);
     parseBits(bits);
   }
@@ -970,7 +981,7 @@ var z_noteDot = (function() {
   postImport(score);
   
   //alert(score.metaData.toSource());
-  //logit(score);
+  logit(score);
 }
 
 

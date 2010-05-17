@@ -202,6 +202,13 @@
 
       grp = this.getNoteGroup();
 
+      if (grp.length === 1) {
+        logit("Info: Start noteGroup Length 1");
+        logit(self);
+        logit("Info: End");
+        return;
+      }
+      
       if (grp.length == 0) {
           logit("Error: Start : Calc cannot find mel in score.");
           logit(self);

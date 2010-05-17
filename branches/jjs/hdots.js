@@ -242,7 +242,7 @@ dots.push('"Jeremy J Starcher",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)');
 dots.push('"It just is",(F,R,0,0,Times New Roman,10,400,0,0,18,0,0,0)');
 dots.push('');
 
-/*
+//*
 
 dots.push('& sharpf sharpc 4_4');
 dots.push('!	 LG_1');

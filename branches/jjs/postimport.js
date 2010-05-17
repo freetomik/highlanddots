@@ -82,6 +82,8 @@ function postImport(score) {
     if (mel.type === "melody") {
       mel.beatFraction = beatUnit/mel.duration; 
       
+      //TODO: Handle hold-cut note lengths properly.
+      
       if (mel.dotType === "dot") { mel.beatFraction *= 1.5; }
       if (mel.dotType === "doubledot") { mel.beatFraction *= 1.75; }
       measureLength += mel.beatFraction;

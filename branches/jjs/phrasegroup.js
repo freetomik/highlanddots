@@ -197,6 +197,14 @@
 
       grp = this.getPhraseGroup();
 
+      if (grp.length === 1) {
+        logit("Info: Start phraseGroup Length 1");
+        logit(self);
+        logit("Info: End");
+        return;
+      }
+      
+      
       if (grp.length == 0) {
           logit("Error: Start : Calc cannot find mel in score.");
           logit(self);
@@ -329,6 +337,8 @@
         ctx.closePath();
 
       } else {
+        logit("Crash:");
+        logit(this);
         ctx.beginPath();
         ctx.moveTo(c.originx, c.originy);
         ctx.bezierCurveTo(c.cp1x1, c.cp1y1, c.cp2x1, c.cp2y1, c.endx, c.endy);
