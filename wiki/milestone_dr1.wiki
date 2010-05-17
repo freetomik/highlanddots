@@ -1,0 +1,20 @@
+#summary Milestone Demo Release 1
+#labels Phase-Requirements
+
+= Goals =
+
+There are two goals for the first demo release of Highland Dots.
+  * To be completely functional as a viewer for BWW light music.
+  * To look good.
+
+= Work yet to do =
+
+In order to prepare for DR1, the following things need to be
+completed or resolved.
+  * The 'decoupling' branch complete with the new UI
+  * Resolve Issue 16, Issue 21, Issue 27, Issue 31, Issue 32 
+  * Make the 'proportional spacing' engine the default.
+
+In addition, the following issues should be examined and closed if they indeed resolved.
+  * Issue 17, Issue 33
+
