@@ -133,6 +133,25 @@ var z_beat = (function() {
               
 }());
 
+var z_keysig = (function() {
+                
+                function isType(s) {
+                return (s === "&");
+                }
+                
+                function create(s) {
+                  return score.createKeySig();
+                }
+                
+                return {
+                  isType: isType,
+                  create: create
+                };
+                
+                
+}());
+
+
 
 var z_graphic = (function() {
                  var a = {
@@ -919,9 +938,13 @@ var z_noteDot = (function() {
       // Loop through our melody element types and add it if a match is
       // found.  Don't abort the loop eary because some elements will 
       // create more than one node.
-      // Order kinda matters here.  z_beat has to be before z_staffControl
+      // Order kinda matters here.
+      //z_beat has to be before z_staffControl
+      //z_keysig must be after z_graphic
+      
       [
         z_graphic,
+        z_keysig,
         z_timesig,
         z_beat,
         z_phrasegroup,
