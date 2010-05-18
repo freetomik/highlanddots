@@ -512,7 +512,10 @@ function plotMusic(score)
                          if (doPaint) {delayMel(mel, staff);}
                          sdet.x += rect.width;
                          break;
-                         
+                       case "keysig":
+                         if (doPaint) {delayMel(mel, staff);}
+                         sdet.x += rect.width;
+                         break;                         
                        }
                        
                        if (typeof mel.paddingRight === "number") {

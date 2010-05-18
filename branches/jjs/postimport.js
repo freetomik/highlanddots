@@ -36,12 +36,12 @@ function postImport(score) {
       
       if (modes[mel.name]) {
         if (typeof data.type === "undefined") {
-          data.type = modes[mel.name];
+          data.keyType = mel.name;
           data.count = 0;
           data.key = defaultKeySig;
         } else {
-          if (data.type !== modes[mel.name]) {
-            alert("Data type mismatch!");
+          if (data.keyType !== mel.name) {
+            alert("A key signature can contain sharps or flats but not both.");
           }
         }
         
