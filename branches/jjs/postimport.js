@@ -44,6 +44,7 @@ function postImport(score) {
             alert("A key signature can contain sharps or flats but not both.");
           }
         }
+        score.data[ii] = undefined; // Remove from the score
         
         data.count++;
         note = mel.staffNote.split('')[0];
@@ -86,6 +87,7 @@ function postImport(score) {
   
   for (i = 0, l = score.data.length; i < l; i++) {
     mel = score.data[i];
+    if (!mel) {continue;}
     if (!mel.type) {continue;}
 
     if (mel.name === "treble-clef") {

@@ -447,6 +447,8 @@ function plotMusic(score)
       sdet.top += score.metaData.getBoundingRect().height + sdet.space;
 
     score.data.forEach(function(mel) {
+                       if (!mel) {return;}
+                       
                        var rect;
                        var strokeStyle = ctx.strokeStyle; 
                        
@@ -468,7 +470,7 @@ function plotMusic(score)
                          rect = mel.getBoundingRect(staff);
                          
                          if (rect) {
-                           //logit([mel.type, "rect: ", rect.x, rect.y, rect.width, rect.height, mel.paddingRight]);
+                           logit([mel.type, "rect: ", rect.x, rect.y, rect.width, rect.height, mel.paddingRight]);
                            mel.rect = rect;
                            if (doPaint && drawBoundingBox) {
                              ctx.fillStyle = "rgba(0, 0, 200, 0.5)";

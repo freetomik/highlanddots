@@ -23,15 +23,16 @@
    g.calc(staff);
    var r = g.getBoundingRect(staff);
 
-   var order = "F,C,G,D,A,E,B".split(","); // The order for things in a major key.
+   c.order = "f2,c2,g2,d2,a2,e2,b2".split(","); // The order for things in a major key.
    if (this.type === "flat") {
-     order = order.reverse();
+     c.order = c.order.reverse();
    }
    c.x = sdet.x;
    c.y = sdet.noteInfo.f2.y;
    
+   c.gap = sdet.space /4;
    //alert([this.data.count, r.width, sdet.space]);
-  c.width = this.data.count * ( r.width + (sdet.space /2));
+  c.width = (this.data.count+1) * ( r.width + c.gap);
   c.height = sdet.staffHeight;
    
  };
@@ -53,6 +54,23 @@
  
  
  ThisType.prototype.paint = function(staff) {
+   var sdet = staff.details;
+   var saveX = sdet.x;
+   var c = this.c;
+   var g, r;
+   
+   var i;
+   for (i = 0; i < this.data.count+1; i++) {
+     g = score.createGraphic(this.data.keyType);
+     g.staffNote = c.order[i];
+     g.calc(staff);
+     r = g.getBoundingRect(staff);
+     g.paint(staff);
+     sdet.x += r.width;
+     sdet.x += c.gap;
+   }
+   
+   sdet.x = saveX;
  }
  
  Score.prototype.createKeySig = function() {
