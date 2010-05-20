@@ -249,7 +249,7 @@ function beautifyScore(pref, staff, pass) {
      lineLength = line[melsThisLine-1].c.x;
      padding = (maxX - lineLength) / melsThisLine;
      
-     logit([maxX, melsThisLine, line[melsThisLine-1].toSource(), line[melsThisLine-1].c.x]);
+     //logit([maxX, melsThisLine, line[melsThisLine-1].toSource(), line[melsThisLine-1].c.x]);
      logit("Padding = " + padding);
      
      for (j = 0; j < melsThisLine-1; j++) { // Don't do the staffControl
@@ -280,7 +280,8 @@ function beautifyScore(pref, staff, pass) {
    score.data.forEach
    (function(mel)
     {
-    
+      if (!mel) {return;}
+      
     if (mel.type === "melody" || mel.staffEnd) { // We like having the end of the staff padding out as well
       
       lineMels[lineCount].push(mel);
