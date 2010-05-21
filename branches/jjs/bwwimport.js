@@ -984,7 +984,7 @@ var z_noteDot = (function() {
     // To use the old behavior, change this block to if (1)
     // To use the new and correct behavior, change to if (0)
     if (0) {
-      bits = s.split(/\s|~/);
+    bits = s.split(/\s|~/);
     } else {
       s = s.replace(/~/g, "\t"); 
       s = s.replace(/\t+/g, "\t");

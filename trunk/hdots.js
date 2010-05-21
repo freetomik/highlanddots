@@ -216,16 +216,6 @@ function loadTune(ext, tuneText) {
 
 function testImport() {
   var dots = [];
-/*
-dots.push('& sharpf sharpc 4_4');
-dots.push('!	 gg E_2				gg E_2');
-dots.push('!	 gg E_2				gg E_2');
-dots.push('!	 gg E_2				gg E_2');
-dots.push('!	 gg E_2				gg E_2  !t');
-//*/
-
-//*
-
   
 dots.push('Bagpipe Reader:1.0');
 dots.push('MIDINoteMappings,(55,57,59,60,62,64,65,67,69,57,59,61,62,64,66,67,69,71,56,58,60,61,63,65,66,68,70)');
@@ -242,7 +232,7 @@ dots.push('"Jeremy J Starcher",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)');
 dots.push('"It just is",(F,R,0,0,Times New Roman,10,400,0,0,18,0,0,0)');
 dots.push('');
 
-//*
+/*
 
 dots.push('& sharpf sharpc 4_4');
 dots.push('!	 LG_1');
@@ -369,8 +359,7 @@ dots.push('');
   dots.push("!~dbe E_4~~strla E_4~F_4~~dbf Fr_8 El_8");
   dots.push("!~thrd D_4~gstd Dr_8 El_8~thrd D_4 !I");
  
-  //*
-  //*
+  /*
   // Notation tests
   dots.push("");
   dots.push("& sharpf sharpc 4_4 ");
@@ -448,6 +437,8 @@ function plotMusic(score)
       sdet.top += score.metaData.getBoundingRect().height + sdet.space;
 
     score.data.forEach(function(mel) {
+                       if (!mel) {return;}
+                       
                        var rect;
                        var strokeStyle = ctx.strokeStyle; 
                        
@@ -469,7 +460,7 @@ function plotMusic(score)
                          rect = mel.getBoundingRect(staff);
                          
                          if (rect) {
-                           //logit([mel.type, "rect: ", rect.x, rect.y, rect.width, rect.height, mel.paddingRight]);
+                           logit([mel.type, "rect: ", rect.x, rect.y, rect.width, rect.height, mel.paddingRight]);
                            mel.rect = rect;
                            if (doPaint && drawBoundingBox) {
                              ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
@@ -513,7 +504,10 @@ function plotMusic(score)
                          if (doPaint) {delayMel(mel, staff);}
                          sdet.x += rect.width;
                          break;
-                         
+                       case "keysig":
+                         if (doPaint) {delayMel(mel, staff);}
+                         sdet.x += rect.width;
+                         break;                         
                        }
                        
                        if (typeof mel.paddingRight === "number") {
