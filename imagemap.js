@@ -11,6 +11,7 @@ function makeImageMap(staff, score) {
     var o = {};
     
     o.idx = score.data.indexOf(mel);
+    setIfExists(mel, o, "type");
     setIfExists(mel, o, "note");
     setIfExists(mel, o, "duration");
     setIfExists(mel, o, "beatFraction");
@@ -60,6 +61,8 @@ function makeImageMap(staff, score) {
   domTools.removeChildren(map);
   
   score.data.forEach(function(mel) {
+                     if (!mel) {return;}
+                     
                      var ctx = sdet.ctx;
                      var rect = mel.rect;
                      if (rect) {
