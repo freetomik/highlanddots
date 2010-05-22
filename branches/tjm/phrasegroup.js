@@ -184,7 +184,7 @@
               if (grp[j].type === "staffControl" && grp[j].staffEnd) {
                 br.x1 = grp[j].c.x;
                 br.x2 = grp[i].c.dx;
-                c.break = br;
+                c.brokenAt = br;
 
                 break;
               }
@@ -315,12 +315,12 @@
         ctx.moveTo(c.originx, c.originy+c.height);
         ctx.lineTo(c.originx, c.originy);
 
-        if (c.break) {
-          ctx.lineTo(c.break.x1, c.originy);
+        if (c.brokenAt) {
+          ctx.lineTo(c.brokenAt.x1, c.originy);
           ctx.stroke();
           ctx.closePath();
           ctx.beginPath();
-          ctx.moveTo(c.break.x2, c.endy);
+          ctx.moveTo(c.brokenAt.x2, c.endy);
 
         }
         ctx.lineTo(c.endx, c.endy);
