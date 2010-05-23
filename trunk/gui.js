@@ -264,13 +264,34 @@ var hdots_prefs = (
                            API.forEachProperty(o, function(p, i) {
                                                var doSetCheck = false;
                                                var doCheckEl;
+                                               var radioName = getFormPrefix() + v.name;
+                                               var err;
+                                               var s;
                                                
                                                label = makeExpandedLabel(p);
-                                               el = API.createElement("input");
-                                               el.type = "radio";
-                                               //el.type = "button";
-                                               el.name = getFormPrefix() + v.name;
-                                               el.value = i;
+                                               
+                                               try {
+                                                 // This is the only way you can set the "name" attribute in IE, but it will fail in other browsers
+                                                 s = "";
+                                                 s += 'name="' + radioName + '" ';
+                                                 s += 'type="' + "radio" + '" ';
+                                                 s += 'value="' + i + '" ';
+                                                 
+                                                 if (i === val) {
+                                                   s += 'checked="' + "true" + '" '; 
+                                                 }
+                                                 s = '<input ' + s + '>';
+                                                 alert(s + val);
+                                                 el = document.createElement(s);
+                                               } catch(err) {
+                                                 // The above will fail if not in IE, so try it the correct way here
+                                                 
+                                                 el = API.createElement("input");
+                                               }
+                                                 el.type = "radio";
+                                                 //el.type = "button";
+                                                 el.name = radioName;
+                                                 el.value = i;
                                                
                                                
                                                if (i === val) {
@@ -293,11 +314,12 @@ var hdots_prefs = (
                                                
                                                API.attachListener(el, 'click', 
                                                                   function(_n) {
-                                                                  return function() { 
+                                                                  return function() {
                                                                     setPluginPrefVis();
                                                                   };
                                                                   }(n)
                                                                   );
+                                                                  
                                                
                                                innerDiv.id = n;
                                                API.addClass(innerDiv, plugInPrefClassName);
@@ -398,14 +420,15 @@ var hdots_prefs = (
                        
                        var els = API.getEBCN(plugInPrefClassName);
                        var a;
+                       var formInfo =  API.HD_serializeFormUrl(API.getEBI(formId));
+                                   //alert(JSON.stringify(formInfo));
                        API.forEach(els, function(el, i) {
                                    disable(el);
                                    
                                    // Get the form data.
-                                   var s = API.HD_serializeFormUrl(API.getEBI(formId));
+                                   var s = formInfo;
                                    a = el.id.split(SEP); // Split up the id
                                    s = s[a[0]];          // And get the right value from the form
-                                   
                                    if (s === a[1]) {     // If it matches what we are looking for
                                      enable(el);
                                    }
@@ -464,10 +487,11 @@ if (API.getOptionValue) {
                 add(n, API.getOptionValue(o));
               }
             }
-        }         }
+        }      
+        }
         else if (reCheck.test(t)) {
           if (t === "radio") {
-            if (e.checked) { add(n, e.value || "true"); }
+            if (e.checked) { add(n,  e.value || "true"); }
           } else {
             if (e.checked) { add(n, /* e.value ||*/ "true"); }
             if (!e.checked) { add(n, "false"); }
