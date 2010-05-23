@@ -13,6 +13,7 @@ function makeImageMap(staff, score) {
     o.idx = score.data.indexOf(mel);
     setIfExists(mel, o, "type");
     setIfExists(mel, o, "note");
+    setIfExists(mel, o, "midi");
     setIfExists(mel, o, "duration");
     setIfExists(mel, o, "beatFraction");
     setIfExists(mel, o, "measureLength");

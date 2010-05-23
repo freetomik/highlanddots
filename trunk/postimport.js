@@ -44,7 +44,7 @@ function postImport(score) {
             alert("A key signature can contain sharps or flats but not both.");
           }
         }
-        score.data[ii] = undefined; // Remove from the score
+        score.data[ii] = score.createNullElement(); // Remove from the score
         
         data.count++;
         note = mel.staffNote.split('')[0];
@@ -55,6 +55,7 @@ function postImport(score) {
       
       if (keyMel) {
         keyMel.data = data;
+        lastKeySig = keyMel;
       }
       // Nothing left to catch
       logit(data);
@@ -80,6 +81,8 @@ function postImport(score) {
   var maxMeasuresInLine
   var lineMeasureNumber = 0;
   var staffLine = 1;
+  var lastKeySig;
+  var HD_TO_MIDI_SHIFT = 3;
   
   var defaultKeySig = {};
   
@@ -150,6 +153,7 @@ function postImport(score) {
       }
     }
     
+    // Calculate proper lengths
     if (mel.type === "melody") {
       mel.beatFraction = beatUnit/mel.duration; 
       
@@ -163,6 +167,23 @@ function postImport(score) {
       if (tupletMelodyMels) { tupletLength += mel.beatFraction; }
       if (volta) { mel.repeatOnPasses = volta.repeatOnPasses;}
     }
+        
+    // Shift the note by the key signature
+    (function() {
+     if (mel.type === "melody" || mel.type === "gracenote") {
+     var note = mel.staffPosition.substring(0,1);
+     var midiOffset = +mel.staffPosition.substring(1);
+     if (lastKeySig && lastKeySig.data && lastKeySig.data.key[note]) {
+       note += lastKeySig.data.key[note]
+     }
+     midiOffset += HD_TO_MIDI_SHIFT;
+     mel.midi = note + midiOffset;
+     logit(["MIDFIX:" , note, midiOffset]);
+     }
+    }
+    ());
+    
+    //lastKeySig
     
   }
 }
