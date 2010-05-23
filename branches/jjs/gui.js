@@ -281,7 +281,7 @@ var hdots_prefs = (
                                                    s += 'checked="' + "true" + '" '; 
                                                  }
                                                  s = '<input ' + s + '>';
-                                                 alert(s + val);
+                                                 //alert(s + val);
                                                  el = document.createElement(s);
                                                } catch(err) {
                                                  // The above will fail if not in IE, so try it the correct way here
