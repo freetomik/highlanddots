@@ -20,3 +20,7 @@ function meldObjectToObject(src, dest, type) {
   }
 }
 
+Score.prototype.createNullElement = function() {
+  return new ScoreElement();
+};
+
