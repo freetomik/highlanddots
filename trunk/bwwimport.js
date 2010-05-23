@@ -111,7 +111,7 @@ var grok_metaData = (function() {
 var z_beat = (function() {
               function isType(s) {
               var mel = z_staffControl.create(s);
-              
+          
               if (s === "~") {return true;}
               if (s === "\t") {return true;}
               if (mel.newBar) {return true;}
@@ -986,9 +986,11 @@ var z_noteDot = (function() {
     if (0) {
     bits = s.split(/\s|~/);
     } else {
-      s = s.replace(/~/g, "\t"); 
-      s = s.replace(/\t+/g, "\t");
-      bits = s.split(/(\s)/);
+      s = s.replace(/~/g, " \t "); 
+      s = s.replace(/\t+/g, " \t ");
+      bits = s.split(/[ |\n|\r]/);
+      //bits = bits.replace("<<<BEAT>>>", "\t");
+                       
     }
     
     //logit(bits);
