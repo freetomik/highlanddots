@@ -1,4 +1,4 @@
-function scoretoaudio(score) {
+function scoreToMidi(score) {
   var out;
   var i, l, mel;
   var pass = 1;

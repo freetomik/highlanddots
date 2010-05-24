@@ -12,9 +12,9 @@
  
  
  ThisType.prototype.calc = function(staff) {
-   logit("keysig---")
-   logit(this);
-   logit("----------");
+   //logit("keysig---")
+   //logit(this);
+   //logit("----------");
    
    var sdet = staff.details;
    var c = this.c;

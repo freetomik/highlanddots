@@ -1006,7 +1006,7 @@ var z_noteDot = (function() {
   postImport(score);
   
   //alert(score.metaData.toSource());
-  logit(score);
+  //logit(score);
 }
 
 
