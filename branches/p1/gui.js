@@ -19,46 +19,46 @@ function  primeGUI2() {
         API.presentElement(el, true);
       }
     }
-    
+
     var els = API.getEBCN("hd_page");
     var a;
     API.forEach(els, function(el, i) {
                 disable(el);
-                
+
                 if (el.id === "hd_page_" + n) {
                   enable(el);
                 }
     });
-  }  
-  
+  }
+
   var bar = API.getEBI("toolbarlanding");
   var b;
-  
+
   API.emptyNode(bar);
-  
+
   b = API.createElement("button");
   API.addElementText(b, "Preferences");
-  API.attachListener(b, 'click', 
+  API.attachListener(b, 'click',
                      function() {
                      showPage(2);
                      }
                      );
   bar.appendChild(b);
-  
-  
+
+
   b = API.createElement("button");
   API.addElementText(b, "Score");
-  
-  API.attachListener(b, 'click', 
+
+  API.attachListener(b, 'click',
                      function() {
                      showPage(1);
                      }
                      );
-  
+
   bar.appendChild(b);
   hdots_prefs.makeHdConfigForm();
-  
-  showPage(1);  
+
+  showPage(1);
 }
 
 
@@ -77,24 +77,28 @@ function testButton() {
 var hdots_prefs = (
                    function()
                    {
-                     var hdConfigData = [];
+                     var uiConfig = {};
+                     var uiElement;
+
+                     var cookieName = 'HighlandDots'
+                     var plugInPrefClassName = 'hd_pluginPref';
                      var formContentsId = "hd_config";
-                     var formId = formContentsId + "_form";   
+                     var formId = formContentsId + "_form";
                      var formPrefix = []; // Give all the form elements a prefix to avoid collission
                      var SEP = '.';
+                     var hdConfigData = [];
                      var pluginTracker = {};
                      var pluginOptions = {};
                      var allValues = {};
-                     var cookieName = 'HighlandDots'
-                     var plugInPrefClassName = 'hd_pluginPref';
-                     
+
+
                      if (API.getCookie) {
                        (function() {
                         var c = API.getCookie(cookieName, '{}');
-                        allValues = JSON.parse(c); 
+                        allValues = JSON.parse(c);
                        }());
                      }
-                     
+
                      /* API Functions */
                      /* What function should be called by this plugin preference
                      This function creates a local copy of the preferences needed by /that/
@@ -106,11 +110,11 @@ var hdots_prefs = (
                        var localPrefs = {};  // Local preferences.
                        var a;                // Scratch area for temp calcs
                        if (s) {              // If there is a plugin choosen
-                         
+
                          // Walk through all the values we have and pull out just the ones that
                          // match plugin we are after.
                          pluginName = [n, s].join(SEP);
-                         
+
                          API.forEachProperty(allValues, function(v, k) {
                                              if (k.indexOf(pluginName + SEP) === 0) {
                                              // Rip off the <prefname> <plugin name> prefix
@@ -119,8 +123,8 @@ var hdots_prefs = (
                                              a.shift();
                                              localPrefs[a.join(SEP)] = v;
                                              }
-                         }); 
-                         
+                         });
+
                          // Capture those values in a closure, and create a function to pass
                          // the parameters through.
                          var r = (function(_name, _pref) {
@@ -131,7 +135,7 @@ var hdots_prefs = (
                          return r;
                        }
                      }
-                     
+
                      /*
                      The the value of a particular preference.
                      Note: This always returns a string
@@ -139,7 +143,7 @@ var hdots_prefs = (
                      function getValueOf(n) {
                        return "" + allValues[n];
                      }
-                     
+
                      function registerPreference(pref) {
                        var n;
                        hdConfigData.push(pref);
@@ -151,9 +155,9 @@ var hdots_prefs = (
                          setDefaultValueOf(pref.name, pref.def);
                        }
                      }
-                     
+
                      function registerPlugin(prefName, pluginName, desc, fun) {
-                       var pref = getPreferenceByName(prefName, hdConfigData); 
+                       var pref = getPreferenceByName(prefName, hdConfigData);
                        var o1 = {};
                        var n = [prefName, pluginName].join(SEP);
                        o1[pluginName] = desc;
@@ -162,12 +166,12 @@ var hdots_prefs = (
                        pluginOptions[n] = [];
                        setDefaultValueOf(prefName, pluginName);
                      }
-                     
+
                      function registerPluginPreference(prefName, pluginName, pref) {
                        pluginOptions[prefName + SEP + pluginName].push(pref);
                        setDefaultValueOf([prefName, pluginName,pref.name].join(SEP), pref.def);
                      }
-                     
+
                      // Internal functions
                      function getPreferenceByName(n, a) {
                        var pref;
@@ -176,34 +180,65 @@ var hdots_prefs = (
                          if (pref.name === n) {return pref}
                        }
                      }
-                     
+
                      function setDefaultValueOf(n, v) {
                        if (typeof allValues[n] === 'undefined') {
                          allValues[n] = v;
                        }
                        //logit(allValues);
                      }
-                     
-                     
+
+
+                    function getUi() {
+                      if (!uiElement) {
+                        makeHdConfigForm();
+                        if (uiConfig.useForUi) {
+                          uiConfig.useForUi.appendChild(uiElement);
+                        }
+                      }
+                      if (!uiConfig.useForUi) {
+                        return uiElement;
+                      }
+                    }
+
+
                      // Actually draw the UI -- this is a biggie.
                      function makeHdConfigForm() {
+
                        var k, v;
-                       var boxOver = API.getEBI('hd_config_plugin');
-                       
-                       
+                       var boxOver, formEl,elem;
+// FIXME : use API library
+                       boxOver = document.createElement('div');
+                       boxOver.className = plugInPrefClassName;
+                       boxOver.id = "hd_page_2";
+
+                       formEl = document.createElement('form');
+                       formEl.action = "#";
+                       formEl.id = formContentsId;
+                       formEl.onsubmit = "return false;";
+                       boxOver.appendChild(formEl);
+
+                       elem = document.createElement('div');
+                       elem.id = "hd_config_plugin";
+                       boxOver.childNodes[0].appendChild(elem);
+
+                       elem = document.createElement('div');
+                       elem.id = "hd_config";
+                       boxOver.childNodes[0].appendChild(elem);
+
                        /// Drawing, proxy functions
-                       
+
                        function getFormPrefix() {
                          var r = formPrefix.join(SEP) + SEP;
                          // Not SEP just by itself.
                          if (r === SEP) {r = "";}
                          return r;
                        }
-                       
+
                        function getPrefFullFormName(v) {
                          return getFormPrefix() + v.name;
                        }
-                       
+
                        function makeExpandedLabel(text) {
                          // Certain older browsers were known to eat a label if it wasn't
                          // wrapped in a span (and you did weird things with float).
@@ -216,7 +251,7 @@ var hdots_prefs = (
                          label.clear = "both";
                          return label;
                        }
-                       
+
                        function addToForm(v, el, target) {
                          var label = makeExpandedLabel(v.label);
                          label.appendChild(el);
@@ -224,102 +259,124 @@ var hdots_prefs = (
                            el.name = getPrefFullFormName(v);
                          }
                          target.appendChild(label);
-                         target.appendChild(API.createElementWithAttributes('div', { 'class':'breaker' }));        
+                         target.appendChild(API.createElementWithAttributes('div', { 'class':'breaker' }));
                        }
-                       
+
                        function makeBoolean(v, target) {
                          var val = getValueOf(getPrefFullFormName(v));
                          val =  ("" + val === "true" ? true: false);
                          var el = API.createElementWithProperties('input', { type:'checkbox', checked: val });
                          addToForm(v, el, target);
                        }
-                       
+
                        function makeText(v, target) {
                          var val = getValueOf(getPrefFullFormName(v));
                          var el = API.createElement("input");
                          if (val) {el.value = val};
                          addToForm(v, el, target);
                        }
-                       
+
                        function makeRadio(v, target) {
                          var val = getValueOf(getPrefFullFormName(v));
-                         var target = API.getEBI(formContentsId);
+                         var target = formEl;
                          var el;
                          var i, l, o = {}, opt;
                          var o;
                          var f = API.createElement("fieldset");
                          var label, innerDiv;
                          var n;
-                         
+
                          el = API.createElement("legend");
                          API.addElementText(el, v.label);
                          f.appendChild(el);
                          API.setStyle(f, 'border', '1px solid black')
                          opt = v.options;
-                         
-                         
+
+
                          for (i = 0, l = opt.length; i < l; i++) {
                            o = opt[i];
-                           
+
                            API.forEachProperty(o, function(p, i) {
                                                var doSetCheck = false;
                                                var doCheckEl;
-                                               
+                                               var radioName = getFormPrefix() + v.name;
+                                               var err;
+                                               var s;
+
                                                label = makeExpandedLabel(p);
+
+                                               try {
+                                                 // This is the only way you can set the "name" attribute in IE, but it will fail in other browsers
+                                                 s = "";
+                                                 s += 'name="' + radioName + '" ';
+                                                 s += 'type="' + "radio" + '" ';
+                                                 s += 'value="' + i + '" ';
+
+                                                 if (i === val) {
+                                                   s += 'checked="' + "true" + '" ';
+                                                 }
+                                                 s = '<input ' + s + '>';
+                                                 //alert(s + val);
+                                                 el = document.createElement(s);
+                                               } catch(err) {
+                                                 // The above will fail if not in IE, so try it the correct way here
+
                                                el = API.createElement("input");
+                                               }
                                                el.type = "radio";
                                                //el.type = "button";
-                                               el.name = getFormPrefix() + v.name;
+                                                 el.name = radioName;
                                                el.value = i;
-                                               
-                                               
+
+
                                                if (i === val) {
                                                  // Thank you, you piece of shite IE
                                                  // browser!  Really!
                                                  // Everybody else lets you set the checked
                                                  // flag at the time of creation.  IE will let
-                                                 // you set it, but won't honor it until it is 
+                                                 // you set it, but won't honor it until it is
                                                  // added to the document.
                                                  doCheckEl = el;
                                                  doSetCheck = true;
                                                }
-                                               
+
                                                label.appendChild(el);
                                                f.appendChild(label);
                                                f.appendChild(API.createElementWithAttributes('div', { 'class':'breaker' }));
                                                innerDiv = API.createElement("div");
                                                n = [v.name, i].join(SEP);
-                                               
-                                               
-                                               API.attachListener(el, 'click', 
+
+
+                                               API.attachListener(el, 'click',
                                                                   function(_n) {
-                                                                  return function() { 
+                                                                  return function() {
                                                                     setPluginPrefVis();
                                                                   };
                                                                   }(n)
                                                                   );
-                                               
+
+
                                                innerDiv.id = n;
                                                API.addClass(innerDiv, plugInPrefClassName);
-                                               
+
                                                formPrefix.push(n);
                                                makeFormFields(pluginOptions[n],innerDiv);
                                                formPrefix.pop();
-                                               
+
                                                if (!innerDiv.firstChild) {
                                                  API.addElementText(innerDiv, "Nothing to configure");
                                                }
                                                f.appendChild(innerDiv);
-                           
+
                                                if (doSetCheck) {
                                                  doCheckEl.checked = true;
                                                }
-                                      
+
                            });
                          }
                          target.appendChild(f);
                        }
-                       
+
                        function makeSelect(v, target) {
                          var val = getValueOf(getPrefFullFormName(v));
                          var el = API.createElement("select");
@@ -335,16 +392,16 @@ var hdots_prefs = (
                          }
                          addToForm(v, el, target);
                        }
-                       
+
                        function getDataFromForm() {
-                         var s = API.HD_serializeFormUrl(API.getEBI(formId));
+                         var s = API.HD_serializeFormUrl(formEl);
                          API.forEachProperty(s, function(v, k) {
                                              allValues[k] = v;
                                              });
                        }
-                       
+
                        function makeAcceptButton(v, target) {
-                         var target = API.getEBI(formContentsId);
+                         var target = formEl;
                          var el = API.createElement("button");
                          API.addElementText(el, "Accept");
                          API.attachListener(el, 'click', function() {
@@ -358,7 +415,7 @@ var hdots_prefs = (
                          });
                          target.appendChild(el);
                        }
-                       
+
                        function makeFormFields(data, target) {
                          for(var i = 0, l = data.length; i < l; i++) {
                            var v = data[i];
@@ -378,13 +435,16 @@ var hdots_prefs = (
                            }
                          }
                        }
-                       makeFormFields(hdConfigData, API.getEBI(formContentsId));
-                       makeAcceptButton(v, API.getEBI(formContentsId));
-                       setPluginPrefVis();
+                       makeFormFields(hdConfigData, formEl);
+                       makeAcceptButton(v, formEl);
+                       setPluginPrefVis(formEl);
+
+                       uiElement = boxOver;
+
                      }
-                     
-                     
-                     function setPluginPrefVis() {
+
+
+                     function setPluginPrefVis(srcForm) {
                        function disable(el) {
                          if (API.presentElement) {
                            API.presentElement(el, false); // Hide it
@@ -395,31 +455,34 @@ var hdots_prefs = (
                            API.presentElement(el, true);
                          }
                        }
-                       
+
                        var els = API.getEBCN(plugInPrefClassName);
                        var a;
+                       var formInfo =  API.HD_serializeFormUrl(srcForm);
+                                   //alert(JSON.stringify(formInfo));
                        API.forEach(els, function(el, i) {
                                    disable(el);
-                                   
+
                                    // Get the form data.
-                                   var s = API.HD_serializeFormUrl(API.getEBI(formId));
+                                   var s = API.HD_serializeFormUrl(srcForm);//API.getEBI(formId));
                                    a = el.id.split(SEP); // Split up the id
                                    s = s[a[0]];          // And get the right value from the form
-                                   
+
                                    if (s === a[1]) {     // If it matches what we are looking for
                                      enable(el);
                                    }
                        });
                      }
-                     
+
                      return {
+                       uiConfig: uiConfig,
                        allValues: allValues, // DEBUGGING
                        registerPluginPreference: registerPluginPreference,
                        registerPreference: registerPreference,
                        getPluginFunction: getPluginFunction,
-                       registerPlugin: registerPlugin,    
+                       registerPlugin: registerPlugin,
                        getValueOf: getValueOf,
-                       makeHdConfigForm: makeHdConfigForm
+                       getUi: getUi
                      };
                    }
                    ()
@@ -464,7 +527,8 @@ if (API.getOptionValue) {
                 add(n, API.getOptionValue(o));
               }
             }
-        }         }
+        }
+        }
         else if (reCheck.test(t)) {
           if (t === "radio") {
             if (e.checked) { add(n, e.value || "true"); }
@@ -487,22 +551,22 @@ if (API.getOptionValue) {
 
 function prepConfig() {
   var pref;
-    
+
   hdots_prefs.registerPreference( {
                                  type: "boolean",
                                  name: "boundingbox",
                                  label: "Draw bounding boxes?",
                                  def: false
   });
-  
+
   hdots_prefs.registerPreference( {
                                  type: "boolean",
                                  name: "logging",
                                  label: "Enable logging?",
                                  def: false
   });
-  
-  
+
+
   hdots_prefs.registerPreference( {
                                  type: "plugin",
                                  label: "Score Beautify Engine",

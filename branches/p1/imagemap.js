@@ -11,7 +11,12 @@ function makeImageMap(staff, score) {
     var o = {};
     
     o.idx = score.data.indexOf(mel);
+    setIfExists(mel, o, "type");
     setIfExists(mel, o, "note");
+    setIfExists(mel, o, "midiName");
+    setIfExists(mel, o, "midiNote");
+    setIfExists(mel, o, "shortNoteName");
+    
     setIfExists(mel, o, "duration");
     setIfExists(mel, o, "beatFraction");
     setIfExists(mel, o, "measureLength");
@@ -45,7 +50,15 @@ function makeImageMap(staff, score) {
   imgEl = document.getElementById("mapImage");
   if (!imgEl) {
     imgEl = new Image();
-    imgEl.src = "pics/transparent.png";
+    if (API.setOpacity) {
+      imgEl.src = "pics/black.gif";
+      API.setOpacity(imgEl, 0.10);
+    } else {
+      imgEl.src = "pics/transparent-gif.gif";
+      
+    }
+    
+    
     imgEl.id = "mapImage";
     imgEl.style.position = "absolute";
     imgEl.useMap = "#hDotsMap";
@@ -60,6 +73,8 @@ function makeImageMap(staff, score) {
   domTools.removeChildren(map);
   
   score.data.forEach(function(mel) {
+                     if (!mel) {return;}
+                     
                      var ctx = sdet.ctx;
                      var rect = mel.rect;
                      if (rect) {
