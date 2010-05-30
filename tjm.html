@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+
+<!-- Tuliana 2 iconset
+     from http://www.iconarchive.com/category/system/tulliana-2-icons-by-umut-pulat.html
+     released under GLGPL
+-->
+
+<!-- Oh it pains me to do this, but excanvas don't work properly unless this
+is active.  Seems to be a "feature" of adding the canvas element on the fly
+as opposed to having it static on the page.-->
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7">
+
+<title>Highland Dots</title>
+  <link rel="stylesheet" type="text/css" href="layout.css">
+<!--[if IE]>
+<script src="jslib/excanvas.js"></script>
+<![endif]-->
+
+<script src="hdotsloader.js"></script>
+
+<style>
+
+/* classes*/
+
+.inputArea {
+    width: auto;
+    z-index: 500;
+    background-color: #eeeeee;
+	border-left: 2px solid #CCCCCC;
+	border-bottom: 2px solid #CCCCCC;
+	border-right: 2px solid #CCCCCC;
+	visibility: hidden;
+	display:none;
+}
+
+
+.uiInputHeading {
+   width:100%;
+   font-weight:bold;
+   background-image:url('ui/images/bg-header.png');
+   background-repeat:repeat-x;
+}
+
+.sectionHeader {
+   width:800px;
+   height:20px;
+   background-image:url('ui/images/bg-header.png');
+   background-repeat:repeat-x;
+   border-bottom: 1px solid #cccccc;
+	font-family: Verdana, Arial, SunSans-Regular, Sans-Serif;
+	font-weight:bold;
+	font-size: 14px;
+
+}
+
+#hd_config_plugin {
+}
+
+#hd_config {
+}
+
+.hd_pluginPref {
+  border: 1px solid green;
+  margin-left: 2em;
+}
+
+
+#hd_config label {
+color: green;
+}
+
+#hd_config label span {
+  float:left;
+  width:25%;
+  margin-right:0.5em;
+  padding-top:0.2em;
+  text-align:right;
+  font-weight:bold;
+  color: white;
+  padding-right: 0.5em;
+  border: 1px solid black;
+  background: blue;
+}
+
+#hd_config div.breaker {
+  clear: both;
+}
+
+
+/* ids */
+#menuBar {
+   width:800px;
+   height:30px;
+   background-image:url('ui/images/bg-menu.png');
+   background-repeat:repeat-x;
+   border: 1px solid gray;
+
+}
+
+
+
+#menuBar span {
+    padding:0px 0px 0px 0px;
+}
+#menuBar ul {
+	list-style: none;
+    height:30px;
+    padding:0px 0px 0px 0px;
+    margin-top:4px;
+}
+
+#menuBar li {
+    display:inline;
+    height:30px;
+    padding:0px 0px 0px 0px;
+}
+
+#menuBar a {
+	width: auto;
+	padding: 3px 0px 2px 20px;
+	color: black;
+	font-family: Verdana, Arial, SunSans-Regular, Sans-Serif;
+	font-weight:bold;
+	text-decoration: none;
+}
+
+#menuBar a:hover {
+	color: #66cc66;
+}
+
+
+
+</style>
+
+<style>
+/*
+ * Tabs from http://nontroppo.org/test/tab1.html, copyleft license
+ */
+#tabmenu {
+  border-bottom: 2px solid black;
+  margin: 12px 0px 0px 0px;
+  padding: 0px;
+  padding-left: 10px;
+}
+
+#tabmenu li {
+  display: inline;
+  overflow: hidden;
+  list-style-type: none;
+}
+
+#tabmenu a, a.active {
+  color: blue;
+  font-family: Verdana, Arial, SunSans-Regular, Sans-Serif;
+  border: 2px solid black;
+  padding: 2px 5px 0px 5px;
+  margin: 0;
+  text-decoration: none;
+}
+
+#tabmenu a.active {
+  border-left: 2px solid black;
+  border-top: 2px solid black;
+  border-right: 2px solid black;
+  border-bottom: 3px solid white;
+}
+
+#tabmenu a:hover {
+  color: blue;
+  background: #cccccc;
+}
+
+/*
+#tabmenu a:visited {
+  color: #E8E9BE;
+}
+
+#tabmenu a.active:hover {
+  background: #ABAD85;
+  color: #DEDECF;
+}
+
+#content {
+  font: 0.9em/1.3em "bitstream vera sans", verdana, sans-serif;
+  text-align: justify;
+  background: #ABAD85;
+  padding: 20px;
+  border: 2px solid black;
+  border-top: none;
+  z-index: 2;
+}
+
+#content a {
+  text-decoration: none;
+  color: #E8E9BE;
+}
+
+#content a:hover {
+  background: #898B5E;
+}
+*/
+
+</style>
+
+
+<script>
+
+
+
+
+
+
+
+
+
+
+
+
+function closeInputDialog() {
+  var id = "inputDialog";
+  if (arguments.length == 1)
+    id = arguments[0];
+
+  document.getElementById(id).style.visibility = 'hidden';
+  document.getElementById(id).style.display = 'none';
+
+}
+
+function openSettings(srcElem) {
+  var elem1, elem2,elem3,p;
+
+  p = srcElem.parentNode;
+  while (p.tagName.toLowerCase() !== "div") {
+    p = p.parentNode;
+  }
+  ui = document.getElementById('settings');
+  hdots_prefs.uiConfig.useForUi = ui;
+  hdots_prefs.getUi();
+
+  ui.style.position = 'absolute';
+  ui.style.top = p.style.top + p.style.height;
+  ui.style.float = "right";
+  ui.style.width = '50%';
+  ui.style.height = '50%';
+
+  ui.style.display = 'block';
+  ui.style.visibility = 'visible';
+
+
+}
+
+
+
+function resizeUiArea(toGrow,view) {
+
+  var sElem, h, ph, oph;
+  var gElem = document.getElementById(toGrow);
+
+  if (toGrow === "canvas_div") {
+    sElem = document.getElementById("editor");
+    h = "375px";
+    ph = "400px";
+  } else if (toGrow === "editor") {
+    gElem = document.getElementById(toGrow);
+    sElem = document.getElementById("canvas_div");
+    h = "268px";
+    ph = "300px";
+  }
+
+  if (view === "noview") {
+    gElem.style.display = "none";
+    gElem.parentNode.style.height = "22px";
+    return;
+
+  } else if (view === "fullview") {
+    sElem.style.display = "none";
+    sElem.parentNode.style.height = "22px";
+
+    gElem.parentNode.style.height = "700px";
+    gElem.style.display = "block";
+    gElem.style.height = "648px";
+
+  } else if (view === "view") {
+    gElem.parentNode.style.height = ph;
+    gElem.style.display = "block";
+    gElem.style.height = h;
+  }
+
+}
+
+
+
+
+function uiDoFileOpen(displayElemId, srcElem) {
+
+// get the FileOpener component DOM content
+// remove dom nodes from
+//  elem id="inputAreaContent"
+// add FO dom content
+// get FO title
+// set dialog title with FO title
+// show dialog
+
+  var node, ui, p;
+
+  // dialog title
+  node = document.getElementById(displayElemId + 'Title');
+  if (node.childNodes.length) node.removeChild(node.childNodes[0]);
+  node.appendChild(document.createTextNode("Open File"));
+
+var fileOpenData = {
+  //  filename:  "mystuff.bww",
+  //  fileUrl: "./mystuff.bww";
+  //  tuneTxt: "";
+  //  errorMsg = "";
+  //  onFailure:  function() {API.getEBI(displayElemId+"Content").innerHTML=errorMsg; },
+  onSuccess:  function() {closeInputDialog();uiLoadTune('bww', API.getEBI("editor").value);},
+  useForUi:  API.getEBI(displayElemId+"Content"),
+  useForEditor:  API.getEBI("editor")
+};
+
+
+  // dialog content
+  node = document.getElementById(displayElemId+"Content");
+  if (node.childNodes.length) node.removeChild(node.childNodes[0]);
+
+  fileOpener(fileOpenData).filePicker();
+
+
+  p = srcElem.parentNode;
+  while (p.tagName.toLowerCase() !== "div") {
+    p = p.parentNode;
+  }
+
+  ui = document.getElementById(displayElemId);
+  ui.style.position = 'absolute';
+  ui.style.top = p.style.top + p.style.height;
+  ui.style.left = p.style.left;
+  ui.style.display = 'block';
+  ui.style.visibility = 'visible';
+
+}
+
+
+
+function localPathToURI(path) {
+  var uri = path;
+  uri = uri.replace(/\\/g, '/');
+  uri = uri.replace(/:/g, '|');
+  uri = "file://" + uri;
+  return uri;
+}
+
+function loadFromEditor() {
+  var t = document.getElementById('editor').value;
+  uiLoadTune('bww', t);
+  closeInputDialog();
+}
+
+function handleLoadTunes(list) {
+  var t = list[0].getAsText("");
+  document.getElementById('editor').value = t;
+  uiLoadTune('bww', t);
+
+  closeInputDialog();
+}
+
+function reload() {
+	plotMusic(score);
+}
+
+function doEval(elemId) {
+  var o = document.getElementById(elemId);
+  if (o.value && o.value.length > 0) eval(o.value);
+}
+
+
+function initHtmlGui() {
+
+
+//logWin = window.open("log.html", "logWindow", "width=620px,height=420px,menubar=no,resizable=no,scrollbars=no,titlebar=yes,toolbar=no");
+//logWin.postMessage("Hello", "*");
+
+loger.init(/*{ logging: true }*/);
+
+logit("log test");;
+loger.log("log test 2");;
+logit("log test 3");;
+
+
+}
+
+scriptLoader.loadHDots();
+
+
+</script>
+
+
+</head>
+
+<body onLoad="initHtmlGui();/*hdots_prefs.makeHdConfigForm();*/">
+
+<div id="menuBar">
+<span style="float:left;">
+  <ul>
+    <li><a href="#" onClick="uiDoFileOpen('inputDialog',this);">OPEN</a></li>
+    <li><a href="#">LIBRARY</a></li>
+    <li><a href="#" onClick="alert('Not yet implemented');">PRINT</a></li>
+  </ul>
+</span>
+<span style="float:right;">
+<ul>
+    <li><a href="#" onClick="openSettings(this);">SETTINGS</a></li>
+    <li style="width:20px;">&nbsp;</li>
+    <li><a href="#" onClick="alert('Not yet implemented');">HELP</a></li>
+  </ul>
+</span>
+</div>
+
+<div class="inputArea" id="inputDialog">
+  <span class="uiInputHeading" id="inputDialogTitle">
+  </span>
+  <div id="inputDialogContent" style="height:300px;width:300px;overflow:auto;">
+    dialog content
+  </div>
+  <span class="uiButton">
+    <button onclick="closeInputDialog();" style="float:right; height:20px;">Close</button>
+  </span>
+</div>
+
+
+<div id="settings" class="inputArea">
+  <span style="float:left;width:100%">
+  Settings and Preferences
+  <span style="float:right;">
+    <img src="ui/images/tuliana/cancel.png" onclick="closeInputDialog('settings');"
+   	   style="float:right; height:15px;width:15px;text-align:center" />
+  </span>
+  <br />
+</div>
+
+<div style="width:800px; height:400px; overflow:auto;">
+  <div class="sectionHeader">
+    <span style="float:left;">
+      <img src="ui/images/tuliana/reload.png" onclick="plotMusic(score);"
+           style="float:left; height:18px;width:18px;text-align:center" />
+      <span id="scoreTitle" style="float:left;">Score</span>
+    </span>
+
+    <span class="sectionViewControls" style="float:right;">
+      <img src="ui/images/tuliana/view_remove.png" onclick="resizeUiArea('canvas_div','noview');"
+           style="float:right; height:15px;width:15px;text-align:center" />
+      <img src="ui/images/tuliana/view_fullscreen.png" onclick="resizeUiArea('canvas_div','fullview');"
+           style="float:right; height:18px;width:18px;text-align:center" />
+      <img src="ui/images/tuliana/view_nofullscreen.png" onclick="resizeUiArea('canvas_div','view');"
+           style="float:right; height:18px;width:18px;text-align:center" />
+      <img src="ui/images/tuliana/viewmag.png" onclick="alert('Not yet implemented');"
+           style="float:right; height:15px;width:15px;margin-right:30px;text-align:center" />
+    </span>
+    <span id="playerControls" style="float:right;margin-right:100px;">
+      <img src="ui/images/tuliana/player_start.png" onclick="alert('Not yet implemented');"
+           style="height:18px;width:18px; text-align:center;"/>
+      <img src="ui/images/tuliana/player_stop.png" onclick="alert('Not yet implemented');"
+           style="height:18px;width:18px; text-align:center;"/>
+      <img src="ui/images/tuliana/player_play.png" onclick="alert('Not yet implemented');"
+           style="height:18px;width:18px; text-align:center;"/>
+      <img src="ui/images/tuliana/reload.png" onclick="alert('Not yet implemented');"
+           style="height:18px;width:18px; text-align:center;"/>
+
+      &nbsp;
+
+      <img src="ui/images/tuliana/arts.png" onclick="alert('Not yet implemented');"
+           style="height:18px;width:18px; text-align:center;"/>
+
+    </span>
+
+    <span style="float:right;margin-right:50px;">
+      <input type="text" value="80" size="3"
+             style="background:transparent;height:12.5px;line-height: 10px;padding: 0 0 -2.5px 0;">
+      <b>BPM</b>
+    </span>
+  </div>
+  <div id="canvas_div" style="margin-left:auto;margin-right:auto;height:375px;width:790px; overflow:scroll;border-left:solid 1px #cccccc;">
+  <div id="imagemap_div">
+    <p id="hdots_canvas">The music goes here</p>
+  </div>
+  </div>
+</div>
+
+<br />
+
+<div id="editor_div" style="width:800px; height:300px; overflow:auto;">
+  <div class="sectionHeader">
+    <span style="float:left;">
+      <img src="ui/images/tuliana/reload.png" onclick="loadFromEditor();"
+           style="float:left; height:18px;width:18px;text-align:center" />
+      <span id="scoreTitle" style="float:left;">Editor</span>
+    </span>
+    <span class="sectionViewControls" style="float:right;">
+      <img src="ui/images/tuliana/view_remove.png" onclick="resizeUiArea('editor','noview');"
+           style="float:right; height:15px;width:15px;text-align:center" />
+      <img src="ui/images/tuliana/view_fullscreen.png" onclick="resizeUiArea('editor','fullview');"
+           style="float:right; height:18px;width:18px;text-align:center" />
+      <img src="ui/images/tuliana/view_nofullscreen.png" onclick="resizeUiArea('editor','view');"
+           style="float:right; height:18px;width:18px;text-align:center" />
+
+    </span>
+  </div>
+  <textarea id="editor" style="width:790px; height:268px; overflow:auto; border:solid 1px #cccccc;">
+  Locally loaded tunes will go here.
+  </textarea>
+</div>
+
+<br />
+
+<!--div id="status_div" style="width:800px; height:50px; border:solid black 1px;">
+  <div class="sectionHeader">
+    <span style="float:left;">
+      <span id="scoreTitle" style="float:left;">Status</span>
+    </span>
+    <span class="sectionViewControls" style="float:right;">
+      <img src="ui/images/tuliana/cancel.png" onclick="alert('Not yet implemented');"
+           style="float:right; height:15px;width:15px;text-align:center" />
+      <img src="ui/images/tuliana/view_fullscreen.png" onclick="alert('Not yet implemented');"
+           style="float:right; height:18px;width:18px;text-align:center" />
+      <img src="ui/images/tuliana/view_nofullscreen.png" onclick="alert('Not yet implemented');"
+           style="float:right; height:18px;width:18px;text-align:center" />
+
+    </span>
+  </div>
+  <p>
+    <span id="timeinfo">Time: Not  yet rendered.</span>
+  </p>
+  <div style="overflow:auto;">
+    <p id="status">
+      &nbsp;
+    </p>
+  </div>
+</div-->
+
+<br />
+
+<map name="hDotsMap" id="hDotsMap">
+<area shape="polygon" coords="19,44,45,11,87,37,82,76,49,98" href="http://www.trees.com/save.html">
+<area shape="rect" coords="128,132,241,179" href="http://www.trees.com/furniture.html">
+<area shape="circle" coords="68,211,35" href="http://www.trees.com/plantations.html">
+</map>
+
+
+</body>
+</html>
