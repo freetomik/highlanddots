@@ -1,0 +1,149 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"><title>JavaScript Base64 Encoding</title>
+<link rel="SHORTCUT ICON" href="http://rumkin.com/favicon.ico">
+<!-- These pages are (C)opyright 2002-2008, Tyler Akins -->
+<!-- Fake email for spambots: 1234@rumkin.com -->
+<script language="JavaScript" src="base64_convert_files/browser_faster.js"></script>
+<script type="text/javascript"><!--
+
+// This code was written by Tyler Akins and has been placed in the
+// public domain.  It would be nice if you left this header intact.
+// Base64 code from Tyler Akins -- http://rumkin.com
+
+var keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+
+function encode64(input) {
+	var output = new StringMaker();
+	var chr1, chr2, chr3;
+	var enc1, enc2, enc3, enc4;
+	var i = 0;
+
+	while (i < input.length) {
+		chr1 = input.charCodeAt(i++);
+		chr2 = input.charCodeAt(i++);
+		chr3 = input.charCodeAt(i++);
+
+		enc1 = chr1 >> 2;
+		enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+		enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+		enc4 = chr3 & 63;
+
+		if (isNaN(chr2)) {
+			enc3 = enc4 = 64;
+		} else if (isNaN(chr3)) {
+			enc4 = 64;
+		}
+
+		output.append(keyStr.charAt(enc1) + keyStr.charAt(enc2) + keyStr.charAt(enc3) + keyStr.charAt(enc4));
+   }
+   
+   return output.toString();
+}
+
+function decode64(input) {
+	var output = new StringMaker();
+	var chr1, chr2, chr3;
+	var enc1, enc2, enc3, enc4;
+	var i = 0;
+
+	// remove all characters that are not A-Z, a-z, 0-9, +, /, or =
+	input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+
+	while (i < input.length) {
+		enc1 = keyStr.indexOf(input.charAt(i++));
+		enc2 = keyStr.indexOf(input.charAt(i++));
+		enc3 = keyStr.indexOf(input.charAt(i++));
+		enc4 = keyStr.indexOf(input.charAt(i++));
+
+		chr1 = (enc1 << 2) | (enc2 >> 4);
+		chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+		chr3 = ((enc3 & 3) << 6) | enc4;
+
+		output.append(String.fromCharCode(chr1));
+
+		if (enc3 != 64) {
+			output.append(String.fromCharCode(chr2));
+		}
+		if (enc4 != 64) {
+			output.append(String.fromCharCode(chr3));
+		}
+	}
+
+	return output.toString();
+}
+
+//--></script>
+<link rel="stylesheet" type="text/css" href="base64_convert_files/base.css">
+<link rel="stylesheet" type="text/css" media="screen,projection" href="base64_convert_files/normal.css">
+<link rel="stylesheet" type="text/css" media="print" href="base64_convert_files/print.css">
+<script src="base64_convert_files/site.js" type="text/javascript"></script>
+</head><body>
+<table border="0" cellpadding="0" cellspacing="0" height="100%" width="100%">
+<tbody><tr><td valign="top">
+<div class="r_header">JavaScript Base64 Encoding</div>
+<div class="r_headbar">
+<div class="r_headbarlinks">
+<span id="r_dropdown"><ul class="r_menu"><li><a class="r_link" href="http://rumkin.com/">Rumkin.com</a><ul class="r_menu2"><li><a class="r_menu2" href="http://rumkin.com/reference/site/chat.html">Live Chat</a></li><li><hr></li><li><a class="r_menu2" href="http://rumkin.com/fun/">Fun&nbsp;Things</a><ul class="r_menu2"><li><a class="r_menu2" href="http://rumkin.com/fun/games/">Games</a></li><li><a class="r_menu2" href="http://rumkin.com/fun/trivia/">Trivia</a></li><li><a class="r_menu2" href="http://rumkin.com/fun/ttwisters/">Tongue Twisters</a></li><li><hr></li><li><a class="r_menu2" href="http://rumkin.com/fun/">&nbsp; &#8230; more</a></li></ul></li><li><a class="r_menu2" href="http://rumkin.com/reference/">Reference&nbsp;Materials</a><ul class="r_menu2"><li><a class="r_menu2" href="http://rumkin.com/reference/algorithms/">Algorithms</a></li><li><a class="r_menu2" href="http://rumkin.com/reference/aquapad/">Aquapad</a></li><li><a class="r_menu2" href="http://rumkin.com/reference/firearms/">Ballistic Gel</a></li><li><a class="r_menu2" href="http://rumkin.com/reference/dnd/">D&amp;D</a></li><li><a class="r_menu2" href="http://rumkin.com/reference/web/">Web Tech.</a></li><li><hr></li><li><a class="r_menu2" href="http://rumkin.com/reference/">&nbsp; &#8230; more</a></li></ul></li><li><a class="r_menu2" href="http://rumkin.com/software/">Software&nbsp;Projects</a><ul class="r_menu2"><li><a class="r_menu2" href="http://rumkin.com/software/dnd_helper/">D&amp;D Helper</a></li><li><a class="r_menu2" href="http://rumkin.com/software/floater/">Floating Menu</a></li><li><a class="r_menu2" href="http://rumkin.com/software/marco/">Marco</a></li><li><a class="r_menu2" href="http://rumkin.com/software/palm/">Palm OS</a></li><li><hr></li><li><a class="r_menu2" href="http://rumkin.com/software/">&nbsp; &#8230; more</a></li></ul></li><li><a class="r_menu2" href="http://rumkin.com/tools/">Web-Based&nbsp;Tools</a><ul class="r_menu2"><li><a class="r_menu2" href="http://rumkin.com/tools/cipher/">Ciphers &amp; Codes</a></li><li><a class="r_menu2" href="http://rumkin.com/tools/gps/">GPS &amp; Mapping</a></li><li><a class="r_menu2" href="http://rumkin.com/tools/mailto_encoder/">Mailto Encoder</a></li><li><a class="r_menu2" href="http://rumkin.com/tools/password/">Passwords</a></li><li><a class="r_menu2" href="http://rumkin.com/tools/sprint/">Phone Uploader</a></li><li><hr></li><li><a class="r_menu2" href="http://rumkin.com/tools/weeble/">FTP Client</a></li><li><a class="r_menu2" href="http://rumkin.com/tools/darkerirc/">IRC Client</a></li><li><a class="r_menu2" href="http://rumkin.com/tools/ssh/">SSH Client</a></li><li><hr></li><li><a class="r_menu2" href="http://rumkin.com/tools/">&nbsp; &#8230; more</a></li></ul></li></ul></li></ul></span>&nbsp;<span class="r_arr">&gt;&gt;</span>&nbsp;<a class="r_link" href="http://rumkin.com/tools/">Web-Based Tools</a>&nbsp;<span class="r_arr">&gt;&gt;</span>&nbsp;<a class="r_link" href="http://rumkin.com/tools/compression/">Compression</a></div>
+<form method="GET" action="http://www.google.com/search" name="googlesearch">
+<div class="r_headbarsearch">
+Search:
+<input name="q" size="25" maxlength="255" class="r_headsearch" type="text">
+<input name="domains" value="rumkin.com" type="hidden">
+<input name="sitesearch" value="rumkin.com" type="hidden">
+</div>
+</form>
+</div>
+<div class="r_main">
+
+<form name="base64Form">
+
+<p>This form will let you encode and decode Base64 encoded text.  A very similar
+method of encoding is used for holding the data for the 
+<a href="http://rumkin.com/tools/compression/compress_huff.php">Huffman compression</a> method of JavaScript
+compression.</p>
+
+<p>Type in the message you want converted and then press Encode or Decode.</p>
+
+<textarea name="theText" cols="40" rows="6"></textarea><br>
+
+<input name="encode" value="Encode to base64" onclick="document.base64Form.theText.value=encode64(document.base64Form.theText.value);" type="button">
+<input name="decode" value="Decode from base64" onclick="document.base64Form.theText.value=decode64(document.base64Form.theText.value);" type="button">
+
+</form>
+<div style="clear: both;"></div>
+</div>
+</td></tr>
+<tr><td valign="bottom">
+<div class="r_footbar">
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tbody><tr><td rowspan="2" width="65%">
+<iframe class="r_chat" src="base64_convert_files/topic.htm" allowtransparency="true" frameborder="0">
+&lt;a href="/topic.php?&amp;topic=compression&amp;theme=normal"&gt;See comments about this page.&lt;/a&gt;
+</iframe>
+</td><td class="r_info" align="right" valign="top">
+Tyler Akins &lt;<script language="JavaScript" type="text/javascript"><!--
+var ML=" fe.<ti>k/@rmh=luc:ao\"dn",MI="4C0=;21>E<C6?5DB16F6CG:;@<86G3AD<E716F6CG:;@<86G3AD<49C7",OT="",j;
+for(j=0;j<MI.length;j++){
+OT+=ML.charAt(MI.charCodeAt(j)-48);
+}document.write(OT);
+// --></script><a href="mailto:fidian@rumkin.com">fidian@rumkin.com</a><noscript>Sorry, you need javascript
+to view this email address</noscript>&gt;
+<br>
+<a href="http://rumkin.com/reference/site/chat.html" onclick="return R_ChatWindow()">Chat</a> -
+<a href="http://rumkin.com/reference/site/contact.php">Contact Me</a> - 
+<a href="http://rumkin.com/reference/site/legal.php">Legal Info</a>
+</td></tr><tr><td class="r_trivia" valign="bottom">
+In the middle ages, coins were often crude and not uniform. Counterfeit
+coins were abundant, but one way to tell them apart from the real
+currency was to drop them on a stone slab. A dull sound indicated a
+fake, and a real coin would "ring true."</td></tr></tbody></table>
+</div>
+</td></tr></tbody></table>
+<script src="base64_convert_files/ga.js" type="text/javascript"></script>
+<script type="text/javascript">
+try {
+	var pageTracker = _gat._getTracker("UA-7684564-1");
+	pageTracker._trackPageview();
+} catch(err) {}
+</script>
+</body></html>
