@@ -208,6 +208,16 @@ function initHtmlGui() {
 
 
 function setSplitSize() {
+function spl_ondragend(splEle, barPos)
+{
+  //window.title = 'xSplitter: ' + splEle.id + ', bar position: ' + barPos;
+  var h;
+    h = xHeight(document.getElementById("xsp2-pane2")) - xHeight(document.getElementById("editheader"));
+  xHeight(document.getElementById("editor"), h);
+
+}
+  
+  
   // xSplitter Application
   // last update: 18aug2010
   
@@ -225,7 +235,12 @@ function setSplitSize() {
   s2 = new xSplitter('xsp2'  , 0, 0, w, h, false, 6,    h*.75,  100,      40,     true,  2);
   
   xResizeTo(document.getElementById("main"), w, h);
+  xWidth(document.getElementById("editor"), w);
   
+  h = xHeight(document.getElementById("xsp2-pane2")) - xHeight(document.getElementById("editheader"));
+  xHeight(document.getElementById("editor"), h);
+  
+  s2.setDragEnd(spl_ondragend);   
 }
 
 
@@ -335,17 +350,19 @@ scriptLoader.loadHDots();
 <div id='xsp2-pane2' class='xsp-pane'>
 
 <div id="editor_pane">
-  <div class="sectionHeader">
+  <div id = "editheader" class="sectionHeader">
     <span class="icon_list" style="float:left;">
       <img src="ui/images/tuliana/reload.png" onclick="loadFromEditor();">
       <span id="scoreTitle" style="float:left;">Editor</span>
     </span>
     
+    <!--
     <span class="sectionViewControls icon_list" style="float:right;">
       <img src="ui/images/tuliana/view_remove.png" onclick="resizeUiArea('editor','noview');">
       <img src="ui/images/tuliana/view_fullscreen.png" onclick="resizeUiArea('editor','fullview');">
       <img src="ui/images/tuliana/view_nofullscreen.png" onclick="resizeUiArea('editor','view');">
     </span>
+  -->
   </div>
   
   <textarea id="editor" style="width:790px; height:268px; overflow:auto; border:solid 1px #cccccc;">
