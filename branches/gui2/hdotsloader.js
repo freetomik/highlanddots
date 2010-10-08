@@ -25,7 +25,8 @@ var scriptLoader = (function HDotsLoader() {
     "metadata.js",
     "imagemap.js",
     "beautifyscore.js",
-    "postimport.js"
+    "postimport.js",
+    "xsplitter.js"
   ];
 
   var hdotsPlugins = [
