@@ -37,11 +37,15 @@ var scriptLoader = (function HDotsLoader() {
   ];
 
   var include = function(jsFile) {
+    /*
     var he = document.getElementsByTagName('head').item(0);
     var js = document.createElement('script');
     js.src = jsFile;
     js.type = "text/javascript";
     he.appendChild(js);    
+    */
+    
+    document.write("<script src='" + jsFile + "' type='text/javascript'><\/script>");
   };
 
   var load = function(scripts) {
