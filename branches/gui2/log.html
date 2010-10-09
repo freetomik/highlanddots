@@ -52,9 +52,14 @@ as opposed to having it static on the page.-->
   </div>
 </div>
 
+<script src="mylib.js"></script>
+
+
 <script>
 
-window.addEventListener('message', logMessageHandler, false);
+API.attachListener(window, 'message', logMessageHandler);
+
+//window.addEventListener('message', logMessageHandler, false);
 
 function logMessageHandler(e) {
 //  if (e.origin == 'http://highlanddots.com') {

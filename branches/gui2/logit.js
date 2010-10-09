@@ -11,7 +11,7 @@ var loger = (function() {
       var frg, p,d,s;
       var doc = document;
 
-      if (window.postMessage) {
+      if (API.isHostMethod(window, 'postMessage')) {
         logWin = window.open("log.html", "logingWindow", "width=620px,height=420px,menubar=no,resizable=no,scrollbars=no,titlebar=yes,toolbar=no");
       }
 
@@ -63,9 +63,17 @@ var loger = (function() {
         s = JSON.stringify(s, undefined, 2);
 
       }
-
+      
       if (logWin) {
-        logWin.postMessage(s, "*");
+        // I can't find a better way to check for IE's broken handling of
+        // postMessage.
+        try {
+          logWin.postMessage(s, "*");
+        } catch(err) {
+          if (logWin) {logWin.close();}
+          logWin = undefined;
+          logMsg(s, msgType);
+        }        
       } else {
 
         var e1 = document.createElement("div");

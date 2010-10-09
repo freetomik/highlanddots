@@ -8,11 +8,6 @@
      released under GLGPL
 -->
 
-<!-- Oh it pains me to do this, but excanvas don't work properly unless this
-is active.  Seems to be a "feature" of adding the canvas element on the fly
-as opposed to having it static on the page.-->
-<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7">
-
 <title>Highland Dots</title>
   <link rel="stylesheet" type="text/css" href="layout.css">
 <!--[if IE]>
@@ -218,6 +213,7 @@ function setSplitSize() {
     // Calculate new screen sizes
     var w = .95 * xClientWidth();
     var h = .75 * xClientHeight();
+
     
     // Set the size of the container that holds both divs 
     xResizeTo(document.getElementById("main"), w, h);
@@ -230,7 +226,9 @@ function setSplitSize() {
     // Find out how much room there is for the editor (div size-header size) 
     h = xHeight(document.getElementById("xsp2-pane2")) - xHeight(document.getElementById("editheader"));
     // And set size to get scroll bars working.
-    xHeight(document.getElementById("editor"), h);    
+    xHeight(document.getElementById("editor"), h);
+
+    
   }
   
   // xSplitter Application
@@ -315,6 +313,7 @@ scriptLoader.loadHDots();
   Settings and Preferences
   <span style="float:right;">
     <img src="ui/images/tuliana/cancel.png" onclick="closeInputDialog('settings');">
+  </span>
   </p>
 </div>
 
@@ -361,7 +360,7 @@ scriptLoader.loadHDots();
   <div id = "editheader" class="sectionHeader">
     <span class="icon_list" style="float:left;">
       <img src="ui/images/tuliana/reload.png" onclick="loadFromEditor();">
-      <span id="scoreTitle" style="float:left;">Editor</span>
+      <span id="editorTitle" style="float:left;">Editor</span>
     </span>
     
     <!--
@@ -389,7 +388,7 @@ scriptLoader.loadHDots();
 <br>
 
 <map name="hDotsMap" id="hDotsMap">
-<area shape="circle" coords="0,0,0" nohref>
+<area shape="circle" coords="0,0,0" >
 </map>
 
 

@@ -188,13 +188,13 @@ var staff =
 
    domTools.removeElementIfExists(canvasName);
    details.canvas = document.createElement("canvas");
+   document.getElementById("canvas_div").appendChild(details.canvas);
    init();
    details.canvas.id = canvasName;
 
    var ctx = details.canvas.getContext("2d");
    details.ctx = ctx;
    details.canvas.style.border = "5px solid red";
-   document.getElementById("canvas_div").appendChild(details.canvas);
  }
 
  return {
