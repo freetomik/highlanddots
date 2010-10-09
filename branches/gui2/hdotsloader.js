@@ -39,8 +39,9 @@ var scriptLoader = (function HDotsLoader() {
   var include = function(jsFile) {
     var he = document.getElementsByTagName('head').item(0);
     var js = document.createElement('script');
-    js.setAttribute('src', jsFile);
-    he.appendChild(js);
+    js.src = jsFile;
+    js.type = "text/javascript";
+    he.appendChild(js);    
   };
 
   var load = function(scripts) {
