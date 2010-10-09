@@ -233,8 +233,10 @@ color: green;
 }
 
 #xBody {
+  /*
   margin: 10px 60px 20px 60px;
   padding: 10px 10px 10px 10px;
+  */
   overflow: visible;
   background-color: #FFF;
 }
@@ -244,7 +246,7 @@ color: green;
   overflow: visible;
   visibility: visible;
   height: 310px;
-  margin: 6px;
+  margin: 0;
   padding: 0;
   background: transparent;
   border: none;
