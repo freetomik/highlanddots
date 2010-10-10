@@ -211,8 +211,8 @@ function setSplitSize() {
 
   function setSize() {
     // Calculate new screen sizes
-    var w = .95 * xClientWidth();
-    var h = .75 * xClientHeight();
+    var w = 0.98 * xClientWidth();
+    var h = 0.95 * ( xClientHeight() - xHeight(document.getElementById("menuBar")) );
 
     
     // Set the size of the container that holds both divs 
@@ -226,9 +226,7 @@ function setSplitSize() {
     // Find out how much room there is for the editor (div size-header size) 
     h = xHeight(document.getElementById("xsp2-pane2")) - xHeight(document.getElementById("editheader"));
     // And set size to get scroll bars working.
-    xHeight(document.getElementById("editor"), h);
-
-    
+    xHeight(document.getElementById("editor"), h); 
   }
   
   // xSplitter Application
@@ -255,6 +253,11 @@ function setSplitSize() {
   } 
 }
 
+function toggleLog() {
+  var e = API.getEBI("status_div");
+  API.toggleElementPresence(e);
+}
+
 
 scriptLoader.loadHDots();
 
@@ -267,33 +270,43 @@ scriptLoader.loadHDots();
 
 
 <div id="menuBar">
-  <ul style="float:left;">
+  <ul style="float:left";>
+   <li>
+      <img src="ui/images/tuliana/reload.png" onclick="plotMusic(score);" title="Redraw music">
+   </li>
     <li><a href="#" onClick="uiDoFileOpen('inputDialog',this);">OPEN</a></li>
     <li><a href="#">LIBRARY</a></li>
     <li><a href="#" onClick="alert('Not yet implemented');">PRINT</a></li>
   </ul>
 
 
-  <ul style="float:right;">
-    <li><a href="#" onClick="openSettings(this);">SETTINGS</a></li>
-    <li><a style="margin-left: 2em" href="#" onClick="alert('Not yet implemented');">HELP</a></li>
-  </ul>
-  <br>
-  
-  <span class="icon_list" id="playerControls" style="float:right;margin-right:5em;">
-      <img src="ui/images/tuliana/player_start.png" onclick="alert('Not yet implemented');" 
-      ><img src="ui/images/tuliana/player_stop.png" onclick="alert('Not yet implemented');"
-      ><img src="ui/images/tuliana/player_play.png" onclick="alert('Not yet implemented');"
-      ><img src="ui/images/tuliana/reload.png" onclick="alert('Not yet implemented');"
+  <span class="icon_list" id="playerControls" style="">
+      <img src="ui/images/tuliana/player_start.png" onclick="alert('Not yet implemented');" title="Rewind to beginning" 
+      ><img src="ui/images/tuliana/player_stop.png" onclick="alert('Not yet implemented');" title="Stop playing"
+      ><img src="ui/images/tuliana/player_play.png" onclick="alert('Not yet implemented');" title="Start playing"
       >
       
       <img src="ui/images/tuliana/arts.png" onclick="alert('Not yet implemented');">
 
+      <input type="text" value="80" size="3" style="background:transparent;">
+      <b>BPM</b>
+      
+      
     </span>
+  
+  
+  <ul style="float:right;">
+    <li><a href="#" onClick="openSettings(this);">SETTINGS</a></li>
+    <li><a style="margin-left: 2em" href="#" onClick="alert('Not yet implemented');">HELP</a></li>
+   <li>
+      <img src="ui/log.png" onclick="toggleLog();" title="Toggle log.">
+   </li>
+
+    </ul>
+  
+  
 
 </div>
-
-<br>
 
 <div class="inputArea" id="inputDialog">
   <span class="uiInputHeading" id="inputDialogTitle">
@@ -326,7 +339,6 @@ scriptLoader.loadHDots();
 <div id="scorepane">
   <div class="sectionHeader">
     <span class="icon_list">
-      <img src="ui/images/tuliana/reload.png" onclick="plotMusic(score);" >
       <span id="scoreTitle">Score</span>
     </span>
 
@@ -340,10 +352,6 @@ scriptLoader.loadHDots();
     -->
     
 
-    <span style="float:right;margin-right:4em;">
-      <input type="text" value="80" size="3" style="background:transparent;height:1.5em">
-      <b>BPM</b>
-    </span>
   </div>
   
   <div id="canvas_div">
@@ -382,10 +390,6 @@ scriptLoader.loadHDots();
 </div> <!-- end Splitter -->
 </div> <!-- end TemporaryContainer -->
 
-
-<br>
-
-<br>
 
 <map name="hDotsMap" id="hDotsMap">
 <area shape="circle" coords="0,0,0" >

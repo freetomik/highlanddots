@@ -20,6 +20,7 @@ var loger = (function() {
       p = doc.createElement("div");
       p.id = "status_div";
       p.setAttribute("style", "width:600px; height:400px; border:solid black 1px;");
+      p.style.display = 'none';
       frg.appendChild(p);
 
       d = doc.createElement("div");
