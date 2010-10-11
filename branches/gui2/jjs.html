@@ -210,13 +210,23 @@ function setSplitSize() {
   
 
   function setSize() {
+    var mb = document.getElementById("menuBar");
     // Calculate new screen sizes
     var w = 0.98 * xClientWidth();
-    var h = 0.95 * ( xClientHeight() - xHeight(document.getElementById("menuBar")) );
+    var h = 0.95 * ( xClientHeight() - xHeight(mb) );
 
+    /*
+    var size = API.getViewportSize();
+
+    //alert(size);
+    w = size[1] -1;
+    h = ( size[0] - xHeight(mb) ) -1;
+    h -= API.getElementBorder(mb, 'top');
+    h -= API.getElementBorder(mb, 'bottom');
+    */     
     
     // Set the size of the container that holds both divs 
-    xResizeTo(document.getElementById("main"), w, h);
+    //xResizeTo(document.getElementById("main"), w, h);
     // And the size of the editor field
     xWidth(document.getElementById("editor"), w);
 
