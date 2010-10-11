@@ -377,6 +377,20 @@ function testImport() {
 
 function plotMusic(score)
 {
+  popupManager.open({
+                    close: true,
+                    dim: true,
+                    message: "Drawing score.  Please wait."
+  }
+  );
+  
+  setTimeout(function() {plotMusic_inner(score);}, 100);
+  
+}
+
+
+function plotMusic_inner(score)
+{
   var sdet = staff.details;
   var needStaff = true;
   
@@ -543,6 +557,8 @@ function plotMusic(score)
   //reFlowAndReDraw(false); // Calculate sizes
   
   reFlowAndReDraw(true);  // and draw.
+  popupManager.close();
+  
   makeImageMap(staff, score);
   //logit(sdet);
   

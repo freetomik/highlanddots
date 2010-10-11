@@ -576,3 +576,105 @@ function prepConfig() {
 }
 prepConfig();
 
+
+var popupManager = 
+(
+ function() {
+ 
+ function open(props) {
+   
+   close(); // Make sure we clean up if there was anything left open.
+   
+   if (!props) props = {};
+   if (!props.position) {props.position = "center";}
+   
+   
+   var outerDiv = API.createElementWithProperties('table', { id: 'popup_outer' });
+   var titleDiv = API.createElementWithProperties('div', { id: 'popup_title' });
+   var contentsDiv = API.createElementWithProperties('div', { id: 'popup_contents' });
+   var body = API.getBodyElement();
+   var el, tr, td;
+   
+   var tbody = API.createElement('tbody');
+   body.appendChild(outerDiv);
+   outerDiv.appendChild(tbody);
+   
+   
+   if (props.title) {
+   API.setElementText(titleDiv, "This is a title");
+   tr = API.createElement("tr");
+   td = API.createElement("td");
+   tbody.appendChild(tr);
+   td.appendChild(titleDiv);
+   tr.appendChild(td);
+   }
+   
+
+   
+   
+   
+   if (props.message) {
+   API.setElementText(contentsDiv, props.message);
+   }
+   tr = API.createElement("tr");
+   td = API.createElement("td");
+   tbody.appendChild(tr);
+   tr.appendChild(td);
+   td.appendChild(contentsDiv);
+   
+   outerDiv.style.zIndex=1000;
+   
+   if (props.position = "center") {
+     API.centerElement(outerDiv, { duration:1000, ease:API.ease.circle });
+   }
+   
+   if (props.close)
+   {
+     el = API.createElementWithProperties('span', { id: 'popup_close' });
+     API.setElementText(el, "[X]");
+     titleDiv.appendChild(el);
+   }
+   
+   
+   if (props.dim) {
+     el = API.createElementWithProperties('span', { id: 'popup_dim' });
+     body.appendChild(el);
+     API.setElementText(el, " ");
+     el.style.zIndex=999;
+     API.setOpacity(el, 0.5);
+     
+     API.coverDocument(el);
+   }
+ }
+ 
+ function close() {
+   var a = "popup_outer|popup_dim".split("|");
+   
+   
+   API.forEach(a, 
+               function(s, i) {
+               var el = API.getEBI(s);
+               if (el) { el.parentNode.removeChild(el); }
+               }
+               );
+ }
+ 
+ return {
+   open: open,
+   close: close
+ };
+ 
+ 
+ 
+ })();
+ 
+
+function testThing() {
+  var props = {};
+  
+   props.close = true;
+   props.dim = true;
+  
+  popupManager.open(props);
+
+}
