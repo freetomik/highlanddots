@@ -194,6 +194,11 @@ function initHtmlGui() {
   logit("log test 3");;
 
   setSplitSize();
+  
+  var oTextbox = new AutoSuggestControl(document.getElementById("text_bpm"), new StateSuggestions());        
+  oTextbox.showOnFocus = true;
+  
+  
 }
 
 
@@ -298,7 +303,7 @@ scriptLoader.loadHDots();
       
       <img src="ui/images/tuliana/arts.png" onclick="alert('Not yet implemented');">
 
-      <input type="text" value="80" size="3" style="background:transparent;">
+      <input type="text" id="text_bpm" value="80" size="3" style="background:transparent;">
       <b>BPM</b>
       
       
@@ -309,7 +314,7 @@ scriptLoader.loadHDots();
     <li><a href="#" onClick="openSettings(this);">SETTINGS</a></li>
     <li><a style="margin-left: 2em" href="#" onClick="alert('Not yet implemented');">HELP</a></li>
    <li>
-      <img src="ui/log.png" onclick="toggleLog();testThing();" title="Toggle log.">
+      <img src="ui/log.png" onclick="toggleLog()" title="Toggle log.">
    </li>
 
     </ul>

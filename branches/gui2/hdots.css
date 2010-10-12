@@ -306,3 +306,22 @@ color: green;
   #popup_dim {
     background-color: black;
   }
+  
+  
+  div.suggestions {
+    border: 1px solid black;
+    position: absolute;
+    z-index: 1000;
+    background-color: blue;
+    color: yellow;
+}
+
+div.suggestions div {
+    cursor: default;
+    padding: 0px 3px;
+}
+
+div.suggestions div.current {
+    background-color: #3366cc;
+    color: white;
+}
