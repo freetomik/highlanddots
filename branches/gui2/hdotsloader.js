@@ -5,6 +5,7 @@ var scriptLoader = (function HDotsLoader() {
     "jslib/canvas.text.js",
     "jslib/helvetiker-normal-normal.js",
     "jslib/helvetiker-bold-normal.js",
+    "jslib/helvetiker-normal-italic.js",
     "logit.js",
     "tools.js",
     "mylib.js",
