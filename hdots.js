@@ -444,11 +444,15 @@ function plotMusic_inner(score)
       delay.push(f);
     }
     
-    score.metaData.calc(staff, "header");
-    if (doPaint && score.metaData) {
-      score.metaData.paint(staff, "header");
+    try {
+      score.metaData.calc(staff, "header");
+      if (doPaint && score.metaData) {
+        score.metaData.paint(staff, "header");
+      }
+      sdet.top += score.metaData.getBoundingRect().height + sdet.space;
+    } catch(err) {
+      window.alert("Error rendering header");
     }
-    sdet.top += score.metaData.getBoundingRect().height + sdet.space;
     
     score.data.forEach(function(mel) {
                        if (!mel) {return;}
@@ -535,13 +539,16 @@ function plotMusic_inner(score)
                          sdet.top += sdet.space * 3;
                        }
     });
-    
-    score.metaData.calc(staff, "footer");
-    if (doPaint && score.metaData) {
-      score.metaData.paint(staff, "footer");
-    }
-    sdet.top += score.metaData.getBoundingRect().height + sdet.space;
 
+    try {    
+      score.metaData.calc(staff, "footer");
+      if (doPaint && score.metaData) {
+        score.metaData.paint(staff, "footer");
+      }
+      sdet.top += score.metaData.getBoundingRect().height + sdet.space;
+    } catch (e) {
+      window.alert("Error rendering footer");
+    }
     
     for (var i = 0; i < delay.length; i++) {
       delay[i]();
