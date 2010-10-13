@@ -1,6 +1,9 @@
 "use strict";
 
 function makeImageMap(staff, score) {
+  //HACK:
+  //return;
+  
   function getInfo(mel) {
     function setIfExists(src, dest, prop) {
       if (src && src[prop]) {
@@ -63,7 +66,7 @@ function makeImageMap(staff, score) {
     imgEl.style.position = "absolute";
     imgEl.useMap = "#hDotsMap";
     
-    API.getEBI('hd_page_1').appendChild(imgEl);
+    API.getEBI('hdots_canvas').appendChild(imgEl);
   }
   
   API.positionElement(imgEl, canvasPos[0], canvasPos[1]);
