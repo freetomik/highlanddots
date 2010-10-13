@@ -2,118 +2,414 @@
 
 <html>
 <head>
-<!-- Oh it pains me to do this, but excanvas don't work properly unless this
-is active.  Seems to be a "feature" of adding the canvas element on the fly
-as opposed to having it static on the page.-->
-<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7">
+
+<!-- Tuliana 2 iconset
+     from http://www.iconarchive.com/category/system/tulliana-2-icons-by-umut-pulat.html
+     released under GLGPL
+-->
 
 <title>Highland Dots</title>
   <link rel="stylesheet" type="text/css" href="layout.css">
-
 <!--[if IE]>
 <script src="jslib/excanvas.js"></script>
-<script language = "vbscript" src="win_loadfile.vbs"></script>
-
 <![endif]-->
 
-<script src="jslib/canvas.text.js"></script>
-<script src="jslib/helvetiker-normal-normal.js"></script>
-<script src="jslib/helvetiker-bold-normal.js"></script>
-<script src="jslib/helvetiker-normal-italic.js"></script>
+<script src="hdotsloader.js"></script>
+
+<link rel="stylesheet" type="text/css" href="hdots.css">
+
 
 <script>
-//window.onload = function() {primeGUI();};
+
+
+function closeInputDialog() {
+  var id = "inputDialog";
+  if (arguments.length == 1)
+    id = arguments[0];
+  
+  document.getElementById(id).style.visibility = 'hidden';
+  document.getElementById(id).style.display = 'none';
+  
+}
+
+function openSettings(srcElem) {
+  var elem1, elem2,elem3,p;
+  
+  p = srcElem.parentNode;
+  while (p.tagName.toLowerCase() !== "div") {
+    p = p.parentNode;
+  }
+  ui = document.getElementById('settings');
+  hdots_prefs.uiConfig.useForUi = ui;
+  hdots_prefs.getUi();
+  
+  ui.style.position = 'absolute';
+  ui.style.top = p.style.top + p.style.height;
+  ui.style.float = "right";
+  ui.style.width = '50%';
+  ui.style.height = '50%';
+  
+  ui.style.display = 'block';
+  ui.style.visibility = 'visible';
+  
+  
+}
+
+
+
+function resizeUiArea(toGrow,view) {
+  
+  var sElem, h, ph, oph;
+  var gElem = document.getElementById(toGrow);
+  
+  if (toGrow === "canvas_div") {
+    sElem = document.getElementById("editor");
+    h = "375px";
+    ph = "400px";
+  } else if (toGrow === "editor") {
+    gElem = document.getElementById(toGrow);
+    sElem = document.getElementById("canvas_div");
+    h = "268px";
+    ph = "300px";
+  }
+  
+  if (view === "noview") {
+    gElem.style.display = "none";
+    gElem.parentNode.style.height = "22px";
+    return;
+    
+  } else if (view === "fullview") {
+    sElem.style.display = "none";
+    sElem.parentNode.style.height = "22px";
+    
+    gElem.parentNode.style.height = "700px";
+    gElem.style.display = "block";
+    gElem.style.height = "648px";
+    
+  } else if (view === "view") {
+    gElem.parentNode.style.height = ph;
+    gElem.style.display = "block";
+    gElem.style.height = h;
+  }
+  
+}
+
+
+
+
+function uiDoFileOpen(displayElemId, srcElem) {
+  
+  // get the FileOpener component DOM content
+  // remove dom nodes from
+  //  elem id="inputAreaContent"
+  // add FO dom content
+  // get FO title
+  // set dialog title with FO title
+  // show dialog
+  
+  var node, ui, p;
+  
+  // dialog title
+  node = document.getElementById(displayElemId + 'Title');
+  if (node.childNodes.length) node.removeChild(node.childNodes[0]);
+  node.appendChild(document.createTextNode("Open File"));
+  
+  var fileOpenData = {
+    //  filename:  "mystuff.bww",
+    //  fileUrl: "./mystuff.bww";
+    //  tuneTxt: "";
+    //  errorMsg = "";
+    //  onFailure:  function() {API.getEBI(displayElemId+"Content").innerHTML=errorMsg; },
+    onSuccess:  function() {closeInputDialog();uiLoadTune('bww', API.getEBI("editor").value);},
+    useForUi:  API.getEBI(displayElemId+"Content"),
+    useForEditor:  API.getEBI("editor")
+  };
+  
+  
+  // dialog content
+  node = document.getElementById(displayElemId+"Content");
+  if (node.childNodes.length) node.removeChild(node.childNodes[0]);
+  
+  fileOpener(fileOpenData).filePicker();
+  
+  
+  p = srcElem.parentNode;
+  while (p.tagName.toLowerCase() !== "div") {
+    p = p.parentNode;
+  }
+  
+  ui = document.getElementById(displayElemId);
+  ui.style.position = 'absolute';
+  ui.style.top = p.style.top + p.style.height;
+  ui.style.left = p.style.left;
+  ui.style.display = 'block';
+  ui.style.visibility = 'visible';
+  
+}
+
+
+
+function localPathToURI(path) {
+  var uri = path;
+  uri = uri.replace(/\\/g, '/');
+  uri = uri.replace(/:/g, '|');
+  uri = "file://" + uri;
+  return uri;
+}
+
+function loadFromEditor() {
+  var t = document.getElementById('editor').value;
+  uiLoadTune('bww', t);
+  closeInputDialog();
+}
+
+function handleLoadTunes(list) {
+  var t = list[0].getAsText("");
+  document.getElementById('editor').value = t;
+  uiLoadTune('bww', t);
+  
+  closeInputDialog();
+}
+
+function reload() {
+	plotMusic(score);
+}
+
+function doEval(elemId) {
+  var o = document.getElementById(elemId);
+  if (o.value && o.value.length > 0) eval(o.value);
+}
+
+
+function initHtmlGui() {
+  
+  
+  //logWin = window.open("log.html", "logWindow", "width=620px,height=420px,menubar=no,resizable=no,scrollbars=no,titlebar=yes,toolbar=no");
+  //logWin.postMessage("Hello", "*");
+  
+  loger.init(/*{ logging: true }*/);
+  
+  logit("log test");;
+  loger.log("log test 2");;
+  logit("log test 3");;
+
+  setSplitSize();
+  
+  var oTextbox = new AutoSuggestControl(document.getElementById("text_bpm"), new StateSuggestions());        
+  oTextbox.showOnFocus = true;
+  
+  
+}
+
+
+
+function setSplitSize() {
+  function spl_ondragend(splEle, barPos)
+  {
+    //window.title = 'xSplitter: ' + splEle.id + ', bar position: ' + barPos;
+    var h;
+    h = xHeight(document.getElementById("xsp2-pane2")) - xHeight(document.getElementById("editheader"));
+    xHeight(document.getElementById("editor"), h);
+    
+  }
+  
+
+  function setSize() {
+    var mb = document.getElementById("menuBar");
+    // Calculate new screen sizes
+    var w = 0.98 * xClientWidth();
+    var h = 0.95 * ( xClientHeight() - xHeight(mb) );
+
+    /*
+    var size = API.getViewportSize();
+
+    //alert(size);
+    w = size[1] -1;
+    h = ( size[0] - xHeight(mb) ) -1;
+    h -= API.getElementBorder(mb, 'top');
+    h -= API.getElementBorder(mb, 'bottom');
+    */     
+    
+    // Set the size of the container that holds both divs 
+    //xResizeTo(document.getElementById("main"), w, h);
+    // And the size of the editor field
+    xWidth(document.getElementById("editor"), w);
+
+    // Call the paned resize code
+    s2.paint(w, h, h * 0.8);
+    
+    // Find out how much room there is for the editor (div size-header size) 
+    h = xHeight(document.getElementById("xsp2-pane2")) - xHeight(document.getElementById("editheader"));
+    // And set size to get scroll bars working.
+    xHeight(document.getElementById("editor"), h); 
+  }
+  
+  // xSplitter Application
+  // last update: 18aug2010
+  
+  var s1, s2;
+  
+  var i, a, cw = xClientWidth(), w = .9 * cw, h = 300;
+  var ch = xClientHeight();
+  
+  h = ch * 0.75;
+  
+  
+  // sSplId,  X, Y, W, H, Horz , BarW, BarPos, BarLim1, BarLim2, BarEn, BorW, oSplChild1, oSplChild2
+  //s1 = new xSplitter('xsp1'  , 0, 0, w, h, true , 6,    w/2,    200,      20,     true,  2);
+  
+  s2 = new xSplitter('xsp2'  , 0, 0, w, h, false, 6,    h*.75,  100,      40,     true,  2);
+  
+  s2.setDragEnd(spl_ondragend);
+  setSize();
+  
+  window.onresize = function (){
+    setSize();
+  } 
+}
+
+function toggleLog() {
+  var e = API.getEBI("status_div");
+  API.toggleElementPresence(e);
+}
+
+
+scriptLoader.loadHDots();
+
 </script>
 
 
 </head>
-<body onload="primeGUI();">
 
- <button onClick = 'ProcessScript("file")'>Load File (Windows)</button>   
-   
-
-<div id="toolbarlanding">&nbsp;</div>
+<body onLoad="initHtmlGui();/*hdots_prefs.makeHdConfigForm();*/">
 
 
-<div class="hd_page" id="hd_page_1">
-<p>
-  <button onclick="testImport2()">Import and Engrave</button>
-  <span id="timeinfo">Time: Not  yet rendered.</span>
-  <br />
-  <span>
-    Note Color:    <select onChange="staff.details.noteColor1=this.options[this.selectedIndex].value;">
-                     <option value="">Black</option>
-                     <option value="">Red</option>
-                     <option value="">Green</option>
-                     <option value="">Blue</option>
-                   </select>
-    &nbsp; &nbsp; &nbsp; &nbsp;
-    Beaming Style: <select onChange="staff.details.beamStyle=this.options[this.selectedIndex].value;">
-                     <option value="straight">Straight</option>
-                     <option value="sloped">Sloped</option>
-                   </select>
+<div id="menuBar">
+  <ul style="float:left";>
+   <li>
+      <img src="ui/images/tuliana/reload.png" onclick="plotMusic(score);" title="Redraw music">
+   </li>
+    <li><a href="#" onClick="uiDoFileOpen('inputDialog',this);">OPEN</a></li>
+    <li><a href="#">LIBRARY</a></li>
+    <li><a href="#" onClick="alert('Not yet implemented');">PRINT</a></li>
+  </ul>
+
+
+  <span class="icon_list" id="playerControls" style="">
+      <img src="ui/images/tuliana/player_start.png" onclick="alert('Not yet implemented');" title="Rewind to beginning" 
+      ><img src="ui/images/tuliana/player_stop.png" onclick="alert('Not yet implemented');" title="Stop playing"
+      ><img src="ui/images/tuliana/player_play.png" onclick="alert('Not yet implemented');" title="Start playing"
+      >
+      
+      <img src="ui/images/tuliana/arts.png" onclick="alert('Not yet implemented');">
+
+      <input type="text" id="text_bpm" value="80" size="3" style="background:transparent;">
+      <b>BPM</b>
+      
+      
+    </span>
+  
+  
+  <ul style="float:right;">
+    <li><a href="#" onClick="openSettings(this);">SETTINGS</a></li>
+    <li><a style="margin-left: 2em" href="#" onClick="alert('Not yet implemented');">HELP</a></li>
+   <li>
+      <img src="ui/log.png" onclick="toggleLog()" title="Toggle log.">
+   </li>
+
+    </ul>
+  
+  
+
+</div>
+
+<div class="inputArea" id="inputDialog">
+  <span class="uiInputHeading" id="inputDialogTitle">
   </span>
-  &nbsp; &nbsp;
-</p>
-
-
-<div id="canvas_div"><p id="hdots_canvas">The music goes here</p></div>
-</div> <!-- page1-->
-
-
-<div class="hd_page" id="hd_page_2">
-<form action="#" id="hd_config_form" onsubmit="return false;">
-
-<div id="hd_config_plugin">
-<p>When a plugin needs preferences set, that appears here.</p>
+  <div id="inputDialogContent" style="overflow:auto;">
+    dialog content
+  </div>
+  <span class="uiButton">
+    <button onclick="closeInputDialog();" style="float:right; height:20px;">Close</button>
+  </span>
 </div>
 
 
-<div id="hd_config">
-<p>Please setup the preferences in the list below.</p>
+
+<div id="settings" class="inputArea">
+  <p style="float:left;width:100%">
+  Settings and Preferences
+  <span style="float:right;">
+    <img src="ui/images/tuliana/cancel.png" onclick="closeInputDialog('settings');">
+  </span>
+  </p>
 </div>
 
 
-</form>
+<div id="main" class='temp-container'>
+<div id='xsp2' class='xSplitter'>
 
+<div class='xsp-pane'>
+
+<div id="scorepane">
+  <div class="sectionHeader">
+    <span class="icon_list">
+      <span id="scoreTitle">Score</span>
+    </span>
+
+    <!--
+    <span class="sectionViewControls icon_list" style="float:right;">
+      <img src="ui/images/tuliana/view_remove.png" onclick="resizeUiArea('canvas_div','noview');">
+      <img src="ui/images/tuliana/view_fullscreen.png" onclick="resizeUiArea('canvas_div','fullview');">
+      <img src="ui/images/tuliana/view_nofullscreen.png" onclick="resizeUiArea('canvas_div','view');">
+      <img src="ui/images/tuliana/viewmag.png" onclick="alert('Not yet implemented');">
+    </span>
+    -->
+    
+
+  </div>
+  
+  <div id="canvas_div">
+  <div id="imagemap_div">
+    <p id="hdots_canvas">The music goes here</p>
+  </div>
+  </div>
 </div>
+</div> <!-- end Pane -->
 
+<div id='xsp2-pane2' class='xsp-pane'>
 
-<script type='text/javascript' src='tools.js'></script>
-<script type='text/javascript' src='mylib.js'></script>
-<script type='text/javascript' src='gui.js'></script>
+<div id="editor_pane">
+  <div id = "editheader" class="sectionHeader">
+    <span class="icon_list" style="float:left;">
+      <img src="ui/images/tuliana/reload.png" onclick="loadFromEditor();">
+      <span id="editorTitle" style="float:left;">Editor</span>
+    </span>
+    
+    <!--
+    <span class="sectionViewControls icon_list" style="float:right;">
+      <img src="ui/images/tuliana/view_remove.png" onclick="resizeUiArea('editor','noview');">
+      <img src="ui/images/tuliana/view_fullscreen.png" onclick="resizeUiArea('editor','fullview');">
+      <img src="ui/images/tuliana/view_nofullscreen.png" onclick="resizeUiArea('editor','view');">
+    </span>
+  -->
+  </div>
+  
+  <textarea id="editor" style="width:790px; height:268px; overflow:auto; border:solid 1px #cccccc;">
+  Locally loaded tunes will go here.
+  </textarea>
+</div>
+</div> <!-- end Pane -->
 
+<div class='xsp-dragbar xsp-dragbar-hframe'>&nbsp;</div>
+</div> <!-- end Splitter -->
+</div> <!-- end TemporaryContainer -->
 
-<script type='text/javascript' src='hdots.js'></script>
-
-<script type='text/javascript' src='bwwimport.js'></script>
-
-<script type='text/javascript' src='mom.js'></script>
-<script type='text/javascript' src='scoreelement.js'></script>
-
-<script type='text/javascript' src='note.js'></script>
-<script type='text/javascript' src='melody.js'></script>
-<script type='text/javascript' src='timesig.js'></script>
-<script type='text/javascript' src='staffcontrol.js'></script>
-<script type='text/javascript' src='embellishment.js'></script>
-<script type='text/javascript' src='graphicelement.js'></script>
-<script type='text/javascript' src='beamgroup.js'></script>
-<script type='text/javascript' src='phrasegroup.js'></script>
-<script type='text/javascript' src='metadata.js'></script>
-
-<script type='text/javascript' src='imagemap.js'></script>
-<script type='text/javascript' src='beautifyscore.js'></script>
-<script type='text/javascript' src='postimport.js'></script>
-<script type='text/javascript' src='keysig.js'></script>
-
-
-<pre id="log"></pre>
 
 <map name="hDotsMap" id="hDotsMap">
-<area shape="polygon" coords="19,44,45,11,87,37,82,76,49,98" href="http://www.trees.com/save.html">
-<area shape="rect" coords="128,132,241,179" href="http://www.trees.com/furniture.html">
-<area shape="circle" coords="68,211,35" href="http://www.trees.com/plantations.html">
+<area shape="circle" coords="0,0,0" >
 </map>
+
 
 </body>
 </html>
