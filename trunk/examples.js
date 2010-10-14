@@ -3,6 +3,8 @@ var bwwExamples = (function()
                     var tunes = {};
                     var tune = [];
                     
+                    // Tabs have been changed to ~ to prevent mangling by
+                    // editors.  They are changed back when needed.
                     
                     tune.push("Bagpipe Reader:1.0");
                     tune.push("MIDINoteMappings,(54,56,58,59,61,63,64,66,68,56,58,60,61,63,65,66,68,70,55,57,59,60,62,64,65,67,69)");
@@ -79,7 +81,6 @@ var bwwExamples = (function()
                     
                     
                     tune=[];
-                    tune.push("**Mairi's Wedding");
                     tune.push("Bagpipe Reader:1.0");
                     tune.push("MIDINoteMappings,(55,57,59,60,62,64,65,67,69,57,59,61,62,64,66,67,69,71,56,58,60,61,63,65,66,68,70)");
                     tune.push("FrequencyMappings,(392,440,494,523,587,659,699,784,880,440,494,554,587,659,740,784,880,988,415,466,523,554,622,699,740,831,932)");
@@ -142,9 +143,12 @@ var bwwExamples = (function()
                     }
                     
                     function loadData(el) {
+                      
                       var idx = el.selectedIndex;
-                      var o = el.options[idx].text;                      
-                      return tunes[o].join("\r\n");
+                      var o = el.options[idx].text;
+                      var s = tunes[o].join("\r\n");
+                      s = s.replace("~", "\t", "g");
+                      return s;
                     }
                     
                     return {
