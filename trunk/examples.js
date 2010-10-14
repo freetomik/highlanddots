@@ -143,9 +143,8 @@ var bwwExamples = (function()
                     
                     function loadData(el) {
                       var idx = el.selectedIndex;
-                      var o = el.options[idx].text;
-                      
-                      window.alert("Loading data: " + o);
+                      var o = el.options[idx].text;                      
+                      return tunes[o].join("\r\n");
                     }
                     
                     return {
