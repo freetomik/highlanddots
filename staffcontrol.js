@@ -187,12 +187,15 @@
      var ta = ctx.textAlign;
      var fc = ctx.fillStyle;
      ctx.fillStyle = "blue";
-     ctx.font = "" + (sdet.space * 1.5) + "px sans-serif";
+     ctx.font = "" + (sdet.space * .9) + "px sans-serif";
      ctx.textAlign = 'center';
      ctx.fillText("" + this.measureNumber, c.x, c.textY);
      
-     if (this.str) {
-       ctx.fillText("" + this.str, c.x, c.textY - (sdet.space * 1.5));     
+     if (0) {
+       // Print line and measure.  Debugging information, mostly.
+       if (this.str) {
+         ctx.fillText("" + this.str, c.x, c.textY - (sdet.space * 1.5));     
+       }
      }
      ctx.font = tf;
      ctx.textAlign = ta;

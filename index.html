@@ -154,10 +154,7 @@ function initHtmlGui() {
   
   var oTextbox = new AutoSuggestControl(document.getElementById("text_bpm"), new StateSuggestions());        
   oTextbox.showOnFocus = true;
-  
-  
 }
-
 
 
 function setSplitSize() {
@@ -236,7 +233,7 @@ scriptLoader.loadHDots();
 
 
 <div id="menuBar">
-  <ul style="float:left";>
+  <ul>
    <li>
      <!-- <img src="ui/images/tuliana/reload.png" onclick="plotMusic(score);" title="Redraw music"> -->
       <img src="ui/images/tuliana/reload.png" onclick="loadFromEditor();">
@@ -244,29 +241,35 @@ scriptLoader.loadHDots();
     <li><a href="#" onClick="uiDoFileOpen('inputDialog',this);">OPEN</a></li>
     <li><a href="#">LIBRARY</a></li>
     <li><a href="#" onClick="alert('Not yet implemented');">PRINT</a></li>
-  </ul>
 
-
-  <span class="icon_list" id="playerControls" style="">
-      <img src="ui/images/tuliana/player_start.png" onclick="alert('Not yet implemented');" title="Rewind to beginning" 
-      ><img src="ui/images/tuliana/player_stop.png" onclick="alert('Not yet implemented');" title="Stop playing"
-      ><img src="ui/images/tuliana/player_play.png" onclick="alert('Not yet implemented');" title="Start playing"
-      >
+   <li>
+   <img src="ui/images/tuliana/player_start.png" onclick="alert('Not yet implemented');" title="Rewind to beginning">
+   </li>
+   
+   <li>
+      <img src="ui/images/tuliana/player_stop.png" onclick="alert('Not yet implemented');" title="Stop playing">
+   </li>
+   <li>
+      <img src="ui/images/tuliana/player_play.png" onclick="alert('Not yet implemented');" title="Start playing">
+   </li>
       
+   <li>
       <img src="ui/images/tuliana/arts.png" onclick="alert('Not yet implemented');">
+   </li>
 
+   <li>
       <input type="text" id="text_bpm" value="80" size="3" style="background:transparent;">
       <b>BPM</b>      
-    </span>
+   </li>
   
   
-  <ul style="float:right;">
     <li><a href="#" onClick="openSettings(this);">SETTINGS</a></li>
     <li><a style="margin-left: 2em" href="#" onClick="alert('Not yet implemented');">HELP</a></li>
    <li>
       <img src="ui/log.png" onclick="toggleLog()" title="Toggle log.">
    </li>
  </ul>
+ 
 </div>
 
 <div class="inputArea" id="inputDialog">

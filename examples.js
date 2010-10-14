@@ -19,7 +19,7 @@ var bwwExamples = (function()
                     tune.push("\"The 10th H.L.I. Crossing The Rhine\",(T,L,0,0,Times New Roman,16,700,0,0,18,0,0,0)");
                     tune.push("\"March\",(Y,C,0,0,Times New Roman,14,400,0,0,18,0,0,0)");
                     tune.push("\"\",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)");
-                    tune.push("\"Highalnd Dots unit test\",(F,R,0,0,Times New Roman,12,400,0,0,18,0,0,0)");
+                    tune.push("\"Highland Dots unit test\",(F,R,0,0,Times New Roman,12,400,0,0,18,0,0,0)");
                     tune.push("");
                     tune.push("");
                     tune.push("& sharpf sharpc 6_8 I!'' gg LA_8");
