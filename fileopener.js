@@ -79,7 +79,7 @@ var fileOpener = (function() {
         inputElem.setAttribute('value', 'Open');
         API.attachListener(inputElem, "click", openHttpFile);
         elem.appendChild(inputElem);
-        
+
         return (elem);
 
       } else {
@@ -87,7 +87,32 @@ var fileOpener = (function() {
       }
     };
 
+    var builtinFilePicker = function () {
+      elem = document.createElement('fieldset');
+      elem.appendChild(document.createElement('legend'));
+      elem.childNodes[0].appendChild(document.createTextNode("Or Choose"));
+      
+      inputElem = document.createElement('select');
+      //inputElem.setAttribute('type', 'button');
+      //inputElem.setAttribute('value', 'Open');
+      elem.appendChild(inputElem);
+      bwwExamples.makeOptions(inputElem);
+      var s = inputElem;
+      inputElem = document.createElement('input');
+      inputElem.setAttribute('type', 'button');
+      inputElem.setAttribute('value', 'Load');
+      elem.appendChild(inputElem);
+      API.attachListener(inputElem, "click", function() {
+                         var txt = bwwExamples.loadData(s);
+                         if (data.useForEditor) { data.useForEditor.value = txt; }
+                         if (data.onSuccess) { data.onSuccess(); }
+      });
+      
+      return (elem);  
+    };
 
+    
+    
     // test for ActiveX support
     // FIXME : should test for input[type==file].files
     //         and ActiveX
@@ -132,6 +157,10 @@ var fileOpener = (function() {
 
             if (elem !== null) { divElem.appendChild(elem); }
 
+            elem = builtinFilePicker();
+            if (elem !== null) { divElem.appendChild(elem); }
+            
+            
             elem = document.createElement('fieldset');
             divElem.appendChild(elem)
             elem.appendChild(document.createElement('legend'));
@@ -148,34 +177,17 @@ var fileOpener = (function() {
             //    thing that seemed to work!
             API.attachListener(inputElem, "change", this.openLocalFile);
             elem.appendChild(inputElem);
- 
-            
-            elem = document.createElement('fieldset');
-            divElem.appendChild(elem)
-            elem.appendChild(document.createElement('legend'));
-            elem.childNodes[0].appendChild(document.createTextNode("Or Choose"));
-            
-            inputElem = document.createElement('select');
-            //inputElem.setAttribute('type', 'button');
-            //inputElem.setAttribute('value', 'Open');
-            elem.appendChild(inputElem);
-            bwwExamples.makeOptions(inputElem);
-            var s = inputElem;
-            inputElem = document.createElement('input');
-            inputElem.setAttribute('type', 'button');
-            inputElem.setAttribute('value', 'Load');
-            elem.appendChild(inputElem);
-            API.attachListener(inputElem, "click", function() {
-                              bwwExamples.loadData(s);
-                               });
 
-            
+            uiElement = frg;
+            data.fileInput = inputElem;
+
           }
           if (data.useForUi) {
            data.useForUi.appendChild(frg);
           } else {
             return (uiElement);
           }
+
         }
 
       }
@@ -252,6 +264,10 @@ var fileOpener = (function() {
 
             if (elem !== null) { divElem.appendChild(elem); }
 
+            elem = builtinFilePicker();
+            if (elem !== null) { divElem.appendChild(elem); }
+            
+            
             elem = document.createElement('fieldset');
             divElem.appendChild(elem)
             elem.appendChild(document.createElement('legend'));

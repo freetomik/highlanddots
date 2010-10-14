@@ -11,7 +11,7 @@ var loger = (function() {
       var frg, p,d,s;
       var doc = document;
 
-      if (API.isHostMethod(window, 'postMessage')) {
+      if (API.isHostMethod(window, 'postMessage') && API.isHostMethod(window, 'open')) {
         logWin = window.open("log.html", "logingWindow", "width=620px,height=420px,menubar=no,resizable=no,scrollbars=no,titlebar=yes,toolbar=no");
       }
 
@@ -71,12 +71,14 @@ var loger = (function() {
         try {
           logWin.postMessage(s, "*");
         } catch(err) {
-          if (logWin) {logWin.close();}
+          if (logWin && (API.isHostMethod(logWin, 'close'))) {
+            logWin.close();
+          }
           logWin = undefined;
           logMsg(s, msgType);
         }        
       } else {
-
+        
         var e1 = document.createElement("div");
         var t = document.createTextNode(s);
         e1.setAttribute("style", "border: solid 1px black;");
