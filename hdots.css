@@ -26,15 +26,17 @@ span.icon_list img {
 }
 
 .sectionHeader {
-   width:800px;
-   height:20px;
-   background-image:url('ui/images/bg-header.png');
-   background-repeat:repeat-x;
-   border-bottom: 1px solid #cccccc;
-	font-family: Verdana, Arial, SunSans-Regular, Sans-Serif;
-	font-weight:bold;
-	font-size: 14px;
-
+  /*
+  width:800px;
+  height:20px;
+  */
+  background-image:url('ui/images/bg-header.png');
+  background-repeat:repeat-x;
+  border-bottom: 1px solid #cccccc;
+  font-family: Verdana, Arial, SunSans-Regular, Sans-Serif;
+  font-weight:bold;
+  font-size: 14px;
+  
 }
 
 #hd_config_plugin {
