@@ -404,14 +404,17 @@ var hdots_prefs = (
                          var target = formEl;
                          var el = API.createElement("button");
                          API.addElementText(el, "Accept");
-                         API.attachListener(el, 'click', function() {
+                         API.attachListener(el, 'click', function(evt) {
                                             getDataFromForm();
                                             var c = JSON.stringify(allValues);
                                             if (API.setCookie) {
                                               API.setCookie(cookieName, c, 256);
                                             }
-                                            API.cancelPropagation(el);
-                                            return API.cancelDefault(el);
+                                            //API.cancelPropagation(evt);
+                                         
+                                            uiElement.parentNode.removeChild(uiElement);
+                                            uiElement = null;
+                                            return API.cancelDefault(evt);
                          });
                          target.appendChild(el);
                        }
