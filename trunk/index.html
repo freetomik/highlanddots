@@ -188,17 +188,15 @@ function setSplitSize() {
     //xResizeTo(document.getElementById("main"), w, h);
     // And the size of the editor field
     xWidth(document.getElementById("editor"), w);
+    xWidth(document.getElementById("editheader"), w);
 
-    xWidth(mb, w);
-    
-    document.title = xHeight(mb);
+    xWidth(mb, w);   
     
     h = 0.95 * ( xClientHeight() - xHeight(mb) );
 
     xMoveTo(main, 0, 0);
     xResizeTo(main, w, h);
     
-    //s2.stayBelow = mb; 
     // Call the paned resize code
     s2.paint(w, h, h * 0.8);
     
@@ -217,10 +215,7 @@ function setSplitSize() {
   
   
   // sSplId,  X, Y, W, H, Horz , BarW, BarPos, BarLim1, BarLim2, BarEn, BorW, oSplChild1, oSplChild2
-  //s1 = new xSplitter('xsp1'  , 0, 0, w, h, true , 6,    w/2,    200,      20,     true,  2);
-  
-  s2 = new xSplitter('xsp2'  , 0, 0, w, h, false, 6,    h*.75,  100,      40,     true,  2);
-  
+  s2 = new xSplitter('xsp2'  , 0, 0, w, h, false, 6,    h*.75,  100,      40,     true,  2);  
   s2.setDragEnd(resizeTextArea);
   setSize();
   
@@ -244,28 +239,28 @@ scriptLoader.loadHDots();
 
 <body onLoad="initHtmlGui();/*hdots_prefs.makeHdConfigForm();*/">
 
-<div id="menuBar">
-  <ul>
+<div>
+  <ul id="menuBar">
    <li>
       <img src="ui/images/tuliana/reload.png" onclick="loadFromEditor();">
    </li>
-    <li><a href="#" onClick="uiDoFileOpen('inputDialog',this);">OPEN</a></li>
-    <li><a href="#">LIBRARY</a></li>
-    <li><a href="#" onClick="alert('Not yet implemented');">PRINT</a></li>
+    <li><a href="#" onClick="uiDoFileOpen('inputDialog',this);return false;">OPEN</a></li>
+    <li><a href="#" onClick="alert('Not yet implemented');return false;">LIBRARY</a></li>
+    <li><a href="#" onClick="alert('Not yet implemented');return false;">PRINT</a></li>
 
    <li>
-   <img src="ui/images/tuliana/player_start.png" onclick="alert('Not yet implemented');" title="Rewind to beginning">
+   <img src="ui/images/tuliana/player_start.png" onclick="alert('Not yet implemented');return false;" title="Rewind to beginning">
    </li>
    
    <li>
-      <img src="ui/images/tuliana/player_stop.png" onclick="alert('Not yet implemented');" title="Stop playing">
+      <img src="ui/images/tuliana/player_stop.png" onclick="alert('Not yet implemented');return false;" title="Stop playing">
    </li>
    <li>
-      <img src="ui/images/tuliana/player_play.png" onclick="alert('Not yet implemented');" title="Start playing">
+      <img src="ui/images/tuliana/player_play.png" onclick="alert('Not yet implemented');return false;" title="Start playing">
    </li>
       
    <li>
-      <img src="ui/images/tuliana/arts.png" onclick="alert('Not yet implemented');">
+      <img src="ui/images/tuliana/arts.png" onclick="alert('Not yet implemented');return false;">
    </li>
 
    <li>
@@ -274,13 +269,14 @@ scriptLoader.loadHDots();
    </li>
   
   
-    <li><a href="#" onClick="openSettings(this);">SETTINGS</a></li>
-    <li><a style="margin-left: 2em" href="#" onClick="alert('Not yet implemented');">HELP</a></li>
+    <li><a href="#" onClick="openSettings(this);return false;">SETTINGS</a></li>
+    <li><a style="margin-left: 2em" href="#" onClick="alert('Not yet implemented');return false;">HELP</a></li>
    <li>
       <img src="ui/log.png" onclick="toggleLog()" title="Toggle log.">
    </li>
  </ul>
 </div>
+
 
 <div class="inputArea" id="inputDialog">
   <span class="uiInputHeading" id="inputDialogTitle">
@@ -289,7 +285,7 @@ scriptLoader.loadHDots();
     dialog content
   </div>
   <span class="uiButton">
-    <button onclick="closeInputDialog();" style="float:right; height:20px;">Close</button>
+    <button onclick="closeInputDialog();return false;" style="float:right; height:20px;">Close</button>
   </span>
 </div>
 
@@ -338,19 +334,8 @@ scriptLoader.loadHDots();
 
 <div id="editor_pane">
   <div id = "editheader" class="sectionHeader">
-    <span class="icon_list" style="float:left;">
-      <img src="ui/images/tuliana/reload.png" onclick="loadFromEditor();">
-      <span id="editorTitle" style="float:left;">Editor</span>
-    </span>
-    
-    <!--
-    <span class="sectionViewControls icon_list" style="float:right;">
-      <img src="ui/images/tuliana/view_remove.png" onclick="resizeUiArea('editor','noview');">
-      <img src="ui/images/tuliana/view_fullscreen.png" onclick="resizeUiArea('editor','fullview');">
-      <img src="ui/images/tuliana/view_nofullscreen.png" onclick="resizeUiArea('editor','view');">
-    </span>
-  -->
-  </div>
+      <span id="editorTitle">Editor</span>
+   </div>
   
   <textarea id="editor" style="width:790px; height:268px; overflow:auto; border:solid 1px #cccccc;">
   Locally loaded tunes will go here.

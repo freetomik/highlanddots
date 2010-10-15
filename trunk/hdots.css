@@ -77,12 +77,12 @@ color: green;
    height:30px;
    */
 
+  width: 100%;
    background-image:url('ui/images/bg-menu.png');
-   background-repeat:repeat-x;
+   background-repeat:repeat;
    border: 1px solid gray;
 
 }
-
 
 
 #menuBar span {
@@ -90,7 +90,7 @@ color: green;
 }
 #menuBar ul {
 	list-style: none;
-    height:30px;
+/*    height:30px; */
     padding:0px 0px 0px 0px;
     margin-top:4px;
 }
@@ -183,7 +183,6 @@ color: green;
   padding: 0;
   background: transparent;
   border: none;
-  border: 2px solid green;
 }
 
 #xsp5 {
@@ -193,9 +192,6 @@ color: green;
   border: 2px solid #999;
 }
 
-#xsp2 {
-  border: 2px solid red;
-}
 /* iframe support */
 
 .xsp-iframe {
