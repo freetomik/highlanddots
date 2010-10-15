@@ -9,14 +9,15 @@
 -->
 
 <title>Highland Dots</title>
-  <link rel="stylesheet" type="text/css" href="layout.css">
+<link rel="stylesheet" type="text/css" href="reset.css">
+<link rel="stylesheet" type="text/css" href="hdots.css">
+
 <!--[if IE]>
 <script src="jslib/excanvas.js"></script>
 <![endif]-->
 
 <script type="text/javascript" src="hdotsloader.js"></script>
 
-<link rel="stylesheet" type="text/css" href="hdots.css">
 
 
 <script type="text/javascript">
@@ -172,20 +173,32 @@ function setSplitSize() {
     h += API.getElementBorder(el, 'bottom');
 
     // And set size to get scroll bars working.
-    xHeight(document.getElementById("editor"), h);     
+    xHeight(document.getElementById("editor"), h);   
   }
 
   function setSize() {
     var mb = document.getElementById("menuBar");
+    var main = document.getElementById("main");
+    var pane1 = document.getElementById('xsp2');
     // Calculate new screen sizes
     var w = 0.98 * xClientWidth();
-    var h = 0.95 * ( xClientHeight() - xHeight(mb) );
+    var h;
 
     // Set the size of the container that holds both divs 
     //xResizeTo(document.getElementById("main"), w, h);
     // And the size of the editor field
     xWidth(document.getElementById("editor"), w);
 
+    xWidth(mb, w);
+    
+    document.title = xHeight(mb);
+    
+    h = 0.95 * ( xClientHeight() - xHeight(mb) );
+
+    xMoveTo(main, 0, 0);
+    xResizeTo(main, w, h);
+    
+    //s2.stayBelow = mb; 
     // Call the paned resize code
     s2.paint(w, h, h * 0.8);
     
@@ -231,11 +244,9 @@ scriptLoader.loadHDots();
 
 <body onLoad="initHtmlGui();/*hdots_prefs.makeHdConfigForm();*/">
 
-
 <div id="menuBar">
   <ul>
    <li>
-     <!-- <img src="ui/images/tuliana/reload.png" onclick="plotMusic(score);" title="Redraw music"> -->
       <img src="ui/images/tuliana/reload.png" onclick="loadFromEditor();">
    </li>
     <li><a href="#" onClick="uiDoFileOpen('inputDialog',this);">OPEN</a></li>
@@ -269,7 +280,6 @@ scriptLoader.loadHDots();
       <img src="ui/log.png" onclick="toggleLog()" title="Toggle log.">
    </li>
  </ul>
- 
 </div>
 
 <div class="inputArea" id="inputDialog">

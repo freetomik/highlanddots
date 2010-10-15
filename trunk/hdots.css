@@ -74,8 +74,9 @@ color: green;
 /* ids */
 #menuBar {
    /* width:800px;
-   height:30px; */
-   width: 100%;
+   height:30px;
+   */
+
    background-image:url('ui/images/bg-menu.png');
    background-repeat:repeat-x;
    border: 1px solid gray;
@@ -96,13 +97,13 @@ color: green;
 
 #menuBar li {
     display:inline;
-    height:30px;
+   /* height:30px; */
     padding:0px 0px 0px 0px;
 }
 
 #menuBar a {
 	width: auto;
-	padding: 3px 0px 2px 20px;
+/*	padding: 3px 0px 2px 20px; */
 	color: black;
 	font-family: Verdana, Arial, SunSans-Regular, Sans-Serif;
 	font-weight:bold;
@@ -112,75 +113,6 @@ color: green;
 #menuBar a:hover {
 	color: #66cc66;
 }
-
-
-
-/*
- * Tabs from http://nontroppo.org/test/tab1.html, copyleft license
- */
-#tabmenu {
-  border-bottom: 2px solid black;
-  margin: 12px 0px 0px 0px;
-  padding: 0px;
-  padding-left: 10px;
-}
-
-#tabmenu li {
-  display: inline;
-  overflow: hidden;
-  list-style-type: none;
-}
-
-#tabmenu a, a.active {
-  color: blue;
-  font-family: Verdana, Arial, SunSans-Regular, Sans-Serif;
-  border: 2px solid black;
-  padding: 2px 5px 0px 5px;
-  margin: 0;
-  text-decoration: none;
-}
-
-#tabmenu a.active {
-  border-left: 2px solid black;
-  border-top: 2px solid black;
-  border-right: 2px solid black;
-  border-bottom: 3px solid white;
-}
-
-#tabmenu a:hover {
-  color: blue;
-  background: #cccccc;
-}
-
-/*
-#tabmenu a:visited {
-  color: #E8E9BE;
-}
-
-#tabmenu a.active:hover {
-  background: #ABAD85;
-  color: #DEDECF;
-}
-
-#content {
-  font: 0.9em/1.3em "bitstream vera sans", verdana, sans-serif;
-  text-align: justify;
-  background: #ABAD85;
-  padding: 20px;
-  border: 2px solid black;
-  border-top: none;
-  z-index: 2;
-}
-
-#content a {
-  text-decoration: none;
-  color: #E8E9BE;
-}
-
-#content a:hover {
-  background: #898B5E;
-}
-*/
 
 
 
@@ -246,11 +178,12 @@ color: green;
   position: relative;
   overflow: visible;
   visibility: visible;
-  height: 310px;
+  /* height: 310px; */
   margin: 0;
   padding: 0;
   background: transparent;
   border: none;
+  border: 2px solid green;
 }
 
 #xsp5 {
@@ -260,6 +193,9 @@ color: green;
   border: 2px solid #999;
 }
 
+#xsp2 {
+  border: 2px solid red;
+}
 /* iframe support */
 
 .xsp-iframe {
@@ -325,3 +261,40 @@ div.suggestions div.current {
     background-color: #3366cc;
     color: white;
 }
+
+
+/* From layout.css */
+#hd_config_plugin {
+}
+
+#hd_config {
+}
+
+.hd_pluginPref {
+  border: 1px solid green;
+  margin-left: 2em;
+}
+
+
+#hd_config label {
+color: green;
+}
+
+#hd_config label span {
+  float:left;
+  width:25%;
+  margin-right:0.5em;
+  padding-top:0.2em;
+  text-align:right;
+  font-weight:bold;
+  color: white;
+  padding-right: 0.5em;
+  border: 1px solid black;
+  background: blue;
+}
+
+#hd_config div.breaker {
+  clear: both;
+}
+
+
