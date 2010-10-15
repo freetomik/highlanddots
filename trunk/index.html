@@ -181,7 +181,7 @@ function setSplitSize() {
     var main = document.getElementById("main");
     var pane1 = document.getElementById('xsp2');
     // Calculate new screen sizes
-    var w = 0.98 * xClientWidth();
+    var w = xClientWidth();
     var h;
 
     // Set the size of the container that holds both divs 
@@ -189,11 +189,11 @@ function setSplitSize() {
     // And the size of the editor field
     xWidth(document.getElementById("editor"), w);
     xWidth(document.getElementById("editheader"), w);
-
+    xWidth(document.getElementById("sectionHeader"), w);
     xWidth(mb, w);   
     
-    h = 0.95 * ( xClientHeight() - xHeight(mb) );
-
+    //h = 0.95 * ( xClientHeight() - xHeight(mb) );
+    h = ( xClientHeight() - xHeight(mb) ) -2;
     xMoveTo(main, 0, 0);
     xResizeTo(main, w, h);
     
