@@ -295,4 +295,7 @@ color: green;
   clear: both;
 }
 
-
+.log_error {
+  background-color: red;
+  color: white;
+}

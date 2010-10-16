@@ -78,10 +78,11 @@ var loger = (function() {
           logMsg(s, msgType);
         }        
       } else {
-        
         var e1 = document.createElement("div");
         var t = document.createTextNode(s);
         e1.setAttribute("style", "border: solid 1px black;");
+        e1.setAttribute("class", "log_" + msgType);
+        
         e1.appendChild(t);
         docFrg.appendChild(e1);
       }
@@ -96,11 +97,11 @@ var loger = (function() {
       logMsg(s,"log");
     };
 
-    function info (s) {
+    function info(s) {
       logMsg(s,"info");
     };
 
-    function error (s) {
+    function error(s) {
       logMsg(s,"error");
     };
 

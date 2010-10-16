@@ -451,7 +451,7 @@ function plotMusic_inner(score)
       }
       sdet.top += score.metaData.getBoundingRect().height + sdet.space;
     } catch(err) {
-      window.alert("Error rendering header");
+      loger.error("Unable to render header: " + err);
     }
     
     score.data.forEach(function(mel) {
@@ -481,6 +481,7 @@ function plotMusic_inner(score)
                            logit([mel.type, "rect: ", rect.x, rect.y, rect.width, rect.height, mel.paddingRight]);
                            mel.rect = rect;
                            if (doPaint && drawBoundingBox) {
+                             try {
                              ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
                              ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
                              ctx.fillStyle = strokeStyle;
@@ -489,6 +490,9 @@ function plotMusic_inner(score)
                              ctx.fillStyle = "red";
                              ctx.fillRect(rect.x-1, rect.y-1, 2, 2);
                              ctx.fillStyle = strokeStyle;
+                             } catch (err) {
+                               loger.error(["Bounding box for", mel, err]);
+                             }
                            }
                          }
                        }
@@ -547,7 +551,7 @@ function plotMusic_inner(score)
       }
       sdet.top += score.metaData.getBoundingRect().height + sdet.space;
     } catch (e) {
-      window.alert("Error rendering footer");
+      loger.error("Unable to render footer: " + err);
     }
     
     for (var i = 0; i < delay.length; i++) {
