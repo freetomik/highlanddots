@@ -55,23 +55,22 @@ function makeImageMap(staff, score) {
     imgEl = new Image();
     if (API.setOpacity) {
       imgEl.src = "pics/black.gif";
+      imgEl.src = "pics/transparent-gif.gif";
       API.setOpacity(imgEl, 0.10);
+
     } else {
       imgEl.src = "pics/transparent-gif.gif";
       
     }
-    
+    API.setAttribute(imgEl, 'style', 'border: 1px solid green');
     
     imgEl.id = "mapImage";
-    imgEl.style.position = "absolute";
     imgEl.useMap = "#hDotsMap";
     
-    API.getEBI('hdots_canvas').appendChild(imgEl);
+    API.getEBI('imagemap_div').appendChild(imgEl);
   }
   
-  API.positionElement(imgEl, canvasPos[0], canvasPos[1]);
-  
-  API.sizeElement(imgEl, sdet.top, sdet.maxX);
+  API.overlayElement(imgEl, el, true);
   
   domTools.removeChildren(map);
   
@@ -94,7 +93,6 @@ function makeImageMap(staff, score) {
                        area.shape = "rect";
                        //logit(["ImageMap", x1, y1, x2, y2]);
                        area.coords = [x1, y1, x2, y2].join(",");
-                       
                        
                        //ctx.fillStyle = "red";
                        //ctx.fillRect(x1, y1, 2, 2);
