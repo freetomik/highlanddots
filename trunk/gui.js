@@ -350,7 +350,7 @@ var hdots_prefs = (
                                                API.attachListener(el, 'click',
                                                                   function(_n) {
                                                                   return function() {
-                                                                    setPluginPrefVis();
+                                                                    setPluginPrefVis(formEl);
                                                                   };
                                                                   }(n)
                                                                   );
@@ -461,6 +461,7 @@ var hdots_prefs = (
 
                        var els = API.getEBCN(plugInPrefClassName);
                        var a;
+
                        var formInfo =  API.HD_serializeFormUrl(srcForm);
                                    //alert(JSON.stringify(formInfo));
                        API.forEach(els, function(el, i) {

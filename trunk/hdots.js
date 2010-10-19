@@ -11,14 +11,6 @@ function uiLoadTune(ext, tuneText) {
   document.getElementById("timeinfo").innerHTML = "Time spent rendering: " + total + " seconds.";
 }
 
-function testImport2() {
-  var startTime = new Date();
-  testImport();
-  var endTime = new Date();
-  var total = (endTime - startTime) / 1000;
-  document.getElementById("timeinfo").innerHTML = "Time spent rendering: " + total + " seconds.";
-}
-
 var staff =
 (
  
@@ -210,173 +202,14 @@ function loadTune(ext, tuneText) {
   dots = tuneText.split("\n|\r");
   score.removeAllNodes();
   parseBWW(dots);
-  plotMusic(score);
-  
-}
-
-function testImport() {
-  var dots = [];
-  
-  dots.push('Bagpipe Reader:1.0');
-  dots.push('MIDINoteMappings,(55,57,59,60,62,64,65,67,69,57,59,61,62,64,66,67,69,71,56,58,60,61,63,65,66,68,70)');
-  dots.push('FrequencyMappings,(392,440,494,523,587,659,699,784,880,440,494,554,587,659,740,784,880,988,415,466,523,554,622,699,740,831,932)');
-  dots.push('InstrumentMappings,(61,71,46,34,1000,60,70)');
-  dots.push('GracenoteDurations,(42,40,30,50,100,200,800,1200,250,250,250,500,200)');
-  dots.push('FontSizes,(90,100,100,80,0)');
-  dots.push('TuneFormat,(1,0,M,L,500,500,500,500,P,0,0)');
-  dots.push('TuneTempo,90');
-  dots.push('');
-  dots.push('"Layout Tester",(T,L,0,0,Times New Roman,16,700,0,0,18,0,0,0)');
-  dots.push('"Test",(Y,C,0,0,Times New Roman,14,400,0,0,18,0,0,0)');
-  dots.push('"Jeremy J Starcher",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)');
-  dots.push('"It just is",(F,R,0,0,Times New Roman,10,400,0,0,18,0,0,0)');
-  dots.push('');
-  
-  /*
-  
-  dots.push('& sharpf sharpc 4_4');
-  dots.push('!   LG_1');
-  dots.push('!   LA_1');
-  dots.push('!   B_1');
-  dots.push('!   C_1');
-  dots.push('!t');
-  dots.push('');
-  dots.push('');
-  
-  dots.push('& sharpf sharpc 4_4');
-  dots.push('!   D_2        E_2');
-  dots.push('!   F_2        HA_2');
-  dots.push('!   HA_2       LG_2');
-  dots.push('!   LA_2       B_2');
-  dots.push('!t');
-  dots.push('');
-  
-  dots.push('& sharpf sharpc 4_4');
-  dots.push('!   E_4        E_4     E_4       E_4');
-  dots.push('!   E_4        E_4     E_4       E_4');
-  dots.push('!   E_4        E_4     E_4       E_4');
-  dots.push('!   E_4        E_4     E_4       E_4');
-  dots.push('!t');
-  dots.push('');
-  
-  dots.push('& sharpf sharpc 4_4');
-  dots.push('!   E_8        E_8     E_8       E_8  E_8        E_8     E_8       E_8');
-  dots.push('!   E_8        E_8     E_8       E_8  E_8        E_8     E_8       E_8');
-  dots.push('!   E_8        E_8     E_8       E_8  E_8        E_8     E_8       E_8');
-  dots.push('!   E_8        E_8     E_8       E_8  E_8        E_8     E_8       E_8');
-  dots.push('!t');
-  
-  dots.push('');
-  dots.push('& sharpf sharpc 4_4');
-  dots.push('!   thrd E_4       thrd E_4      thrd E_4        thrd E_4');
-  dots.push('!   gg E_4       gg E_4      gg E_4        gg E_4');
-  dots.push('!   dbha E_4       dbha E_4      dbha E_4        dbha E_4');
-  dots.push('!   E_4        E_4     E_4       E_4');
-  dots.push('!t');
-  
-  
-  dots.push('');
-  dots.push('& sharpf sharpc 4_4');
-  dots.push('!   gg E_1');
-  dots.push('!   gg E_1');
-  dots.push('!   gg E_1');
-  dots.push('!   gg E_1');
-  dots.push('!t');
-  dots.push('');
-  dots.push('');
-  dots.push('& sharpf sharpc 4_4');
-  dots.push('!   gg E_2       gg E_2');
-  dots.push('!   gg E_2       gg E_2');
-  dots.push('!   gg E_2       gg E_2');
-  dots.push('!   gg E_2       gg E_2');
-  dots.push('!t');
-  dots.push('');
-  dots.push('& sharpf sharpc 4_4');
-  dots.push('!   gg E_4       gg E_4      gg E_4        gg E_4');
-  dots.push('!   gg E_4       gg E_4      gg E_4        gg E_4');
-  dots.push('!   gg E_4       gg E_4      gg E_4        gg E_4');
-  dots.push('!   gg E_4       gg E_4      gg E_4        gg E_4');
-  dots.push('!t');
-  dots.push('');
-  dots.push('& sharpf sharpc 4_4');
-  dots.push('!   gg E_8       gg E_8      gg E_8        gg E_8   gg E_8       gg E_8      gg E_8        gg E_8');
-  dots.push('!   gg E_8       gg E_8      gg E_8        gg E_8   gg E_8       gg E_8      gg E_8        gg E_8');
-  dots.push('!   gg E_8       gg E_8      gg E_8        gg E_8   gg E_8       gg E_8      gg E_8        gg E_8');
-  dots.push('!   gg E_8       gg E_8      gg E_8        gg E_8   gg E_8       gg E_8      gg E_8        gg E_8');
-  dots.push('!t');
-  dots.push('');
-  //*/
-  
-  
-  // Greensleeves
-  dots.push("");
-  dots.push("& sharpf sharpc  6_8  I!''~B_8");
-  dots.push("! thrd D_4 E_8~gg Fr_8 'f HGl_16 Fl_8");
-  dots.push("! dbe E_4 C_8~gg LAr_8 'la Bl_16 Cl_8");
-  dots.push("! thrd D_4 B_8~dbb Br_8 'b LAl_16 Bl_8");
-  dots.push("! dbc C_4 LA_8~brl LA_4 B_8");
-  dots.push("!t");
-  dots.push("");
-  dots.push("& sharpf sharpc thrd D_4~E_8~gg Fr_8 'f HGl_16 Fl_8");
-  dots.push("! dbe E_4 C_8~gg LAr_8 'la Bl_16 Cl_8");
-  dots.push("! thrd Dr_8 'd Cl_16 Bl_8~dbc Cr_8 'c Bl_16 LAl_8");
-  dots.push("! gg B_4 'b grp B_4 ''!I");
-  dots.push("");
-  dots.push("");
-  dots.push("& sharpf sharpc  I!''~LA_8");
-  dots.push("! dbha HA_4 'ha~gg HAr_8 'ha HGl_16 Fl_8");
-  dots.push("! dbe E_4~C_8~gg LAr_8 'la Bl_16 Cl_8");
-  dots.push("! thrd D_4~B_8~dbb Br_8 'b LAl_16 Bl_8");
-  dots.push("! dbc C_4 LA_8 brl LA_4 'la");
-  dots.push("!t");
-  dots.push("");
-  dots.push("& sharpf sharpc");
-  dots.push(" dbha HA_4 'ha~gg HAr_8 'ha HGl_16 Fl_8");
-  dots.push("! dbe E_4~C_8~gg LAr_8 'la Bl_16 Cl_8");
-  dots.push("! thrd Dr_8 'd Cl_16 Bl_8~dbc Cr_8 'c Bl_16 LAl_8");
-  dots.push("! gg B_4 'b~grp B_4 ''!I");
-  
-  // Simple gifts
-  dots.push("");
-  dots.push("& sharpf sharpc 4_4 LAr_8 dg LAl_8");
-  dots.push("!~thrd D_4~gg Dr_8 El_8~dbf Fr_8 Dl_8~gg Fr_8 HGl_8");
-  dots.push("!~HA_4~~gg HAr_8 HGl_8~hdbf F_4~Er_8 Dl_8");
-  dots.push("!~E_4~~strla E_4~gg E_4~~D_4");
-  dots.push("!~gg Er_8 Fl_8~gg Er_8 Cl_8~strlg LA_4~brl LA_4 !t");
-  dots.push("");
-  dots.push("& sharpf sharpc~thrd D_4~gg Dr_8 El_8~dbf Fr_8 Dl_8~gg Fr_8 HGl_8");
-  dots.push("!~HA_4~~gg HAr_8 HGl_8~hdbf F_4~Er_8 Dl_8");
-  dots.push("!~E_4~~strla E_4~F_4~~dbf Fr_8 El_8");
-  dots.push("!~thrd D_4~gstd Dr_8 El_8~thrd D_2~!I");
-  dots.push("");
-  dots.push("& sharpf sharpc ~dbha HA_2~hdbf F_4 'f ~E_8");
-  dots.push("!~gg Fr_8 HGl_8~hdbf Fr_8 El_8~thrd D_4~gg Dr_8 El_8");
-  dots.push("!~F_4~~eg Fr_8 HGl_8~dbha HA_4~HGr_8 Fl_8");
-  dots.push("!~dbe E_4~~strla Er_8 Fl_8~gg E_4~~LAr_8 dg LAl_8 !t");
-  dots.push("");
-  dots.push("& sharpf sharpc~thrd D_4~gg Dr_8 El_8~dbf Fr_8 Dl_8~gg Fr_8 HGl_8");
-  dots.push("!~HA_4~~gg HAr_8 HGl_8~hdbf F_4~Er_8 Dl_8");
-  dots.push("!~dbe E_4~~strla E_4~F_4~~dbf Fr_8 El_8");
-  dots.push("!~thrd D_4~gstd Dr_8 El_8~thrd D_4 !I");
-  
-  /*
-  // Notation tests
-  dots.push("");
-  dots.push("& sharpf sharpc 4_4 ");
-  dots.push("! ^ts D_4 D_8 ^te El_8~dbf ^ts Fr_8 Dl_8 ^te ~gg ^ts Fr_8 HGl_8 ^te");
-  dots.push("! ^3s D_4 D_8 El_8 ^3e ~dbf ^3s Fr_8 Dl_8 ~gg Fr_8 ^3e HGl_8");
-  dots.push("! '1 D_4 F_8 _' El_8~dbf Br_8 '2 Cl_8 ~gg Fr_8 HGl_8 _' !t");
-  dots.push("");
-  //*/
-  
-  score.removeAllNodes();
-  parseBWW(dots);
-  plotMusic(score);
+  plotMusic(score); 
 }
 
 
 function plotMusic(score)
 {
+  var sdet = staff.details;
+  
   popupManager.open({
                     close: true,
                     dim: true,
@@ -384,8 +217,10 @@ function plotMusic(score)
   }
   );
   
-  setTimeout(function() {plotMusic_inner(score);}, 100);
-  
+  // Clear out the old score size for a redraw.
+  sdet.x = 0;
+  sdet.y = 0;
+  setTimeout(function() {plotMusic_inner(score);}, 1);  
 }
 
 
