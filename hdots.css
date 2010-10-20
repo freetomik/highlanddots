@@ -1,15 +1,15 @@
 
 span.icon_list img {
-         /* float:right; */
-        height:25px;
-        width:25px;
-        /* text-align:center; */
+  /* float:right; */
+  height:25px;
+  width:25px;
+  /* text-align:center; */
 }
 
 .inputArea {
-    width: auto;
-    z-index: 500;
-    background-color: #eeeeee;
+  width: auto;
+  z-index: 500;
+  background-color: #eeeeee;
 	border-left: 2px solid #CCCCCC;
 	border-bottom: 2px solid #CCCCCC;
 	border-right: 2px solid #CCCCCC;
@@ -19,10 +19,10 @@ span.icon_list img {
 
 
 .uiInputHeading {
-   width:100%;
-   font-weight:bold;
-   background-image:url('ui/images/bg-header.png');
-   background-repeat:repeat-x;
+  width:100%;
+  font-weight:bold;
+  background-image:url('ui/images/bg-header.png');
+  background-repeat:repeat-x;
 }
 
 .sectionHeader {
@@ -42,37 +42,37 @@ span.icon_list img {
 
 /* ids */
 #menuBar {
-   /* width:800px;
-   height:30px;
-   */
-
+  /* width:800px;
+  height:30px;
+  */
+  
   width: 100%;
-   background-image:url('ui/images/bg-menu.png');
-   background-repeat:repeat;
-   border: 1px solid gray;
-
+  background-image:url('ui/images/bg-menu.png');
+  background-repeat:repeat;
+  border: 1px solid gray;
+  
 }
 
 
 #menuBar span {
-    padding:0px 0px 0px 0px;
+  padding:0px 0px 0px 0px;
 }
 #menuBar ul {
 	list-style: none;
-/*    height:30px; */
-    padding:0px 0px 0px 0px;
-    margin-top:4px;
+	/*    height:30px; */
+	padding:0px 0px 0px 0px;
+	margin-top:4px;
 }
 
 #menuBar li {
-    display:inline;
-   /* height:30px; */
-    padding:0px 0px 0px 0px;
+  display:inline;
+  /* height:30px; */
+  padding:0px 0px 0px 0px;
 }
 
 #menuBar a {
 	width: auto;
-/*	padding: 3px 0px 2px 20px; */
+	/*	padding: 3px 0px 2px 20px; */
 	color: black;
 	font-family: Verdana, Arial, SunSans-Regular, Sans-Serif;
 	font-weight:bold;
@@ -106,9 +106,9 @@ span.icon_list img {
   background: #EEE;
   border: none;
 }
- 
+
 .xsp-toolbar-pane {
-   overflow: hidden; 
+  overflow: hidden; 
 }
 
 
@@ -177,54 +177,54 @@ span.icon_list img {
 
 
 
-  #popup_outer {
-    border: 1px solid black;
-  }
-  
-  #popup_title {
-    border-bottom: 1px dotted black;
-    background-color: blue;
-    color: yellow;
-    white-space:nowrap;
-  }
-  
-  #popup_contents {
-    background-color: black;
-    color: white;
-  }
-  
-    #popup_outer, #popup_title,  #popup_contents {
-    margin-left: auto;
-    margin-right: auto;
-  }
- 
-  #popup_close {
-    white-space:nowrap;
-    margin-left: 1em;
-    margin-right: 0.25em;
-  }
+#popup_outer {
+  border: 1px solid black;
+}
 
-  #popup_dim {
-    background-color: black;
-  }
-  
-  
-  div.suggestions {
-    border: 1px solid black;
-    position: absolute;
-    z-index: 1000;
-    background-color: blue;
-    color: yellow;
+#popup_title {
+  border-bottom: 1px dotted black;
+  background-color: blue;
+  color: yellow;
+  white-space:nowrap;
+}
+
+#popup_contents {
+  background-color: black;
+  color: white;
+}
+
+#popup_outer, #popup_title,  #popup_contents {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#popup_close {
+  white-space:nowrap;
+  margin-left: 1em;
+  margin-right: 0.25em;
+}
+
+#popup_dim {
+  background-color: black;
+}
+
+
+div.suggestions {
+  border: 1px solid black;
+  position: absolute;
+  z-index: 1000;
+  background-color: blue;
+  color: yellow;
 }
 
 div.suggestions div {
-    cursor: default;
-    padding: 0px 3px;
+  cursor: default;
+  padding: 0px 3px;
 }
 
 div.suggestions div.current {
-    background-color: #3366cc;
-    color: white;
+  background-color: #3366cc;
+  color: white;
 }
 
 
@@ -245,7 +245,7 @@ div.suggestions div.current {
 
 
 #hd_config label {
-color: green;
+  color: green;
 }
 
 #hd_config label span {
@@ -264,7 +264,7 @@ color: green;
 
 /* The values for that particular plugin */
 .hd_pluginPref_i label span {
-  width: 45% !important;
+  border-left: 1em solid white !important;
 }
 
 
