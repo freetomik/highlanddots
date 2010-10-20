@@ -19,7 +19,6 @@
 <script type="text/javascript" src="hdotsloader.js"></script>
 
 
-
 <script type="text/javascript">
 
 
@@ -44,11 +43,11 @@ function openSettings(srcElem) {
   hdots_prefs.uiConfig.useForUi = ui;
   hdots_prefs.getUi();
   
-  ui.style.position = 'absolute';
-  ui.style.top = p.style.top + p.style.height;
-  ui.style.cssFloat = "right";
+  //ui.style.position = 'absolute';
+  //ui.style.top = p.style.top + p.style.height;
+  //ui.style.cssFloat = "right";
   ui.style.width = '50%';
-  ui.style.height = '50%';
+  //ui.style.height = '50%';
   
   ui.style.display = 'block';
   ui.style.visibility = 'visible';  
@@ -281,13 +280,15 @@ scriptLoader.loadHDots();
 <div class="inputArea" id="inputDialog">
   <span class="uiInputHeading" id="inputDialogTitle">
   </span>
+  <span class="uiButton">
+    <button onclick="closeInputDialog();return false;" style="height:20px;">Close</button>
+  </span>
   <div id="inputDialogContent" style="overflow:auto;">
     dialog content
   </div>
-  <span class="uiButton">
-    <button onclick="closeInputDialog();return false;" style="float:right; height:20px;">Close</button>
-  </span>
-</div>
+
+  
+  </div>
 
 <div id="settings" class="inputArea">
   <p style="float:left;width:100%">

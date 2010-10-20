@@ -39,39 +39,6 @@ span.icon_list img {
   
 }
 
-#hd_config_plugin {
-}
-
-#hd_config {
-}
-
-.hd_pluginPref {
-  border: 1px solid green;
-  margin-left: 2em;
-}
-
-
-#hd_config label {
-color: green;
-}
-
-#hd_config label span {
-  float:left;
-  width:25%;
-  margin-right:0.5em;
-  padding-top:0.2em;
-  text-align:right;
-  font-weight:bold;
-  color: white;
-  padding-right: 0.5em;
-  border: 1px solid black;
-  background: blue;
-}
-
-#hd_config div.breaker {
-  clear: both;
-}
-
 
 /* ids */
 #menuBar {
@@ -265,13 +232,16 @@ div.suggestions div.current {
 #hd_config_plugin {
 }
 
+
+
+
 #hd_config {
 }
 
 .hd_pluginPref {
   border: 1px solid green;
-  margin-left: 2em;
 }
+
 
 
 #hd_config label {
@@ -280,7 +250,7 @@ color: green;
 
 #hd_config label span {
   float:left;
-  width:25%;
+  width:50%; 
   margin-right:0.5em;
   padding-top:0.2em;
   text-align:right;
@@ -290,6 +260,13 @@ color: green;
   border: 1px solid black;
   background: blue;
 }
+
+
+/* The values for that particular plugin */
+.hd_pluginPref_i label span {
+  width: 45% !important;
+}
+
 
 #hd_config div.breaker {
   clear: both;
