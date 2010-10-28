@@ -66,6 +66,14 @@ function parseBWW(dots) {
                          if (typeof a[l] !== "undefined") {
                            return true;
                          }
+                         
+                         //TODO:
+                         // We really should check for this before we even
+                         // begin parsing.
+                         if (s == "Bagpipe Reader:1.0") {
+                           return true;
+                         }
+                         
                          return false;
                        }
                        
@@ -78,7 +86,7 @@ function parseBWW(dots) {
                          if (s.substring(0,1) === '"') {
                            i = s.indexOf(',(');
                            if (i === -1) {return; }
-
+                           
                            mode = s.substring(i+2, i+3);
                            
                            name = {
@@ -113,7 +121,173 @@ function parseBWW(dots) {
   
   
   
-  
+  var z_invalid = (function() {
+                   /* 
+                   This is a list of BWW symbols that we do not currently 
+                   support.  When one or more of these symbols are supported,
+                   make sure to remove them from this list.
+                   */
+                   var a = [  
+                     "naturalha",
+                     "naturalhg",
+                     "naturalf",
+                     "naturale",
+                     "naturald",
+                     "naturalc",
+                     "naturalb",
+                     "naturalla",
+                     "naturallg",
+                     "pdarodo16",
+                     "phdarodo",
+                     "plbrea",
+                     "plbbrea",
+                     "pcbrea",
+                     "pcbbrea",
+                     "phllabrea",
+                     "phtlabrea",
+                     "phclabrea",
+                     "ptra8",
+                     "phtra",
+                     "pl",
+                     "pt",
+                     "pc",
+                     "phiharin",
+                     "pedre",
+                     "pdare",
+                     "pembari",
+                     "pendari",
+                     "pchedari",
+                     "phedari",
+                     "pdarodo",
+                     "penbain",
+                     "potro",
+                     "podro",
+                     "padeda",
+                     "pgrp",
+                     "ptra",
+                     "pdili",
+                     "phcla",
+                     "phclg",
+                     "pclg",
+                     "pcb",
+                     "pcmb",
+                     "pcmc",
+                     "pcmd",
+                     "phtla",
+                     "phtlg",
+                     "ptlg",
+                     "ptb",
+                     "ptriplg",
+                     "ptripla",
+                     "ptripb",
+                     "ptripc",
+                     "ptmb",
+                     "ptmc",
+                     "ptmd",
+                     "pedrelg",
+                     "pedrela",
+                     "pedreb",
+                     "pedrec",
+                     "pedred",
+                     "phlla",
+                     "plb",
+                     "pchechere",
+                     "ptblg",
+                     "ptbrea",
+                     "ptbbrea",
+                     "phtriplg",
+                     "phtripla",
+                     "phtripb",
+                     "phtripc",
+                     "pttriplg",
+                     "pttripla",
+                     "pttripb",
+                     "pttripc",
+                     "pcblg",
+                     "REST_1",
+                     "REST_2",
+                     "REST_4",
+                     "REST_8",
+                     "REST_16",
+                     "REST_32",
+                     "bis_'",
+                     "'si",
+                     "'do",
+                     "^2e",
+                     "^43e",
+                     "^53e",
+                     "^64e",
+                     "^74e",
+                     "^46e",
+                     "^54e",
+                     "^76e",
+                     "=^3b",
+                     "=^3c",
+                     "^3d",
+                     "^3f",
+                     "^3ha",
+                     "^3hg",
+                     "^3la",
+                     "^3lg",
+                     "^2s",
+                     "^43s",
+                     "^53s",
+                     "^64s",
+                     "^74s",
+                     "^46s",
+                     "^54s",
+                     "^76s",
+                     "^tb",
+                     "^tc",
+                     "^td",
+                     "^tf",
+                     "^tha",
+                     "^thg",
+                     "^tla",
+                     "^tlg",
+                     "flatlg",
+                     "flatla",
+                     "flatb",
+                     "flatc",
+                     "flatd",
+                     "flate",
+                     "flatf",
+                     "flathg",
+                     "flatha",
+                     "xfermatlg",
+                     "fermatla",
+                     "fermatb",
+                     "fermatc",
+                     "fermatd",
+                     "fermate",
+                     "fermatf",
+                     "fermathg",
+                     "fermatha",
+                     "HA_STAFF",
+                     "staff",
+                     "dalsegno",
+                     "segno",
+                     "fine",
+                     "dacapoalfine",
+                     "coda",
+                     "dacapoalcoda",
+                     "codasection"
+                   ];
+                   
+                   function isType(s) {
+                     return (a.indexOf(s) !== -1);
+                   }
+                   
+                   function create(s) {
+                     alert("can't create an invalid type");
+                   }
+                   return {
+                     isType: isType,
+                     create: create
+                   };
+                   
+                   
+  }());
   
   // Is this a beat? Which would end a beam?
   var z_beat = (function() {
@@ -930,9 +1104,12 @@ function parseBWW(dots) {
     
   }
   
-  function parseBits(b) {
+  function parseBits(b, errors) {
     var i, l = b.length;
     var s, mel;
+    
+    var wasFound;
+    
     for (i = 0; i < l; i++) {
       s = b[i];
       
@@ -942,6 +1119,13 @@ function parseBWW(dots) {
       }
       
       mel = undefined;
+  
+      if (z_invalid.isType(s)) {
+        errors.push("Symbol " + s + " is known, but not supported.");
+        continue;
+      }
+      
+      
       
       // Loop through our melody element types and add it if a match is
       // found.  Don't abort the loop eary because some elements will 
@@ -949,7 +1133,7 @@ function parseBWW(dots) {
       // Order kinda matters here.
       //z_beat has to be before z_staffControl
       //z_keysig must be after z_graphic
-      
+      wasFound = false;
       [
         z_graphic,
         z_keysig,
@@ -962,6 +1146,7 @@ function parseBWW(dots) {
         z_ghbgrace
       ].forEach(function(f) {
                 if (f.isType(s)) {
+                wasFound = true;
                 mel = f.create(s);
                 if (mel) {
                   mel.bww = s;
@@ -969,12 +1154,17 @@ function parseBWW(dots) {
                 }
                 }
       });
-    }
+      
+      if (!wasFound) {
+        errors.push("Symbol " + s + " is totally unknown.");        
+      }
+    }    
   }
   
   
   //  score.metaData = {};  
   score.metaData = score.createMetadata();
+  var errors = [];
   
   var i, l = dots.length;
   var s, bits;
@@ -1002,8 +1192,12 @@ function parseBWW(dots) {
     }
     
     //logit(bits);
-    parseBits(bits);
+    parseBits(bits, errors);
   }
+  
+    if (errors.length) {
+      alert(errors.join("\r\n"));
+    }
   
   // This doesn't really fix anything,
   //  it just tires to replicate the rules
