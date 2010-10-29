@@ -1121,7 +1121,7 @@ function parseBWW(dots) {
       mel = undefined;
   
       if (z_invalid.isType(s)) {
-        errors.push("Symbol " + s + " is known, but not supported.");
+        errors.push("Symbol `" + s + "' is known, but not supported.");
         continue;
       }
       
@@ -1156,7 +1156,7 @@ function parseBWW(dots) {
       });
       
       if (!wasFound) {
-        errors.push("Symbol " + s + " is totally unknown.");        
+        errors.push("Symbol `" + s + "' is totally unknown.");        
       }
     }    
   }

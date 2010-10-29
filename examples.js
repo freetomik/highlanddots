@@ -147,7 +147,7 @@ var bwwExamples = (function()
                      "",
                      "TuneTempo,84",
                      "",
-                     "\"Mairi's Wedding\",(T,L,0,0,Times New Roman,16,700,0,0,18,0,0,0)",
+                     "\"Tune With Errors\",(T,L,0,0,Times New Roman,16,700,0,0,18,0,0,0)",
                      "\"March\",(Y,C,0,0,Times New Roman,14,400,0,0,18,0,0,0)",
                      "\"Traditional\",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)",
                      "\"Highland Dots unit test\",(F,R,0,0,Times New Roman,12,400,0,0,18,0,0,0)",
@@ -188,8 +188,6 @@ var bwwExamples = (function()
                      ""
                    ];
                    tunes["Tune with Errors"] = tune;
-
-
                    
                    function makeOptions(element) {
                      var size = 0;
