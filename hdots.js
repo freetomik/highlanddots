@@ -17,28 +17,33 @@ var staff =
  function() {
  
  var HIDDEN_LINE_COLOR = "rgb(200, 200, 200)";
- 
- var details = {
-   height: -1,  // Calculated at run time
-   width: 700,  // The width of the staff
-   thick: 1,    // Thickness of staff line segment
-   space: 10,   // The thickness of each space
-   leftMargin: 10, // Margin for a new staff line
-   newTop: 50,   // Top of a new score
-   top: -1,     // Where to draw the top line of the CURRENT line of music
-   x: 0,        // Cursor postion
-   maxX: 0      // Max width of score
- };
- details.barthick = details.space /10;
- details.beamStyle = "bww";  // can be "bww" or "straight" or "sloped"
- details.noteColor1 = "black";
- details.noteColor2 = "green";
- details.noteColor3 = "blue";
- details.noteColor4 = "red";
- details.logging = false;        // true | false toggles bounding box tracing
- details.uiTracing = false;        // true | false toggles bounding box tracing
- 
+ var details = {};
  var coords = {};
+
+ // These are values that are set at load time, but are user-changeable and
+ // shouldn't reset when the score is re-rendered.
+ details.thick = 1;          // Thickness of staff line segment
+ details.space = 10;         // The thickness of each space
+ details.beamStyle = "bww";  // can be "bww" or "straight" or "sloped"
+ details.logging = false;    // true | false toggles bounding box tracing
+ details.uiTracing = false;  // true | false toggles bounding box tracing
+  
+ function resetValues() {
+   details.height = -1;      // Calculated at run time
+   details.width = 0;        // The width of the staff
+   details.leftMargin = 10;  // Margin for a new staff line
+   details.newTop = 50;      // Top of a new score
+   details.top = -1;         // Where to draw the top line of the CURRENT line of music
+   details.x = 0;            // Cursor postion
+   details.maxX = 0;         // Max width of score
+   
+   details.barthick = details.space /10;
+   details.noteColor1 = "black";
+   details.noteColor2 = "green";
+   details.noteColor3 = "blue";
+   details.noteColor4 = "red";
+ }
+ resetValues();
  
  function drawStaff(width) {
    var ctx = details.ctx;
@@ -46,7 +51,6 @@ var staff =
    var halfy;
    
    //Pre-prep the names for the note position lines
-   
    function prepData() {
      /*
      * Figure out all of the notes positions that we can display, and their
@@ -163,7 +167,7 @@ var staff =
    var x = staff.details.x;
  }
  
- function prime() {
+ function prepForDrawing() {
    function init() {
      if (typeof G_vmlCanvasManager !== 'undefined') {
        G_vmlCanvasManager.initElement(details.canvas);
@@ -190,7 +194,8 @@ var staff =
  }
  
  return {
-   prime: prime,
+   resetValues: resetValues,
+   prepForDrawing: prepForDrawing,
    drawStaff: drawStaff,
    details: details
  };
@@ -216,10 +221,7 @@ function plotMusic(score)
                     message: "Drawing score.  Please wait."
   }
   );
-  
-  // Clear out the old score size for a redraw.
-  sdet.x = 0;
-  sdet.y = 0;
+  staff.resetValues();
   setTimeout(function() {plotMusic_inner(score);}, 1);  
 }
 
@@ -248,7 +250,7 @@ function plotMusic_inner(score)
     var drawBoundingBox = hdots_prefs.getValueOf("boundingbox") === "true";
     
     sdet.top = sdet.newTop;
-    staff.prime();
+    staff.prepForDrawing();
     if (doPaint) {
       sdet.canvas.width = cd.w;
       sdet.canvas.height = cd.h;
@@ -317,14 +319,14 @@ function plotMusic_inner(score)
                            mel.rect = rect;
                            if (doPaint && drawBoundingBox) {
                              try {
-                             ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
-                             ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
-                             ctx.fillStyle = strokeStyle;
-                             
-                             // Debugging - mark exactly where the center is.
-                             ctx.fillStyle = "red";
-                             ctx.fillRect(rect.x-1, rect.y-1, 2, 2);
-                             ctx.fillStyle = strokeStyle;
+                               ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
+                               ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
+                               ctx.fillStyle = strokeStyle;
+                               
+                               // Debugging - mark exactly where the center is.
+                               ctx.fillStyle = "red";
+                               ctx.fillRect(rect.x-1, rect.y-1, 2, 2);
+                               ctx.fillStyle = strokeStyle;
                              } catch (err) {
                                loger.error(["Bounding box for", mel, err]);
                              }
@@ -378,7 +380,7 @@ function plotMusic_inner(score)
                          sdet.top += sdet.space * 3;
                        }
     });
-
+    
     try {    
       score.metaData.calc(staff, "footer");
       if (doPaint && score.metaData) {
@@ -406,6 +408,5 @@ function plotMusic_inner(score)
   popupManager.close();
   
   makeImageMap(staff, score);
-  //logit(sdet);
-  
+  //logit(sdet); 
 }
