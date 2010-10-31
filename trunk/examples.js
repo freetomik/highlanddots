@@ -189,6 +189,12 @@ var bwwExamples = (function()
                    ];
                    tunes["Tune with Errors"] = tune;
                    
+                   
+                   tune = [
+                     tunes["Mairi's Wedding"].join(" ")
+                   ];
+                   tunes["Testing: All on one line"] = tune;
+                   
                    function makeOptions(element) {
                      var size = 0;
                      API.forEachProperty(tunes, function(el, i) {
