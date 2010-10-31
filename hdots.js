@@ -203,10 +203,8 @@ var staff =
 
 
 function loadTune(ext, tuneText) {
-  var dots;// = [];
-  dots = tuneText.split("\n|\r");
   score.removeAllNodes();
-  parseBWW(dots);
+  parseBWW(tuneText);
   plotMusic(score); 
 }
 

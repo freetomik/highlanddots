@@ -21,10 +21,7 @@ var beamGroupDef = {
 
 
 function parseBWW(dots) {
-  //HACK:  Fix a bad data being passed.  Would be better to keep bad data
-  // from getting through in the first place though.
-  dots = dots.join("\r");
-  dots = dots.split(/\r|\n/);
+  dots = cleanupBww(dots)
   
   function importException (message)
   {
@@ -1119,7 +1116,7 @@ function parseBWW(dots) {
       }
       
       mel = undefined;
-  
+      
       if (z_invalid.isType(s)) {
         errors.push("Symbol `" + s + "' is known, but not supported.");
         continue;
@@ -1195,9 +1192,9 @@ function parseBWW(dots) {
     parseBits(bits, errors);
   }
   
-    if (errors.length) {
-      alert(errors.join("\r\n"));
-    }
+  if (errors.length) {
+    alert(errors.join("\r\n"));
+  }
   
   // This doesn't really fix anything,
   //  it just tires to replicate the rules
@@ -1211,4 +1208,155 @@ function parseBWW(dots) {
   logit(score);
 }
 
+
+function cleanupBww(source) {
+  source = source.replace(/~/g, " ~ ");
+  source = source.replace(/\t/g, " ~ ");
+  source = source.split("");
+  
+  var tokenChars = /[A-Z]|[a-z]|[0-9]|_|'|&|~|\t|!/;
+  var whiteSpaceToEat = / |\n|\r/;
+  
+  
+  function getNextChar() {
+    return source[si++];
+  }
+  
+  function peektNextChar() {
+    if (source[si]) {
+      return source[si];
+    } else {
+      return "";
+    }
+  }
+
+  function getTokenArray(l) {
+    var out = []
+    while (l-- > 0) {
+      eatWhiteSpace();
+      out.push(readToken());      
+    }
+    return out;
+  }
+  
+  function eatWhiteSpace() {
+    while (peektNextChar().match(whiteSpaceToEat)) {
+      getNextChar();
+    }
+  }
+  
+  function getStringUntil(term) {
+    var out = [];
+    var q;
+    
+    q = getNextChar(); // Read the quote
+    out.push(q);
+    q = getNextChar();
+    while (q !== term) {
+      out.push(q);
+      q = getNextChar();
+    }
+      out.push(q);
+    
+    return out.join("");    
+  }
+  
+  function getQuotedString() {
+    var out = [];
+    var q;
+    
+    q = getNextChar(); // Read the quote
+    out.push(q);
+    q = getNextChar();
+    while (q !== '"') {
+      out.push(q);
+      q = getNextChar();
+    }
+      out.push(q);
+    
+    return out.join("");
+  }
+  
+  
+  function readToken() {
+    var q;
+    var t = "";
+    
+    q = getNextChar();
+    if (!q.match(tokenChars)) {
+      return q;
+    }
+
+    t += q;
+    
+    while (peektNextChar().match(tokenChars)) {
+      q = getNextChar();
+      t += q;
+    }
+    return t;
+  }
+  
+  var si;
+  var line;
+  var dest = [];
+  var l;
+  var token;
+  var q;
+  
+  // Cheap duck test
+  //if (API.hasMethod(source, "push")) {
+  //  source = source.join(" ");
+  //}
+  
+  si = 0;
+  l = source.length;
+  while (si < l) {
+    eatWhiteSpace();
+    token = undefined;
+    q = peektNextChar();
+    
+    if (token === undefined) {
+      if (q === '"') { // Its a quoted string
+        token = getQuotedString();
+      token = token + getStringUntil(")");
+      }
+    }
+    
+    if (token === undefined) {
+      if (q.match(tokenChars)) {
+      token = readToken();
+      }
+    }
+    
+    if (token == " ") {
+      token = "<space>";
+    }
+    
+    if (token === undefined) {
+      si++;
+    }
+    
+    // And now that we have a token, decide what to do with it.
+    switch(token) {
+    case "Bagpipe":
+      token = token + " " + getTokenArray(5).join("");
+      break;
+    case "MIDINoteMappings":
+    case "FrequencyMappings":
+    case "InstrumentMappings":
+    case "GracenoteDurations":
+    case "FontSizes":
+    case "TuneFormat":
+      token = token + getStringUntil(")");
+      break;
+    case "TuneTempo":
+      token = token  + getTokenArray(2).join("");      
+    }
+    
+    if (token) {
+    dest.push(token);
+    }
+  }
+  return dest;
+}
 
