@@ -32,7 +32,7 @@ function parseBWW(dots) {
   
   /*
   "Layout Tester",(T,L,0,0,Times New Roman,16,700,0,0,18,0,0,0)
-  "Crap",(Y,C,0,0,Times New Roman,14,400,0,0,18,0,0,0)
+  "test",(Y,C,0,0,Times New Roman,14,400,0,0,18,0,0,0)
   "Jeremy J Starcher",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)
   
   "It just is",(F,R,0,0,Times New Roman,10,400,0,0,18,0,0,0)
@@ -67,9 +67,13 @@ function parseBWW(dots) {
                          //TODO:
                          // We really should check for this before we even
                          // begin parsing.
-                         if (s == "Bagpipe Reader:1.0") {
-                           return true;
-                         }
+                         if ( 
+                             (s == "Bagpipe Reader:1.0")
+                             ||
+                             (s == "Bagpipe Music Writer Gold:1.0")
+                             ){
+                         return true;
+                             }
                          
                          return false;
                        }
@@ -97,7 +101,8 @@ function parseBWW(dots) {
                              val = s.split(",")[0].replace(/"/g, '')
                              data[name] = val;
                            } else {
-                             throw importException("Unknown type in text string");
+                             alert("Unknown meta data: `" + s + "'");
+                             //throw importException("Unknown type in text string");
                            }
                            return;
                          }
@@ -1318,7 +1323,11 @@ function cleanupBww(source) {
     if (token === undefined) {
       if (q === '"') { // Its a quoted string
         token = getQuotedString();
-      token = token + getStringUntil(")");
+        if (peektNextChar() == ",") {
+          //alert("found a comma, reading line");
+          token = token + getStringUntil(")");
+        }
+        //alert(token);
       }
     }
     
@@ -1339,7 +1348,8 @@ function cleanupBww(source) {
     // And now that we have a token, decide what to do with it.
     switch(token) {
     case "Bagpipe":
-      token = token + " " + getTokenArray(5).join("");
+      token = token + getStringUntil(":");
+      token = token + getTokenArray(3).join("");
       break;
     case "MIDINoteMappings":
     case "FrequencyMappings":
@@ -1357,6 +1367,7 @@ function cleanupBww(source) {
     dest.push(token);
     }
   }
+  //document.write("<pre>" + JSON.stringify(dest, undefined, 2));
   return dest;
 }
 

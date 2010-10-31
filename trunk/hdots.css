@@ -1,3 +1,7 @@
+fieldset {
+  border: 1px solid green;
+  width: 100%;
+}
 
 span.icon_list img {
   /* float:right; */
