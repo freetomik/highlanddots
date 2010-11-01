@@ -38,11 +38,18 @@ Score.graphicsList = {
 
    var ratio, size, width, height;
    size = sdet.staffHeight * 1.8;
+   
+   if (this.glyphInfo[this.name]) {
    ratio = this.glyphInfo[this.name].scaleFromHeight / size;
-
-
    width = this.glyphInfo[this.name].width;
    height = this.glyphInfo[this.name].height;
+   } else {
+     alert("Glyph `" + this.name + "' is not found.");
+     width = 1;
+     height = 1;
+     ration = 1;
+   }
+
 
    var dh = height /  ratio;
    var dw = width / ratio;  
