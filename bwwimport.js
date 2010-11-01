@@ -23,6 +23,20 @@ var beamGroupDef = {
 function parseBWW(dots) {
   dots = cleanupBww(dots)
   
+  var knownVersions = [
+    "Bagpipe Reader:1.0",
+    "Bagpipe Music Writer Gold:1.0"
+  ];
+  
+  
+  var version = dots[0];
+  if (knownVersions.indexOf(version) === -1) {
+    alert("This document starts with `" + version + "'.\r\nThis is not a known " +
+          "bagpipe music file.");
+    return false;
+  }
+  dots[0] = "";
+  
   function importException (message)
   {
     this.message=message;
@@ -63,17 +77,6 @@ function parseBWW(dots) {
                          if (typeof a[l] !== "undefined") {
                            return true;
                          }
-                         
-                         //TODO:
-                         // We really should check for this before we even
-                         // begin parsing.
-                         if ( 
-                             (s == "Bagpipe Reader:1.0")
-                             ||
-                             (s == "Bagpipe Music Writer Gold:1.0")
-                             ){
-                         return true;
-                             }
                          
                          return false;
                        }
@@ -290,6 +293,28 @@ function parseBWW(dots) {
                    
                    
   }());
+  
+  // No-operations.  BWW tokens that we realize, but we completely ignore.
+  var z_nop = (function() {
+                   var a = [  
+                     "space"
+                   ];
+                   
+                   function isType(s) {
+                     return (a.indexOf(s) !== -1);
+                   }
+                   
+                   function create(s) {
+                     return undefined;
+                   }
+                   return {
+                     isType: isType,
+                     create: create
+                   };
+                   
+                   
+  }());
+    
   
   // Is this a beat? Which would end a beam?
   var z_beat = (function() {
@@ -1137,6 +1162,7 @@ function parseBWW(dots) {
       //z_keysig must be after z_graphic
       wasFound = false;
       [
+        z_nop,
         z_graphic,
         z_keysig,
         z_timesig,
@@ -1199,6 +1225,7 @@ function parseBWW(dots) {
   
   if (errors.length) {
     alert(errors.join("\r\n"));
+    return false;
   }
   
   // This doesn't really fix anything,
@@ -1211,6 +1238,7 @@ function parseBWW(dots) {
   
   //alert(score.metaData.toSource());
   logit(score);
+  return true;
 }
 
 
@@ -1219,7 +1247,7 @@ function cleanupBww(source) {
   source = source.replace(/\t/g, " ~ ");
   source = source.split("");
   
-  var tokenChars = /[A-Z]|[a-z]|[0-9]|_|'|&|~|\t|!/;
+  var tokenChars = /[A-Z]|[a-z]|[0-9]|_|'|&|~|\t|!|\^|=/;
   var whiteSpaceToEat = / |\n|\r/;
   
   
@@ -1234,7 +1262,7 @@ function cleanupBww(source) {
       return "";
     }
   }
-
+  
   function getTokenArray(l) {
     var out = []
     while (l-- > 0) {
@@ -1261,7 +1289,7 @@ function cleanupBww(source) {
       out.push(q);
       q = getNextChar();
     }
-      out.push(q);
+    out.push(q);
     
     return out.join("");    
   }
@@ -1277,7 +1305,7 @@ function cleanupBww(source) {
       out.push(q);
       q = getNextChar();
     }
-      out.push(q);
+    out.push(q);
     
     return out.join("");
   }
@@ -1291,7 +1319,7 @@ function cleanupBww(source) {
     if (!q.match(tokenChars)) {
       return q;
     }
-
+    
     t += q;
     
     while (peektNextChar().match(tokenChars)) {
@@ -1333,7 +1361,7 @@ function cleanupBww(source) {
     
     if (token === undefined) {
       if (q.match(tokenChars)) {
-      token = readToken();
+        token = readToken();
       }
     }
     
@@ -1364,7 +1392,7 @@ function cleanupBww(source) {
     }
     
     if (token) {
-    dest.push(token);
+      dest.push(token);
     }
   }
   //document.write("<pre>" + JSON.stringify(dest, undefined, 2));

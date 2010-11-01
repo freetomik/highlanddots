@@ -76,7 +76,7 @@ function postImport(score) {
     if (mel.type === "melody" || mel.type === "gracenote") {
       var note = mel.staffPosition.substring(0,1); // Staff position never has sharps or flats.
       var midiOffset = +mel.staffPosition.substring(1);
-      if (lastKeySig && lastKeySig.data && lastKeySig.data.key[note]) {
+      if (lastKeySig && lastKeySig.data && lastKeySig.data.key && lastKeySig.data.key[note]) {
         note += lastKeySig.data.key[note]
       }
       mel.midiName = HD_TO_MIDINAME_XLATE[note + midiOffset];
@@ -118,7 +118,6 @@ function postImport(score) {
         if (typeof data.type === "undefined") {
           data.keyType = mel.name;
           data.count = 0;
-          data.key = defaultKeySig;
         } else {
           if (data.keyType !== mel.name) {
             alert("A key signature can contain sharps or flats but not both.");
@@ -159,10 +158,7 @@ function postImport(score) {
   var lineMeasureNumber = 0;
   var staffLine = 1;
   var lastKeySig;
-  
-  var defaultKeySig = {};
-  
-   
+     
   for (i = 0, l = score.data.length; i < l; i++) {
     mel = score.data[i];
     if (!mel) {continue;}
@@ -170,10 +166,17 @@ function postImport(score) {
     
     if (mel.name === "treble-clef") {
       gatherKeySig();
+      if (!lastKeySig.data.key) {
+        lastKeySig.data = {
+          keyType:"sharp", count:1, key:{f:"#", c:"#"},
+          // The note values have already been adjusted to play properly when
+          // the key sig is not given. This makes an "incorrect" BWW file,
+          // but they do exist.
+          ignoreIfUsingBwwNoteValues: true 
+        };
+      }   
     }
-    
-    
-    
+        
     if (mel.type === "timesig") {
       beatUnit = mel.beatUnit; 
       beatsPerBar = mel.beatsPerBar;

@@ -177,7 +177,7 @@ var staff =
    var canvasName = "hdots_canvas";
    if (details.ctx) {
      init();
-     details.ctx.fillStyle = "#0c0";
+     details.ctx.fillStyle = "#FFF";
      details.ctx.fillRect(0, 0, details.canvas.width, details.canvas.height);
      return;
    }
@@ -203,9 +203,13 @@ var staff =
 
 
 function loadTune(ext, tuneText) {
+  var tuneOk = false;
   score.removeAllNodes();
-  parseBWW(tuneText);
-  plotMusic(score); 
+  staff.prepForDrawing(); // Erase old tune.
+  tuneOk = parseBWW(tuneText);
+  if (tuneOk) {
+    plotMusic(score);
+  }
 }
 
 
@@ -279,6 +283,96 @@ function plotMusic_inner(score)
       delay.push(f);
     }
     
+    function processMel(mel) {
+      if (!mel) {return;}
+      
+      var rect;
+      var strokeStyle = ctx.strokeStyle;
+      
+      if (needStaff) {
+        prepNewStaff();
+        needStaff = false;
+      }
+      
+      if (mel.forceToX) {
+        sdet.x = mel.forceToX;
+      }
+      
+      
+      if (typeof mel.calc === "function") {
+        mel.calc(staff);
+      }
+      //TODO : enable bounding box for gracenotes in a group
+      if (typeof mel.getBoundingRect === "function") {
+        rect = mel.getBoundingRect(staff);
+        
+        if (rect) {
+          logit([mel.type, "rect: ", rect.x, rect.y, rect.width, rect.height, mel.paddingRight]);
+          mel.rect = rect;
+          if (doPaint && drawBoundingBox) {
+            try {
+              ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
+              ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
+              ctx.fillStyle = strokeStyle;
+              
+              // Debugging - mark exactly where the center is.
+              ctx.fillStyle = "red";
+              ctx.fillRect(rect.x-1, rect.y-1, 2, 2);
+              ctx.fillStyle = strokeStyle;
+            } catch (err) {
+              loger.error(["Bounding box for", mel, err]);
+            }
+          }
+        }
+      }
+      
+      
+      
+      switch(mel.type) {
+      case "melody":
+        if (doPaint) {delayMel(mel, staff);}
+        sdet.x += sdet.space * 2.5;
+        break;
+      case "gracenote":
+        if (doPaint) {delayMel(mel, staff);}
+        sdet.x += sdet.space * 1.25;
+        break;
+      case "graphic":
+        if (doPaint) {delayMel(mel, staff);}
+        sdet.x += rect.width;
+        break;
+      case "beamgroup":
+        if (doPaint) {delayMel(mel, staff);}
+        break;
+      case "phrasegroup":
+        if (doPaint) {delayMel(mel, staff);}
+        break;
+      case "staffControl":
+        if (doPaint) {delayMel(mel, staff);}
+        sdet.x += rect.width;
+        break;
+      case "timesig":
+        if (doPaint) {delayMel(mel, staff);}
+        sdet.x += rect.width;
+        break;
+      case "keysig":
+        if (doPaint) {delayMel(mel, staff);}
+        sdet.x += rect.width;
+        break;
+      }
+      
+      if (typeof mel.paddingRight === "number") {
+        sdet.x += mel.paddingRight;
+      }
+      
+      sdet.maxX = Math.max(sdet.x, sdet.maxX);
+      
+      if (mel.staffEnd) {
+        needStaff = true;
+        sdet.top += sdet.space * 3;
+      }
+    }
+    
     try {
       score.metaData.calc(staff, "header");
       if (doPaint && score.metaData) {
@@ -289,95 +383,7 @@ function plotMusic_inner(score)
       loger.error("Unable to render header: " + err);
     }
     
-    score.data.forEach(function(mel) {
-                       if (!mel) {return;}
-                       
-                       var rect;
-                       var strokeStyle = ctx.strokeStyle;
-                       
-                       if (needStaff) {
-                         prepNewStaff();
-                         needStaff = false;
-                       }
-                       
-                       if (mel.forceToX) {
-                         sdet.x = mel.forceToX;
-                       }
-                       
-                       
-                       if (typeof mel.calc === "function") {
-                         mel.calc(staff);
-                       }
-                       //TODO : enable bounding box for gracenotes in a group
-                       if (typeof mel.getBoundingRect === "function") {
-                         rect = mel.getBoundingRect(staff);
-                         
-                         if (rect) {
-                           logit([mel.type, "rect: ", rect.x, rect.y, rect.width, rect.height, mel.paddingRight]);
-                           mel.rect = rect;
-                           if (doPaint && drawBoundingBox) {
-                             try {
-                               ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
-                               ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
-                               ctx.fillStyle = strokeStyle;
-                               
-                               // Debugging - mark exactly where the center is.
-                               ctx.fillStyle = "red";
-                               ctx.fillRect(rect.x-1, rect.y-1, 2, 2);
-                               ctx.fillStyle = strokeStyle;
-                             } catch (err) {
-                               loger.error(["Bounding box for", mel, err]);
-                             }
-                           }
-                         }
-                       }
-                       
-                       
-                       
-                       switch(mel.type) {
-                       case "melody":
-                         if (doPaint) {delayMel(mel, staff);}
-                         sdet.x += sdet.space * 2.5;
-                         break;
-                       case "gracenote":
-                         if (doPaint) {delayMel(mel, staff);}
-                         sdet.x += sdet.space * 1.25;
-                         break;
-                       case "graphic":
-                         if (doPaint) {delayMel(mel, staff);}
-                         sdet.x += rect.width;
-                         break;
-                       case "beamgroup":
-                         if (doPaint) {delayMel(mel, staff);}
-                         break;
-                       case "phrasegroup":
-                         if (doPaint) {delayMel(mel, staff);}
-                         break;
-                       case "staffControl":
-                         if (doPaint) {delayMel(mel, staff);}
-                         sdet.x += rect.width;
-                         break;
-                       case "timesig":
-                         if (doPaint) {delayMel(mel, staff);}
-                         sdet.x += rect.width;
-                         break;
-                       case "keysig":
-                         if (doPaint) {delayMel(mel, staff);}
-                         sdet.x += rect.width;
-                         break;
-                       }
-                       
-                       if (typeof mel.paddingRight === "number") {
-                         sdet.x += mel.paddingRight;
-                       }
-                       
-                       sdet.maxX = Math.max(sdet.x, sdet.maxX);
-                       
-                       if (mel.staffEnd) {
-                         needStaff = true;
-                         sdet.top += sdet.space * 3;
-                       }
-    });
+    score.data.forEach(processMel);
     
     try {    
       score.metaData.calc(staff, "footer");
@@ -385,7 +391,7 @@ function plotMusic_inner(score)
         score.metaData.paint(staff, "footer");
       }
       sdet.top += score.metaData.getBoundingRect().height + sdet.space;
-    } catch (e) {
+    } catch (err) {
       loger.error("Unable to render footer: " + err);
     }
     
