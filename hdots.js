@@ -400,10 +400,6 @@ function plotMusic_inner(score)
     } catch (err) {
       loger.error("Unable to render footer: " + err);
     }
-    
-    for (var i = 0; i < delay.length; i++) {
-      delay[i]();
-    }
   }
   
   var f = hdots_prefs.getPluginFunction("beauty_engine");
