@@ -383,7 +383,13 @@ function plotMusic_inner(score)
       loger.error("Unable to render header: " + err);
     }
     
-    score.data.forEach(processMel);
+    try {
+      score.data.forEach(processMel);
+    } catch(err) {
+      alert("Something horrible has happened! I've crashed trying to show that score.\r\n\r\n" +
+            "Please forgive me, I'm just a humble bit of Javascript.");
+      loger.error("Unable to render body: " + err);
+    }
     
     try {    
       score.metaData.calc(staff, "footer");

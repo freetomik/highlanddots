@@ -118,6 +118,7 @@ function postImport(score) {
         if (typeof data.type === "undefined") {
           data.keyType = mel.name;
           data.count = 0;
+          data.key = {};                    
         } else {
           if (data.keyType !== mel.name) {
             alert("A key signature can contain sharps or flats but not both.");
