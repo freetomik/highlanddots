@@ -19,7 +19,7 @@
 
       var c = this.c;
 
-      o = {};
+      var o = {};
       o.x = c.originx;
       o.y = (c.originy <= c.endy) ? c.cp1y1 : c.cp2y1;
       o.height = c.height;
@@ -33,6 +33,7 @@
       var mel, pos;
       var grp = [];
       var self = this;
+        var firstNote;
 
       function getVolta() {
         var nested = 0;
@@ -141,6 +142,7 @@
       var originx, originy, endx, endy,cp1x1, cp1y1, cp2x1, cp2y1 = 0;
       var yMult = -1;
       var y, yDelta;                        // the Y adjustment needed to put over/under the notation
+var firstNote;
 
       var sdet = staff.details;
       var c = this.c;

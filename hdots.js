@@ -383,13 +383,13 @@ function plotMusic_inner(score)
       loger.error("Unable to render header: " + err);
     }
     
-    try {
+    //NUKE try {
       score.data.forEach(processMel);
-    } catch(err) {
-      alert("Something horrible has happened! I've crashed trying to show that score.\r\n\r\n" +
-            "Please forgive me, I'm just a humble bit of Javascript.");
-      loger.error("Unable to render body: " + err);
-    }
+    //NUKE } catch(err) {
+    //NUKE   alert("Something horrible has happened! I've crashed trying to show that score.\r\n\r\n" +
+    //NUKE         "Please forgive me, I'm just a humble bit of Javascript.");
+    //NUKE   loger.error("Unable to render body: " + err);
+    //NUKE }
     
     try {    
       score.metaData.calc(staff, "footer");
