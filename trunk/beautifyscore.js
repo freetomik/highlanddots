@@ -32,6 +32,7 @@ function beautifyScore(pref, staff, pass) {
   var beatCount = 0;
   var beatCountOnLine = 1;
   var t, tmp;
+	var isMeasureStart;
 	
   data = score.data;
   l = data.length;
@@ -103,9 +104,9 @@ function beautifyScore(pref, staff, pass) {
   // spaceForLeadIn to that.
   (function() {       
    var inLeadIn = false;
-   var isMeasureStart = true;
+   isMeasureStart = true;
    var getNextMelodyX = false;
-   
+  
    isMeasureStart = true;
    l = data.length;      
    for (i = 0; i < l; i++) {

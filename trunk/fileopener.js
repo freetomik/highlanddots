@@ -24,6 +24,7 @@ var fileOpener = (
                   var uiElement, fileInput, tuneTxt;
                   var httpElemId = "httpOpenTuneUrl";
                   var data;                  
+                  var frg;
                   
                   var openHttpFile = function() {
                     var url, req, txt;
@@ -86,6 +87,9 @@ var fileOpener = (
                   };
                   
                   var builtinFilePicker = function () {
+                    var elem;
+                    var inputElem;
+                    
                     elem = document.createElement('fieldset');
                     elem.appendChild(document.createElement('legend'));
                     elem.childNodes[0].appendChild(document.createTextNode("Built in examples"));
@@ -242,6 +246,8 @@ var fileOpener = (
                   var comboFilePicker = function() {
                     var frag, elem;
                     var useActiveX = false;
+                    var divElem;
+                    
                     try {
                       var xhr= new ActiveXObject('Microsoft.XMLHTTP');
                       if (API.isHostMethod(xhr, "open")) {
@@ -250,7 +256,7 @@ var fileOpener = (
                     } catch (ex) {
                     }
                     
-                    if (self.uiElement === undefined) {
+                    if (uiElement === undefined) {
                       frg = document.createDocumentFragment();
                       divElem = document.createElement('div');
                       frg.appendChild(divElem);
