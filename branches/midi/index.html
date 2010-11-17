@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+
+<!-- Tuliana 2 iconset
+     from http://www.iconarchive.com/category/system/tulliana-2-icons-by-umut-pulat.html
+     released under GLGPL
+-->
+
+<title>Highland Dots</title>
+<link rel="stylesheet" type="text/css" href="reset.css">
+<link rel="stylesheet" type="text/css" href="hdots.css">
+
+<!--[if IE]>
+<script src="jslib/excanvas.js"></script>
+<![endif]-->
+
+<script type="text/javascript" src="hdotsloader.js"></script>
+
+
+<script type="text/javascript">
+
+
+function closeInputDialog() {
+  var id = "inputDialog";
+  if (arguments.length == 1)
+    id = arguments[0];
+  
+  document.getElementById(id).style.visibility = 'hidden';
+  document.getElementById(id).style.display = 'none';
+  
+}
+
+function openSettings(srcElem) {
+  var elem1, elem2,elem3,p;
+  
+  p = srcElem.parentNode;
+  while (p.tagName.toLowerCase() !== "div") {
+    p = p.parentNode;
+  }
+  ui = document.getElementById('settings');
+  hdots_prefs.uiConfig.useForUi = ui;
+  hdots_prefs.getUi();
+  
+  //ui.style.position = 'absolute';
+  //ui.style.top = p.style.top + p.style.height;
+  //ui.style.cssFloat = "right";
+  ui.style.width = '50%';
+  //ui.style.height = '50%';
+  
+  ui.style.display = 'block';
+  ui.style.visibility = 'visible';  
+}
+
+
+function uiDoFileOpen(displayElemId, srcElem) {
+  
+  // get the FileOpener component DOM content
+  // remove dom nodes from
+  //  elem id="inputAreaContent"
+  // add FO dom content
+  // get FO title
+  // set dialog title with FO title
+  // show dialog
+  
+  var node, ui, p;
+  
+  // dialog title
+  node = document.getElementById(displayElemId + 'Title');
+  if (node.childNodes.length) node.removeChild(node.childNodes[0]);
+  node.appendChild(document.createTextNode("Open File"));
+  
+  var fileOpenData = {
+    //  filename:  "mystuff.bww",
+    //  fileUrl: "./mystuff.bww";
+    //  tuneTxt: "";
+    //  errorMsg = "";
+    //  onFailure:  function() {API.getEBI(displayElemId+"Content").innerHTML=errorMsg; },
+    onSuccess:  function() {closeInputDialog();uiLoadTune('bww', API.getEBI("editor").value);},
+    useForUi:  API.getEBI(displayElemId+"Content"),
+    useForEditor:  API.getEBI("editor")
+  };
+  
+  
+  // dialog content
+  node = document.getElementById(displayElemId+"Content");
+  if (node.childNodes.length) node.removeChild(node.childNodes[0]);
+  
+  fileOpener(fileOpenData).filePicker();
+  
+  
+  p = srcElem.parentNode;
+  while (p.tagName.toLowerCase() !== "div") {
+    p = p.parentNode;
+  }
+  
+  ui = document.getElementById(displayElemId);
+  ui.style.position = 'absolute';
+  ui.style.top = p.style.top + p.style.height;
+  ui.style.left = p.style.left;
+  ui.style.display = 'block';
+  ui.style.visibility = 'visible';
+  
+}
+
+
+
+function localPathToURI(path) {
+  var uri = path;
+  uri = uri.replace(/\\/g, '/');
+  uri = uri.replace(/:/g, '|');
+  uri = "file://" + uri;
+  return uri;
+}
+
+function loadFromEditor() {
+  var t = document.getElementById('editor').value;
+  uiLoadTune('bww', t);
+  closeInputDialog();
+}
+
+function handleLoadTunes(list) {
+  var t = list[0].getAsText("");
+  document.getElementById('editor').value = t;
+  uiLoadTune('bww', t);
+  
+  closeInputDialog();
+}
+
+function reload() {
+	plotMusic(score);
+}
+
+function doEval(elemId) {
+  var o = document.getElementById(elemId);
+  if (o.value && o.value.length > 0) eval(o.value);
+}
+
+
+function initHtmlGui() {
+  
+  
+  //logWin = window.open("log.html", "logWindow", "width=620px,height=420px,menubar=no,resizable=no,scrollbars=no,titlebar=yes,toolbar=no");
+  //logWin.postMessage("Hello", "*");
+  
+  loger.init(/*{ logging: true }*/);
+  
+  logit("log test");;
+  loger.log("log test 2");;
+  logit("log test 3");;
+
+  setSplitSize();
+  
+  var oTextbox = new AutoSuggestControl(document.getElementById("text_bpm"), new StateSuggestions());        
+  oTextbox.showOnFocus = true;
+}
+
+
+function setSplitSize() {
+  function resizeTextArea(splEle, barPos)
+  {
+    //window.title = 'xSplitter: ' + splEle.id + ', bar position: ' + barPos;
+    var h;
+    var el = document.getElementById("xsp2-pane2");
+    
+    // Find out how much room there is for the editor (div size-header size) 
+    h = xHeight(el) - xHeight(document.getElementById("editheader"));
+    h -= xHeight(document.getElementById("dragbar"));
+
+    h += API.getElementBorder(el, 'top');
+    h += API.getElementBorder(el, 'bottom');
+
+    // And set size to get scroll bars working.
+    xHeight(document.getElementById("editor"), h);   
+  }
+
+  function setSize() {
+    var mb = document.getElementById("menuBar");
+    var main = document.getElementById("main");
+    var pane1 = document.getElementById('xsp2');
+    // Calculate new screen sizes
+    var w = xClientWidth();
+    var h;
+
+    // Set the size of the container that holds both divs 
+    //xResizeTo(document.getElementById("main"), w, h);
+    // And the size of the editor field
+    xWidth(document.getElementById("editor"), w);
+    xWidth(document.getElementById("editheader"), w);
+    xWidth(document.getElementById("sectionHeader"), w);
+    xWidth(mb, w);   
+    
+    //h = 0.95 * ( xClientHeight() - xHeight(mb) );
+    h = ( xClientHeight() - xHeight(mb) ) -2;
+    xMoveTo(main, 0, 0);
+    xResizeTo(main, w, h);
+    
+    // Call the paned resize code
+    s2.paint(w, h, h * 0.8);
+    
+    resizeTextArea();
+  }
+  
+  // xSplitter Application
+  // last update: 18aug2010
+  
+  var s1, s2;
+  
+  var i, a, cw = xClientWidth(), w = .9 * cw, h = 300;
+  var ch = xClientHeight();
+  
+  h = ch * 0.75;
+  
+  
+  // sSplId,  X, Y, W, H, Horz , BarW, BarPos, BarLim1, BarLim2, BarEn, BorW, oSplChild1, oSplChild2
+  s2 = new xSplitter('xsp2'  , 0, 0, w, h, false, 6,    h*.75,  100,      40,     true,  2);  
+  s2.setDragEnd(resizeTextArea);
+  setSize();
+  
+  window.onresize = function (){
+    setSize();
+  } 
+}
+
+function toggleLog() {
+  var e = API.getEBI("status_div");
+  API.toggleElementPresence(e);
+}
+
+
+scriptLoader.loadHDots();
+
+</script>
+
+
+</head>
+
+<body onLoad="initHtmlGui();/*hdots_prefs.makeHdConfigForm();*/">
+
+<div>
+  <ul id="menuBar">
+   <li>
+      <img src="ui/images/tuliana/reload.png" onclick="loadFromEditor();">
+   </li>
+    <li><a href="#" onClick="uiDoFileOpen('inputDialog',this);return false;">OPEN</a></li>
+    <li><a href="#" onClick="alert('Not yet implemented');return false;">LIBRARY</a></li>
+    <li><a href="#" onClick="alert('Not yet implemented');return false;">PRINT</a></li>
+
+   <li>
+   <img src="ui/images/tuliana/player_start.png" onclick="alert('Not yet implemented');return false;" title="Rewind to beginning">
+   </li>
+   
+   <li>
+      <img src="ui/images/tuliana/player_stop.png" onclick="alert('Not yet implemented');return false;" title="Stop playing">
+   </li>
+   <li>
+      <img src="ui/images/tuliana/player_play.png" onclick="alert('Not yet implemented');return false;" title="Start playing">
+   </li>
+      
+   <li>
+      <img src="ui/images/tuliana/arts.png" onclick="alert('Not yet implemented');return false;">
+   </li>
+
+   <li>
+      <input type="text" id="text_bpm" value="80" size="3" style="background:transparent;">
+      <b>BPM</b>      
+   </li>
+  
+  
+    <li><a href="#" onClick="openSettings(this);return false;">SETTINGS</a></li>
+    <li><a style="margin-left: 2em" href="#" onClick="alert('Not yet implemented');return false;">HELP</a></li>
+   <li>
+      <img src="ui/log.png" onclick="toggleLog()" title="Toggle log.">
+   </li>
+ </ul>
+</div>
+
+
+<div class="inputArea" id="inputDialog">
+  <span class="uiInputHeading" id="inputDialogTitle">
+  </span>
+  <span class="uiButton">
+    <button onclick="closeInputDialog();return false;" style="height:20px;">Close</button>
+  </span>
+  <div id="inputDialogContent" style="overflow:auto;">
+    dialog content
+  </div>
+
+  
+  </div>
+
+<div id="settings" class="inputArea">
+  <p style="float:left;width:100%">
+  Settings and Preferences
+  <span style="float:right;">
+    <img src="ui/images/tuliana/cancel.png" onclick="closeInputDialog('settings');">
+  </span>
+  </p>
+</div>
+
+
+<div id="main" class='temp-container'>
+<div id='xsp2' class='xSplitter'>
+
+<div class='xsp-pane'>
+
+<div id="scorepane">
+  <div class="sectionHeader">
+    <span class="icon_list">
+      <span id="scoreTitle">Score</span>
+    </span>
+
+    <!--
+    <span class="sectionViewControls icon_list" style="float:right;">
+      <img src="ui/images/tuliana/view_remove.png" onclick="resizeUiArea('canvas_div','noview');">
+      <img src="ui/images/tuliana/view_fullscreen.png" onclick="resizeUiArea('canvas_div','fullview');">
+      <img src="ui/images/tuliana/view_nofullscreen.png" onclick="resizeUiArea('canvas_div','view');">
+      <img src="ui/images/tuliana/viewmag.png" onclick="alert('Not yet implemented');">
+    </span>
+    -->
+    
+
+  </div>
+  
+  <div id="canvas_div">
+  <div id="imagemap_div">
+    <p id="hdots_canvas">The music goes here</p>
+  </div>
+  </div>
+</div>
+</div> <!-- end Pane -->
+
+<div id='xsp2-pane2' class='xsp-pane'>
+
+<div id="editor_pane">
+  <div id = "editheader" class="sectionHeader">
+      <span id="editorTitle">Editor</span>
+   </div>
+  
+  <textarea id="editor" style="width:790px; height:268px; overflow:auto; border:solid 1px #cccccc;">
+  Locally loaded tunes will go here.
+  </textarea>
+</div>
+</div> <!-- end Pane -->
+
+<div id='dragbar' class='xsp-dragbar xsp-dragbar-hframe'>&nbsp;</div>
+</div> <!-- end Splitter -->
+</div> <!-- end TemporaryContainer -->
+
+
+<map name="hDotsMap" id="hDotsMap">
+<area shape="circle" coords="0,0,0" >
+</map>
+
+
+</body>
+</html>
