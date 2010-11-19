@@ -1,0 +1,2962 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<title>JSMidi test suite</title>
+
+<script type="text/javascript" src="../jslib/jsmidi/midi.js"></script>
+
+</head>
+
+<body class="yui3-skin-sam  yui-skin-sam">
+<div id="testLogger"></div>
+
+<script type="text/javascript">
+
+/*
+PITCH_BEND_CENT = (8192/2) / 100;
+elsif @code == PITCH_BEND
+			val = @data1 + 8192
+			s << (val & 0x7f)
+			s << ((val >> 7) & 0x7f)
+
+when PITCH_BEND
+				msb = readByte()
+				ev.data1 += msb*128 - 8192
+*/
+
+    var HDR_CHUNKID     = "MThd";
+    var HDR_CHUNK_SIZE  = "\x00\x00\x00\x06"; // Header size for SMF
+    var HDR_TYPE0       = "\x00\x00"; // Midi Type 0 id
+    var HDR_TYPE1       = "\x00\x01"; // Midi Type 1 id
+    var HDR_SPEED       = "\x00\x80"; // Defaults to 128 ticks per beat
+
+    // Midi event codes
+    var EVT_NOTE_OFF           = 0x8;
+    var EVT_NOTE_ON            = 0x9;
+    var EVT_AFTER_TOUCH        = 0xA;
+    var EVT_CONTROLLER         = 0xB;
+    var EVT_PROGRAM_CHANGE     = 0xC;
+    var EVT_CHANNEL_AFTERTOUCH = 0xD;
+    var EVT_PITCH_BEND         = 0xE;
+
+
+
+var tune =
+[64,64,65,67,
+ 67,65,64,62,
+ 60,60,62,64,
+ 64,62,62,
+ 64,64,65,67,
+ 67,65,64,62,
+ 60,60,62,64,
+ 62,60,60,
+ 62,62,64,60,
+ 62,64,65,64,60,
+ 62,64,65,64,62,
+ 60,62,55,
+ 64,64,65,67,
+ 67,65,64,62,
+ 60,60,62,64,
+ 62,60,60];
+
+var evnts = [];
+evnts.push ( new MidiEvent({
+         time: 1,
+         type:    EVT_PROGRAM_CHANGE,
+         channel: 0,
+         param1:  110 // 110 = bagpipe
+    }) );
+
+for (var i=0; i<tune.length;i++) {
+  evnts.push(new MidiEvent({
+         time: 0,
+         type:    EVT_NOTE_ON,
+         channel: 0,
+         param1:  tune[i],
+         param2:  90
+    }) );
+  evnts.push(new MidiEvent({
+         time: 256,
+         type:    EVT_NOTE_OFF,
+         channel: 0,
+         param1:  tune[i],
+         param2:  0
+    }) );
+}
+
+
+  evnts = [
+  new MidiEvent( {
+    "time":[0
+    ],
+    "type":EVT_PROGRAM_CHANGE,
+    "channel":0,
+    "param1":110
+  }),
+ new MidiEvent( {
+    "time":[1
+    ],
+    "type":EVT_NOTE_ON,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[20
+    ],
+    "type":EVT_NOTE_OFF,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":EVT_NOTE_ON,
+    "channel":0,
+    "param1":58,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[256
+    ],
+    "type":EVT_NOTE_OFF,
+    "channel":0,
+    "param1":58,
+    "param2":0
+  })
+  ];
+
+
+
+    var track = new MidiTrack({ events: evnts });
+//    var track = new MidiTrack({ events: makeEventList() });
+    track.setTempo(82);
+    var song  = MidiWriter({ tracks: [track] });
+
+
+//            song.save();
+    song.play();
+
+
+function makeEventList() {
+
+
+  stack = [
+  new MidiEvent( {
+    "time":[1
+    ],
+    "type":12,
+    "channel":0,
+    "param1":110
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":58,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[130,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":58,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":56,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":56,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":58,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":58,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":56,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":56,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":58,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":58,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":60,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[64
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":60,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":56,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":56,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":63,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":63,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":62,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":62,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":63,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":63,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":65,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":65,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":67,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":67,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":67,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[130,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":67,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":65,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":65,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":67,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":67,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":65,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":65,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":63,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":63,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":60,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":60,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":63,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":63,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":60,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":60,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":63,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":63,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":67,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":67,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":67,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":67,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":65,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":65,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":67,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":67,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":67,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":67,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":70,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":70,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":58,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[130,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":58,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":56,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":56,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":58,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":58,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":56,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":56,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":58,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":58,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":60,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[64
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":60,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":56,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":56,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":63,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":63,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":62,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":62,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":63,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":63,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":65,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":65,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":67,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":67,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":67,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[130,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":67,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":65,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":65,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":67,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":67,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":65,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":65,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":63,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":63,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":60,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":60,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":63,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":63,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":60,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":60,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":65,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":65,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":56,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":56,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":58,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[130,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":58,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":56,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":56,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":58,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":58,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":56,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":56,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":58,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[130,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":58,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":67,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":67,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":70,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":70,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":70,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[130,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":70,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":56,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":56,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":63,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":63,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":56,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":56,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":70,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":70,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[64
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":67,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":67,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":67,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[130,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":67,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":65,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":65,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":67,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":67,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":65,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":65,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":63,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":63,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":60,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":60,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":63,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":63,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":60,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":60,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":63,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":63,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":67,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":67,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":67,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":67,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":65,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":65,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":67,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":67,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":67,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[130,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":67,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":67,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":67,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":70,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":70,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":70,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[130,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":70,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":56,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":56,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":63,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":63,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":56,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":56,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":70,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":70,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[64
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":67,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":67,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":67,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[130,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":67,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":65,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":65,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":67,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":67,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":65,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":65,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":63,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":63,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":60,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":60,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":63,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":63,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":60,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":60,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":65,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":65,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":56,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":56,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":58,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[130,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":58,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":56,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":56,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":58,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":58,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":56,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":56,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":58,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[130,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":58,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":67,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":67,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":67,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":67,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":70,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":70,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":58,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[130,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":58,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":56,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":56,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":58,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":58,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":56,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":56,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":58,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":58,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":60,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[64
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":60,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":56,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":56,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":63,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":63,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":62,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":62,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":63,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":63,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":65,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":65,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":67,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":67,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":67,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[130,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":67,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":65,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":65,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":67,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":67,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":65,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":65,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":63,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":63,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":60,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":60,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":63,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":63,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":60,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":60,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":65,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":65,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":56,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[129,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":56,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":68,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":68,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":58,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[130,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":58,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":56,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":56,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":58,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":58,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":56,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[8
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":56,
+    "param2":0
+  }),
+ new MidiEvent( {
+    "time":[0
+    ],
+    "type":0x8,
+    "channel":0,
+    "param1":58,
+    "param2":90
+  }),
+ new MidiEvent( {
+    "time":[130,
+      0
+    ],
+    "type":0x9,
+    "channel":0,
+    "param1":58,
+    "param2":0
+  })
+]
+
+return stack;
+}
+
+
+
+
+
+</script>
+
+</body>
+</html>
