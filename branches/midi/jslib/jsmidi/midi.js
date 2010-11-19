@@ -22,7 +22,7 @@ var HDR_CHUNKID     = "MThd";
 var HDR_CHUNK_SIZE  = "\x00\x00\x00\x06"; // Header size for SMF
 var HDR_TYPE0       = "\x00\x00"; // Midi Type 0 id
 var HDR_TYPE1       = "\x00\x01"; // Midi Type 1 id
-var HDR_SPEED       = "\x00\x80"; // Defaults to 128 ticks per beat
+var HDR_SPEED       = "\x01\x00"; /* 256 ticks per 1/4 note */ // "\x00\x80"; // Defaults to 128 ticks per beat
 
 // Midi event codes
 var EVT_NOTE_OFF           = 0x8;
@@ -37,7 +37,7 @@ var META_SEQUENCE   = 0x00;
 var META_TEXT       = 0x01;
 var META_COPYRIGHT  = 0x02;
 var META_TRACK_NAME = 0x03;
-var META_INSTRUMENT = 0x04;
+var META_INSTRUMENT = 0x6E; /* 0x6E == 110, bagpipe 0x04 == 4, honkey tonk piano */
 var META_LYRIC      = 0x05;
 var META_MARKER     = 0x06;
 var META_CUE_POINT  = 0x07;
@@ -450,8 +450,13 @@ MidiTrack.prototype = {
     setTempo: function(tempo) {
         this.addEvent(new MetaEvent({ type: META_TEMPO, data: tempo }));
     },
-    setTimeSig: function() {
-        // TBD
+    setTimeSig: function(numNotes, noteType, metroClick, num32nds) {
+// TJM
+        // 2/4 ,
+        // metro click every 24 clock cycles (ie. every 1/4 note),
+        // 8 32nd notes in a 1/4 note
+//        this.addEvent(new MetaEvent({ type: META_TIME_SIG, data: [2,4,24,8] }));
+
     },
     setKeySig: function() {
         // TBD
