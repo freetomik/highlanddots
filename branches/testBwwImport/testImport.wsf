@@ -1,0 +1,117 @@
+<job>
+  <script language="VBScript">
+  '  Dim oShell
+  'Set oShell = CreateObject("Wscript.Shell")
+  '
+  'If Instr(1, WScript.FullName, "CScript", vbTextCompare) = 0 Then
+  '  oShell.Run "cscript //D""" & WScript.ScriptFullName & """", 1, False
+  '  WScript.Quit
+  'End If
+  </script>
+
+  
+    <script language="JScript" src="tools.js"/>
+    <script language="JScript" src="hdots.js"/>
+    <script language="JScript" src="bwwimport.js"/>
+    <script language="JScript" src="mom.js"/>
+    <script language="JScript" src="scoreelement.js"/>
+    <script language="JScript" src="keysig.js"/>
+    <script language="JScript" src="note.js"/>
+    <script language="JScript" src="melody.js"/>
+    <script language="JScript" src="timesig.js"/>
+    <script language="JScript" src="staffcontrol.js"/>
+    <script language="JScript" src="embellishment.js"/>
+    <script language="JScript" src="graphicelement.js"/>
+    <script language="JScript" src="beamgroup.js"/>
+    <script language="JScript" src="phrasegroup.js"/>
+    <script language="JScript" src="metadata.js"/>
+    <script language="JScript" src="postimport.js"/>
+    <script language="JScript" src="examples.js"/>
+
+  
+  
+ 
+  <script language="JScript">
+    var fname;
+    function alert(s) {	
+	    var fspec = "err.out";
+		
+		var forReading = 1, forWriting = 2, forAppending = 8;
+		var fs;
+		var f;
+		var is;
+		fs = new ActiveXObject("Scripting.FileSystemObject");
+		
+		if (fs.FileExists(fspec)) {
+          f = fs.GetFile(fspec);
+		  is = f.OpenAsTextStream(forAppending, 0);
+        } else  {
+          is = fs.CreateTextFile(fspec, true);
+        }
+
+        is.WriteLine([fname, s].join(":"));
+		is.close();
+    }
+
+
+  function loadFile(fname) {
+		// define constants
+		// Note: if a file exists, using forWriting will set
+		// the contents of the file to zero before writing to
+		// it. 
+		var forReading = 1, forWriting = 2, forAppending = 8;
+
+		var rline;
+		var fs;
+		var f;
+		var is;
+		var i;
+		
+		// define array to store lines. 
+		rline = [];
+
+		// Create the object 
+		fs = new ActiveXObject("Scripting.FileSystemObject");
+		f = fs.GetFile(fname);
+
+		// Open the file 
+		is = f.OpenAsTextStream( forReading, 0 );
+
+		// start and continue to read until we hit
+		// the end of the file. 
+		i = 0;
+		while( !is.AtEndOfStream ) {
+		  rline[i] = is.ReadLine();
+		  i++;
+		}
+
+		// Close the stream 
+		is.Close();
+
+		return rline.join("\n");
+    }
+
+
+    function logit(s) {	
+    }
+	
+	
+  </script>
+  
+  
+  <script language="JScript">
+    var objArgs = WScript.Arguments;
+	var i;
+	var txt;
+	
+	//WScript.Echo(WScript.Arguments.Count());
+
+	for (i=0; i<objArgs.length; i++) {
+      fname = objArgs(i);
+	  txt = loadFile(fname);
+	  parseBWW(txt);
+	  alert("Done");
+	} 
+  </script>
+  
+</job>
