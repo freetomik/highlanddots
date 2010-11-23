@@ -12,6 +12,7 @@ var GHPRef = {
   HA: "a3"
 };
 
+var useShortMessages = true;
 
 var beamGroupDef = {
   start:  {sectionStart: true},
@@ -25,7 +26,8 @@ function parseBWW(dots) {
   
   var knownVersions = [
     "Bagpipe Reader:1.0",
-    "Bagpipe Music Writer Gold:1.0"
+    "Bagpipe Music Writer Gold:1.0",
+	"Bagpipe Musicworks Gold:1.0"
   ];
   
   
@@ -36,6 +38,20 @@ function parseBWW(dots) {
     return false;
   }
   dots[0] = "";
+  
+  // Some files have multiple headers.  We are just going to eat those.
+  (function() {
+    var i = 1;
+	version = dots[i];
+    while (knownVersions.indexOf(version) !== -1) {
+      dots[i] = "";
+	  i++;
+	  version = dots[i];
+	}
+	
+  }());
+  //alert(dots);
+  
   
   function importException (message)
   {
@@ -104,7 +120,7 @@ function parseBWW(dots) {
                              val = s.split(",")[0].replace(/"/g, '')
                              data[name] = val;
                            } else {
-                             alert("Unknown meta data: `" + s + "'");
+                             logit("Unknown meta data: `" + s + "'");
                              //throw importException("Unknown type in text string");
                            }
                            return;
@@ -1012,6 +1028,7 @@ function parseBWW(dots) {
                         "!I": {sectionEnd: true,staffEnd: true, newBar: true},
                         "!t": {staffEnd: true, newBar: true},
                         "''!I": {sectionEnd: true, repeatEnd: true, staffEnd: true, newBar: true},
+						"''!It": {sectionEnd: true, repeatEnd: true, staffEnd: true, newBar: true},
                         "!!": {sectionEnd: true, staffEnd: true, newBar: true}
                         };
                         
@@ -1134,6 +1151,7 @@ function parseBWW(dots) {
   function parseBits(b, errors) {
     var i, l = b.length;
     var s, mel;
+	var msg;
     
     var wasFound;
     
@@ -1148,7 +1166,15 @@ function parseBWW(dots) {
       mel = undefined;
       
       if (z_invalid.isType(s)) {
-        errors.push("Symbol `" + s + "' is known, but not supported.");
+	    if (useShortMessages) {
+		  msg = s + " not supported";
+		} else {
+		  msg = "Symbol `" + s + "' is known, but not supported.";
+		}
+		// We only need one copy of the error message
+		if (errors.indexOf(msg) === -1) {
+          errors.push(msg);
+		}
         continue;
       }
       
@@ -1173,6 +1199,7 @@ function parseBWW(dots) {
         z_staffControl,
         z_ghbgrace
       ].forEach(function(f) {
+            	  logit(s);
                 if (f.isType(s)) {
                 wasFound = true;
                 mel = f.create(s);
@@ -1184,7 +1211,15 @@ function parseBWW(dots) {
       });
       
       if (!wasFound) {
-        errors.push("Symbol `" + s + "' is totally unknown.");        
+        if (useShortMessages) {
+          msg = s + " unknown";
+		} else {
+          msg = "Symbol `" + s + "' is totally unknown."; 
+		}
+		// We only need one copy of the error message
+		if (errors.indexOf(msg) === -1) {
+          errors.push(msg);
+		}
       }
     }    
   }
@@ -1224,12 +1259,16 @@ function parseBWW(dots) {
   }
   
   if (errors.length) {
-    alert(errors.join("\r\n"));
+    if (useShortMessages) {
+	  alert(errors);
+	} else {
+	  alert(errors.join("\r\n"));
+	}
     return false;
   }
   
   // This doesn't really fix anything,
-  //  it just tires to replicate the rules
+  //  it just tries to replicate the rules
   //  BP appears to use when beaming.
   //  
   fixBeamGroups();
@@ -1252,6 +1291,9 @@ function cleanupBww(source) {
   
   
   function getNextChar() {
+    if (si > source.length) {
+      throw("getNextChar: Past end of source.");
+    }
     return source[si++];
   }
   

@@ -1,14 +1,18 @@
 <job>
   <script language="VBScript">
-  '  Dim oShell
+  'Dim oShell
   'Set oShell = CreateObject("Wscript.Shell")
-  '
+  
   'If Instr(1, WScript.FullName, "CScript", vbTextCompare) = 0 Then
   '  oShell.Run "cscript //D""" & WScript.ScriptFullName & """", 1, False
   '  WScript.Quit
   'End If
   </script>
 
+    <script language="JScript">
+    var fname;
+	var alert;
+    </script>
   
     <script language="JScript" src="tools.js"/>
     <script language="JScript" src="hdots.js"/>
@@ -31,27 +35,47 @@
   
   
  
-  <script language="JScript">
-    var fname;
-    function alert(s) {	
-	    var fspec = "err.out";
-		
-		var forReading = 1, forWriting = 2, forAppending = 8;
-		var fs;
-		var f;
-		var is;
-		fs = new ActiveXObject("Scripting.FileSystemObject");
-		
-		if (fs.FileExists(fspec)) {
-          f = fs.GetFile(fspec);
-		  is = f.OpenAsTextStream(forAppending, 0);
-        } else  {
-          is = fs.CreateTextFile(fspec, true);
-        }
-
-        is.WriteLine([fname, s].join(":"));
-		is.close();
-    }
+  <script language="JScript">	
+	function alertArray(a) {
+	  var i, l = a.length;
+	  for (i = 0; i < l; i++) {
+	    alert(a[i]);
+	  }
+	}
+	
+alert = (function(s) {
+         var is;
+         
+         return function(s) {
+		 
+           if (s.push) {
+             alertArray(s);
+             return;
+           }
+           
+           if (!is) {
+             var fspec = "err.out";
+             
+             var forReading = 1, forWriting = 2, forAppending = 8;
+             var fs;
+             var f;
+             fs = new ActiveXObject("Scripting.FileSystemObject");
+             
+             if (fs.FileExists(fspec)) {
+               f = fs.GetFile(fspec);
+               is = f.OpenAsTextStream(forAppending, 0);
+             } else  {
+               is = fs.CreateTextFile(fspec, true);
+             }
+           }
+           var n2 = fname.replace(/p.*bagpipe_player.*\\/i, "");
+           is.WriteLine([n2, s].join(":"));
+           //is.close();
+         };
+         
+}());
+	
+//WScript.echo(alert.toString());
 
 
   function loadFile(fname) {
@@ -81,14 +105,14 @@
 		// the end of the file. 
 		i = 0;
 		while( !is.AtEndOfStream ) {
-		  rline[i] = is.ReadLine();
+		  var line = is.ReadLine();
+		  rline[i] = line
 		  i++;
 		}
 
 		// Close the stream 
 		is.Close();
-
-		return rline.join("\n");
+		return rline.join("\r\n");
     }
 
 
@@ -100,6 +124,7 @@
   
   
   <script language="JScript">
+    var useShortMessages = true;
     var objArgs = WScript.Arguments;
 	var i;
 	var txt;
@@ -107,10 +132,14 @@
 	//WScript.Echo(WScript.Arguments.Count());
 
 	for (i=0; i<objArgs.length; i++) {
-      fname = objArgs(i);
-	  txt = loadFile(fname);
-	  parseBWW(txt);
-	  alert("Done");
+	  try {
+        fname = objArgs(i);
+        alert("Processing:");
+        txt = loadFile(fname);
+        parseBWW(txt);
+	  } catch (e) {
+        alert(e);
+	  }
 	} 
   </script>
   
