@@ -102,18 +102,15 @@ La_4 unknown
 Lal_32 unknown
 Lar_16 unknown
 Lar_8 unknown
-Music unknown
 Musicworks unknown
 New unknown
 Part unknown
-Reader
 Reader unknown
 Roman unknown
 Strla unknown
 T unknown
 Times unknown
 VariationTempo unknown
-Writer unknown
 ^3b unknown
 ^3c unknown
 ^tB unknown

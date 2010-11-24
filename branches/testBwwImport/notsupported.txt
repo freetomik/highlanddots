@@ -6,8 +6,6 @@ REST_2 not supported
 REST_32 not supported
 REST_4 not supported
 REST_8 not supported
-^2e not supported
-^2s not supported
 ^3d not supported
 ^3f not supported
 ^3ha not supported
@@ -16,14 +14,6 @@ REST_8 not supported
 ^3lg not supported
 ^53e not supported
 ^53s not supported
-^tb not supported
-^tc not supported
-^td not supported
-^tf not supported
-^tha not supported
-^thg not supported
-^tla not supported
-^tlg not supported
 bis_' not supported
 dacapoalfine not supported
 dalsegno not supported

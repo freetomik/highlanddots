@@ -20,7 +20,6 @@ var beamGroupDef = {
 };
 
 
-
 function parseBWW(dots) {
   //////////////////////////////////////////////////////////////////////////
   /// Data declarations
@@ -142,14 +141,14 @@ function parseBWW(dots) {
                      "^46s",
                      "^54s",
                      "^76s",
-                    // "^tb",
-                    // "^tc",
-                    // "^td",
-                    // "^tf",
-                    // "^tha",
-                    // "^thg",
-                    // "^tla",
-                    // "^tlg",
+                     // "^tb",
+                     // "^tc",
+                     // "^td",
+                     // "^tf",
+                     // "^tha",
+                     // "^thg",
+                     // "^tla",
+                     // "^tlg",
                      "flatlg",
                      "flatla",
                      "flatb",
@@ -1041,10 +1040,11 @@ function parseBWW(dots) {
   }
   dots[0] = "";
   
-  // Some files have multiple headers.  We are just going to eat those.
+  // Some files have multiple headers *IN A ROW*
+  // We are just going to eat those.
   (function() {
    var i = 1;
-   version = dots[i];
+   var version = dots[i];
    while (knownVersions.indexOf(version) !== -1) {
      dots[i] = "";
      i++;
@@ -1052,7 +1052,30 @@ function parseBWW(dots) {
    }
    
   }());
-  //alert(dots);
+  
+  // And then we'll check if there is more than one score in this file.
+  // If so, die and gag for now.
+  var isOneScore = function() {
+    var l = dots.length;
+    var i = 0;
+    var version;
+    
+    for (i = 1; i < l; i++) {
+      version = dots[i];
+      if (knownVersions.indexOf(version) !== -1) {
+        return false;
+      }
+    }
+    return true;
+  };
+  
+  if (!isOneScore()) {
+    alert("There seem to be multiple scores within this file.\n" +
+          "Sorry, can't handle that yet.");
+    return false;
+  }
+  
+  
   
   
   function getTokenList(a) {
@@ -1165,7 +1188,7 @@ function parseBWW(dots) {
       mel = score.data[i];
       switch (mel.type) {
       case "melody":
-	  if (mel.tail) {
+        if (mel.tail) {
           if (!inBeam) {
             inBeam = true;
             bg = score.createBeamGroup();
@@ -1173,7 +1196,28 @@ function parseBWW(dots) {
             meldObjectToObject(beamGroupDef.start, bg);
             score.data.splice(i,0,bg);
           }
-      } else {
+        } else {
+          if (inBeam) {
+            inBeam = false;
+            bg = score.createBeamGroup();
+            bg.elementType = "melody";
+            meldObjectToObject(beamGroupDef.end, bg);
+            score.data.splice(i,0,bg);
+          }
+        }
+        break;
+        
+      case "staffControl":
+        if (mel.newBar && inBeam) {
+          inBeam = false;
+          bg.elementType = "melody";
+          bg = score.createBeamGroup();
+          meldObjectToObject(beamGroupDef.end, bg);
+          score.data.splice(i,0,bg);
+        }
+        break;
+        
+      case "beat":
         if (inBeam) {
           inBeam = false;
           bg = score.createBeamGroup();
@@ -1181,29 +1225,8 @@ function parseBWW(dots) {
           meldObjectToObject(beamGroupDef.end, bg);
           score.data.splice(i,0,bg);
         }
-      }
-      break;
-      
-    case "staffControl":
-	if (mel.newBar && inBeam) {
-        inBeam = false;
-        bg.elementType = "melody";
-        bg = score.createBeamGroup();
-        meldObjectToObject(beamGroupDef.end, bg);
-        score.data.splice(i,0,bg);
-    }
-    break;
-    
-  case "beat":
-  if (inBeam) {
-      inBeam = false;
-      bg = score.createBeamGroup();
-      bg.elementType = "melody";
-      meldObjectToObject(beamGroupDef.end, bg);
-      score.data.splice(i,0,bg);
-  }
-  break;
-  
+        break;
+        
       }
     }
     
@@ -1497,8 +1520,7 @@ function parseBWW(dots) {
     //document.write("<pre>" + JSON.stringify(dest, undefined, 2));
     return dest;
   }
-
-
+  
   /**
   There are some 'obsolete' tokens from earlier versions of Bagpipe Music Writer.
   
@@ -1506,11 +1528,11 @@ function parseBWW(dots) {
   format, so this code will replicate that.
   
   English translation:
-    Translates the stream from:
-	  LA_4 ^tla LA_4
+  Translates the stream from:
+  LA_4 ^tla LA_4
 	To the preferred:
-	  ^ts LA_4 LA_4 ^te
-    
+	^ts LA_4 LA_4 ^te
+	
   FIXME:  Bagpipe Music Player handles a tie that spans a line boundry by
   drawing it to the end of the line.
   
@@ -1519,41 +1541,40 @@ function parseBWW(dots) {
   function cleanupBww2(source) {
     var ties = ["^tlg", "^tla", "^tb", "^tc", "^td", "^te", "^tf", "^tha", "^thg"];
     var lastMelodyTokenIdx = 0;
-	var inTie = false;
-	var i, l = source.length;
+    var inTie = false;
+    var i, l = source.length;
     var isMel;
-
-	// These are the tokens that identify melody notes.
+    
+    // These are the tokens that identify melody notes.
     var melodyTokens = z_melody.getTokens();
-	
-	var mel;
-	var dots = [];
-	
-	for (i = 0; i < l; i++) {
-	  mel = source[i];
-	  
-	  if (ties.indexOf(mel) !== -1) {
-	    // Force a token earlier into the stream
+    
+    var mel;
+    var dots = [];
+    
+    for (i = 0; i < l; i++) {
+      mel = source[i];
+      
+      if (ties.indexOf(mel) !== -1) {
+        // Force a token earlier into the stream
         dots.splice(lastMelodyTokenIdx,0,"^ts");
-		inTie = true;
-		continue;
-	  }
-
+        inTie = true;
+        continue;
+      }
+      
       isMel = melodyTokens.indexOf(mel) !== -1;
-	  
-	  if (isMel) {
-	    lastMelodyTokenIdx = i;
+      
+      if (isMel) {
+        lastMelodyTokenIdx = i;
       }
-	  
-	  dots.push(mel);
-
-	  if (inTie && isMel) {
+      
+      dots.push(mel);
+      
+      if (inTie && isMel) {
     	  dots.push("^te");
-		  inTie = false;
+    	  inTie = false;
       }
-	}
-	
-	return dots;
+    }    
+    return dots;
   }
   
 }
