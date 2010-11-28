@@ -39,7 +39,6 @@ var EVT_PITCH_BEND         = 0xE;
  */
 function scoretoaudio(score, ticks) {
 
-alert(window.EVT_PROGRAM_CHANGE);
   var evnts;
   var i, l, mel;
   var pass = 1;
@@ -96,9 +95,9 @@ alert(window.EVT_PROGRAM_CHANGE);
   var tune  = MidiWriter({ tracks: [track] });
   
   // save => write data URL to new window
-  tune.save();
-  // paly => add layer with embedded QT plugin and set data URL 
-  // tune.play();
+  //tune.save();
+  // play => add layer with embedded QT plugin and set data URL 
+  tune.play();
  
  
 }
