@@ -142,7 +142,7 @@
       var originx, originy, endx, endy,cp1x1, cp1y1, cp2x1, cp2y1 = 0;
       var yMult = -1;
       var y, yDelta;                        // the Y adjustment needed to put over/under the notation
-var firstNote;
+      var firstNote;
 
       var sdet = staff.details;
       var c = this.c;
@@ -329,6 +329,26 @@ var firstNote;
         ctx.lineTo(c.endx, c.endy+c.height);
         ctx.stroke();
         ctx.closePath();
+
+      } else if (this.collectionName === "ties" && c.brokenAt) {
+	// ties/slurs should always be arcs
+	// this should be a relatively rare case where a Tie spans staff lines
+
+        // draw arc to bar at end of staff line 
+//TJM
+        ctx.beginPath();
+        ctx.moveTo(c.originx, c.originy);
+        ctx.quadraticCurveTo(c.originx, c.originy-(sdet.space*2), c.originx+(sdet.space*2), c.originy-(sdet.space*2) );
+        ctx.stroke();
+        ctx.closePath();
+
+        // move to next staff line, draw 2nd half of tie's arc
+        ctx.beginPath();
+        ctx.moveTo(c.endx-(sdet.space*2), c.endy-(sdet.space*2));
+        ctx.quadraticCurveTo(c.endx, c.endy-(sdet.space*2), c.endx, c.endy);
+        ctx.stroke();
+        ctx.closePath();
+
 
       } else {
         ctx.beginPath();
