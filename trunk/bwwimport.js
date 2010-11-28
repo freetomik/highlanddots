@@ -9,7 +9,8 @@ var GHPRef = {
   E: "e2",
   F: "f2",
   HG: "g2",
-  HA: "a3"
+  HA: "a3",
+  REST: "c2"
 };
 
 
@@ -133,15 +134,6 @@ function parseBWW(dots) {
                    make sure to remove them from this list.
                    */
                    var a = [  
-                     "naturalha",
-                     "naturalhg",
-                     "naturalf",
-                     "naturale",
-                     "naturald",
-                     "naturalc",
-                     "naturalb",
-                     "naturalla",
-                     "naturallg",
                      "pdarodo16",
                      "phdarodo",
                      "plbrea",
@@ -209,22 +201,26 @@ function parseBWW(dots) {
                      "pttripb",
                      "pttripc",
                      "pcblg",
-                     "REST_1",
-                     "REST_2",
-                     "REST_4",
+// TODO : complete graphic elements for these rests
                      "REST_8",
                      "REST_16",
                      "REST_32",
-                     "bis_'",
-                     "'si",
-                     "'do",
+// TODO : enhance phrase group for these tuplets
+                     "^2s",
                      "^2e",
+                     "^43s",
                      "^43e",
-                     "^53e",
-                     "^64e",
-                     "^74e",
+                     "^46s",
                      "^46e",
+                     "^53s",
+                     "^53e",
+                     "^54s",
                      "^54e",
+                     "^64s",
+                     "^64e",
+                     "^74s",
+                     "^74e",
+                     "^76s",
                      "^76e",
                      "=^3b",
                      "=^3c",
@@ -234,14 +230,6 @@ function parseBWW(dots) {
                      "^3hg",
                      "^3la",
                      "^3lg",
-                     "^2s",
-                     "^43s",
-                     "^53s",
-                     "^64s",
-                     "^74s",
-                     "^46s",
-                     "^54s",
-                     "^76s",
                      "^tb",
                      "^tc",
                      "^td",
@@ -250,15 +238,9 @@ function parseBWW(dots) {
                      "^thg",
                      "^tla",
                      "^tlg",
-                     "flatlg",
-                     "flatla",
-                     "flatb",
-                     "flatc",
-                     "flatd",
-                     "flate",
-                     "flatf",
-                     "flathg",
-                     "flatha",
+
+                     "'si",
+                     "'do",
                      "xfermatlg",
                      "fermatla",
                      "fermatb",
@@ -374,6 +356,15 @@ function parseBWW(dots) {
                    "sharpb":    {name: "sharp", staffNote: GHPRef.B},
                    "sharpla":   {name: "sharp", staffNote: GHPRef.LA},
                    "sharplg":   {name: "sharp", staffNote: GHPRef.LG},
+                   "flatha":     {name: "flat", staffNote: GHPRef.HA},
+                   "flathg":     {name: "flat", staffNote: GHPRef.HG},
+                   "flatf":     {name: "flat", staffNote: GHPRef.F},
+                   "flate":     {name: "flat", staffNote: GHPRef.E},
+                   "flatd":     {name: "flat", staffNote: GHPRef.D},
+                   "flatc":     {name: "flat", staffNote: GHPRef.C},
+                   "flatb":     {name: "flat", staffNote: GHPRef.B},
+                   "flatla":     {name: "flat", staffNote: GHPRef.LA},
+                   "flatlg":     {name: "flat", staffNote: GHPRef.LG},
                    "naturalha": {name: "natural", staffNote: GHPRef.HA},
                    "naturalhg": {name: "natural", staffNote: GHPRef.HG},
                    "naturalf":  {name: "natural", staffNote: GHPRef.F},
@@ -382,7 +373,15 @@ function parseBWW(dots) {
                    "naturalc":  {name: "natural", staffNote: GHPRef.C},
                    "naturalb":  {name: "natural", staffNote: GHPRef.B},
                    "naturalla": {name: "natural", staffNote: GHPRef.LA},
-                   "naturallg": {name: "natural", staffNote: GHPRef.LG}
+                   "naturallg": {name: "natural", staffNote: GHPRef.LG},
+                   "REST_1":    {name: "rest1",   duration: "1",   staffNote: GHPRef.C},
+                   "REST_2":    {name: "rest2",   duration: "2",   staffNote: GHPRef.C},
+                   "REST_4":    {name: "rest4",   duration: "4",   staffNote: GHPRef.C},
+                   "REST_8":    {name: "rest8",   duration: "8",   staffNote: GHPRef.C},
+                   "REST_16":   {name: "rest16",  duration: "16",  staffNote: GHPRef.C},
+                   "REST_32":   {name: "rest32",  duration: "32",  staffNote: GHPRef.C},
+                   "REST_64":   {name: "rest64",  duration: "64",  staffNote: GHPRef.C},
+                   "REST_128":  {name: "rest128", duration: "128", staffNote: GHPRef.C}
                    };
                    
                    function isType(s) {
@@ -949,6 +948,7 @@ function parseBWW(dots) {
                   
   }());
   
+
   var z_phrasegroup = (function() {
                        
                        /* *************************************** */
@@ -969,8 +969,24 @@ function parseBWW(dots) {
                        var a = {
                          "^ts":    {collectionName: "ties", sectionStart: true, style: "arc"},
                          "^te":    {collectionName: "ties", sectionEnd: true},
+                         "^2s":    {collectionName: "doublets", sectionStart: true, label: "2", style: "arc"},
+                         "^2e":    {collectionName: "doublets", sectionEnd: true},
                          "^3s":    {collectionName: "triplets", sectionStart: true, label: "3", style: "arc"},
                          "^3e":    {collectionName: "triplets", sectionEnd: true},
+                         "^43s":   {collectionName: "tuples", sectionStart: true, label: "4", style: "arc"},
+                         "^43e":   {collectionName: "tuples", sectionEnd: true},
+                         "^46s":   {collectionName: "tuples", sectionStart: true, label: "4", style: "arc"},
+                         "^46e":   {collectionName: "tuples", sectionEnd: true},
+                         "^53s":   {collectionName: "tuples", sectionStart: true, label: "5", style: "arc"},
+                         "^53e":   {collectionName: "tuples", sectionEnd: true},
+                         "^54s":   {collectionName: "tuples", sectionStart: true, label: "5", style: "arc"},
+                         "^54e":   {collectionName: "tuples", sectionEnd: true},
+                         "^64s":   {collectionName: "tuples", sectionStart: true, label: "6", style: "arc"},
+                         "^64e":   {collectionName: "tuples", sectionEnd: true},
+                         "^74s":   {collectionName: "tuples", sectionStart: true, label: "7", style: "arc"},
+                         "^74e":   {collectionName: "tuples", sectionEnd: true},
+                         "^76s":   {collectionName: "tuples", sectionStart: true, label: "7", style: "arc"},
+                         "^76e":   {collectionName: "tuples", sectionEnd: true},
                          "'bis":   {collectionName: "voltas", sectionStart: true, label: "bis", style: "straight"},
                          "'1":     {collectionName: "voltas", sectionStart: true, label: "1st", style: "straight", repeatOnPasses: [1]},
                          "'2":     {collectionName: "voltas", sectionStart: true, label: "2nd", style: "straight", repeatOnPasses: [2]},
@@ -983,6 +999,7 @@ function parseBWW(dots) {
                          "'28":    {collectionName: "voltas", sectionStart: true, label: "8th of part 2", style: "straight"},
                          "'224":   {collectionName: "voltas", sectionStart: true, label: "2nd of parts 2 and 4", style: "straight"},
                          "'intro": {collectionName: "voltas", sectionStart: true, label: "Introduction", style: "straight"},
+                         "bis_'":  {collectionName: "voltas", sectionEnd: true},
                          "_'":     {collectionName: "voltas", sectionEnd: true}
                        };
                        
