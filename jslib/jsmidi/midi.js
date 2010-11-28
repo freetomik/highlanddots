@@ -182,13 +182,58 @@ var MidiWriter = function(config) {
 
         return {
             b64: btoa(hexMidi),
-            play: function() {
+            load: function() {
                 if (document) {
+// TJM : TODO : make ID, height, width, etc. configurable
+//                    var elems = document.getElementsByTagName("embed");
+//                    for (var i=elems.length-1; i >= 0; i--) {
+//                      elems[i].parentNode.removeChild(elems[i]);
+//                    }
+
+                    var elem = document.getElementById("playerWrapper");
+                    for (var i=elem.childNodes.length-1; i >= 0; i--) {
+                      elem.removeChild(elem.childNodes[i]);
+                    }
+
                     var embed = document.createElement("embed");
                     embed.setAttribute("src", "data:audio/midi;base64," + this.b64);
                     embed.setAttribute("type", "audio/midi");
-                    document.body.appendChild(embed);
-                }
+                    embed.setAttribute("autostart", "true");
+                    embed.setAttribute("height", "22px");
+                    embed.setAttribute("width", "144px");
+                    embed.setAttribute("controls", "true");
+                    embed.setAttribute("loop", "false");
+                    embed.setAttribute("postdomevents", "true");
+                    embed.setAttribute("EnableJavaScript", "true");
+
+                    elem.appendChild(embed);
+
+                },
+                play: function() {
+                  var qt = document.getElementsByTagName("embed");
+                  if (qt[0].GetPluginStatus().toUpperCase() == "playable") {
+                    qt[0].Play();
+                  }
+// TJM : TODO : throw something if not playbale
+               }
+               pause: function() {
+                 var qt = document.getElementsByTagName("embed");
+                 if (qt[0].GetPluginStatus().toUpperCase() == "playable") {
+                   qt[0].Play();
+                 }
+// TJM : TODO : throw something if not playbale
+              },
+              stop: function() {
+                 var qt = document.getElementsByTagName("embed");
+                 if (qt[0].GetPluginStatus().toUpperCase() == "playable") {
+                   qt[0].Play();
+                 }
+// TJM : TODO : throw something if not playbale
+              },
+              setVolume: function(vol) {
+                 var qt = document.getElementsByTagName("embed");
+                 if (qt[0].SetVolume(vol))
+              }
             },
             save: function() {
                 window.open("data:audio/midi;base64," + this.b64,
