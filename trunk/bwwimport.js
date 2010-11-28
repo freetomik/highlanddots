@@ -13,6 +13,7 @@ var GHPRef = {
   REST: "c2"
 };
 
+var useShortMessages = true;
 
 var beamGroupDef = {
   start:  {sectionStart: true},
@@ -20,112 +21,10 @@ var beamGroupDef = {
 };
 
 
-
 function parseBWW(dots) {
-  dots = cleanupBww(dots)
-  
-  var knownVersions = [
-    "Bagpipe Reader:1.0",
-    "Bagpipe Music Writer Gold:1.0"
-  ];
-  
-  
-  var version = dots[0];
-  if (knownVersions.indexOf(version) === -1) {
-    alert("This document starts with `" + version + "'.\r\nThis is not a known " +
-          "bagpipe music file.");
-    return false;
-  }
-  dots[0] = "";
-  
-  function importException (message)
-  {
-    this.message=message;
-    this.name="BWW Import Exception";
-  }
-  
-  
-  /*
-  "Layout Tester",(T,L,0,0,Times New Roman,16,700,0,0,18,0,0,0)
-  "test",(Y,C,0,0,Times New Roman,14,400,0,0,18,0,0,0)
-  "Jeremy J Starcher",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)
-  
-  "It just is",(F,R,0,0,Times New Roman,10,400,0,0,18,0,0,0)
-  */
-  
-  var grok_metaData = (function() {
-                       var a = {
-                       MIDINoteMappings: {ignore: true},
-                       FrequencyMappings: {ignore: true},
-                       InstrumentMappings: {ignore: true},
-                       GracenoteDurations: {ignore: true},
-                       FontSizes: {ignore: true},
-                       TuneFormat: {ignore: true},
-                       TuneTempo: {ignore: false}
-                       };
-                       
-                       function isType(s) {
-                         // Look for things that start with a quote.
-                         
-                         //alert(typeof s);
-                         //alert([s, s.substring(0,1), s.substring(0,1) === '"']); 
-                         if (s.substring(0,1) === '"') {
-                           return true;
-                         }
-                         
-                         var l = s.split(",")[0];
-                         // Handle the things on the list.
-                         if (typeof a[l] !== "undefined") {
-                           return true;
-                         }
-                         
-                         return false;
-                       }
-                       
-                       function setData(data, s) {
-                         var i, mode;
-                         var l, name, val;
-                         
-                         // If it is one of those that starts in a quote
-                         // handle it.
-                         if (s.substring(0,1) === '"') {
-                           i = s.indexOf(',(');
-                           if (i === -1) {return; }
-                           
-                           mode = s.substring(i+2, i+3);
-                           
-                           name = {
-                             T: "Title",
-                             Y: "Genre",
-                             M: "Composer",
-                             F: "Footer"
-                           }[mode];
-                           
-                           if (name) {
-                             val = s.split(",")[0].replace(/"/g, '')
-                             data[name] = val;
-                           } else {
-                             alert("Unknown meta data: `" + s + "'");
-                             //throw importException("Unknown type in text string");
-                           }
-                           return;
-                         }
-                         
-                         l = s.split(",");
-                         name = l[0];
-                         
-                         l.splice(0,1);
-                         val = l.join(" , ");
-                         
-                         data[name] = val;
-                       }
-                       return {
-                         isType: isType,
-                         setData: setData
-                       };
-  }());
-  
-  
+  //////////////////////////////////////////////////////////////////////////
+  /// Data declarations
+  //////////////////////////////////////////////////////////////////////////
   
   var z_invalid = (function() {
                    /* 
@@ -230,14 +129,14 @@ function parseBWW(dots) {
                      "^3hg",
                      "^3la",
                      "^3lg",
-                     "^tb",
-                     "^tc",
-                     "^td",
-                     "^tf",
-                     "^tha",
-                     "^thg",
-                     "^tla",
-                     "^tlg",
+                     // "^tb",
+                     // "^tc",
+                     // "^td",
+                     // "^tf",
+                     // "^tha",
+                     // "^thg",
+                     // "^tla",
+                     // "^tlg",
 
                      "'si",
                      "'do",
@@ -269,6 +168,7 @@ function parseBWW(dots) {
                      alert("can't create an invalid type");
                    }
                    return {
+                     getTokens: function() {return getTokenList(a);},
                      isType: isType,
                      create: create
                    };
@@ -290,6 +190,7 @@ function parseBWW(dots) {
                      return undefined;
                    }
                    return {
+                 getTokens: function() {return getTokenList(a);},
                      isType: isType,
                      create: create
                    };
@@ -300,11 +201,15 @@ function parseBWW(dots) {
   
   // Is this a beat? Which would end a beam?
   var z_beat = (function() {
+                var a = [
+                "~",
+                "\t"
+                ];
+                
                 function isType(s) {
                 var mel = z_staffControl.create(s);
                 
-                if (s === "~") {return true;}
-                if (s === "\t") {return true;}
+                  if (a.indexOf(s) !== -1) {return true;}
                 if (mel.newBar) {return true;}
                 return false;
                 };
@@ -318,6 +223,7 @@ function parseBWW(dots) {
                   return mel;
                 }
                 return {
+                  getTokens: function() {return getTokenList(a);},				
                   isType: isType,
                   create: create
                 };
@@ -326,8 +232,11 @@ function parseBWW(dots) {
   
   var z_keysig = (function() {
                   
+                  a = [
+                  "&"
+                  ];  
                   function isType(s) {
-                  return (s === "&");
+                    return (a.indexOf(s) !== -1);
                   }
                   
                   function create(s) {
@@ -335,6 +244,7 @@ function parseBWW(dots) {
                   }
                   
                   return {
+                    getTokens: function() {return getTokenList(a);},				  
                     isType: isType,
                     create: create
                   };
@@ -400,6 +310,7 @@ function parseBWW(dots) {
                      }
                    }
                    return {
+                     getTokens: function() {return getTokenList(a);},				   
                      isType: isType,
                      create: create
                    };
@@ -448,6 +359,7 @@ function parseBWW(dots) {
                      
                    }
                    return {
+                     getTokens: function() {return getTokenList(a);},				   
                      isType: isType,
                      create: create
                    };                 
@@ -890,6 +802,7 @@ function parseBWW(dots) {
                     }
                     
                     return {
+                      getTokens: function() {return getTokenList(a);},					
                       isType: isType,
                       create: create
                     };                  
@@ -942,6 +855,7 @@ function parseBWW(dots) {
                     
                   }
                   return {
+                    getTokens: function() {return getTokenList(a);},				  
                     isType: isType,
                     create: create
                   };
@@ -1015,6 +929,7 @@ function parseBWW(dots) {
                          
                        }
                        return {
+                         getTokens: function() {return getTokenList(a);},					   
                          isType: isType,
                          create: create
                        };
@@ -1029,6 +944,7 @@ function parseBWW(dots) {
                         "!I": {sectionEnd: true,staffEnd: true, newBar: true},
                         "!t": {staffEnd: true, newBar: true},
                         "''!I": {sectionEnd: true, repeatEnd: true, staffEnd: true, newBar: true},
+                        "''!It": {sectionEnd: true, repeatEnd: true, staffEnd: true, newBar: true},
                         "!!": {sectionEnd: true, staffEnd: true, newBar: true}
                         };
                         
@@ -1043,6 +959,7 @@ function parseBWW(dots) {
                           return mel;
                         }
                         return {
+                          getTokens: function() {return getTokenList(a);},						
                           isType: isType,
                           create: create
                         };
@@ -1082,12 +999,199 @@ function parseBWW(dots) {
                      return undefined;
                    }
                    return {
+                     getTokens: function() {return getTokenList(a);},				   
                      isType: isType,
                      create: create
                    };                 
   }());
   
+  // Order kinda matters here.
+  //z_beat has to be before z_staffControl
+  //z_keysig must be after z_graphic
+  var typeArr = [
+    z_nop,
+    z_graphic,
+    z_keysig,
+    z_timesig,
+    z_beat,
+    z_phrasegroup,
+    z_melody,
+    z_noteDot,
+    z_staffControl,
+    z_ghbgrace
+  ];
   
+  var knownVersions = [
+    "Bagpipe Reader:1.0",
+    "Bagpipe Music Writer Gold:1.0",
+    "Bagpipe Musicworks Gold:1.0"
+  ];  
+  
+  //////////////////////////////////////////////////////////////////////////
+  /// Code that depends on the above data can start here
+  //////////////////////////////////////////////////////////////////////////
+  
+  function makeTokenList() {
+    var allTokens = ""
+	  typeArr.forEach(function(f) {
+	                  allTokens += f.getTokens().join(" ") + " ";
+	                  });
+	  var arr = allTokens.split(" ");
+	  
+	  
+	  arr.sort();
+	  arr.reverse();
+	  return arr;
+  }
+  
+  //console.log(makeTokenList());
+  
+  dots = cleanupBww(dots);  
+  dots = cleanupBww2(dots);  
+  
+  var version = dots[0];
+  if (knownVersions.indexOf(version) === -1) {
+    alert("This document starts with `" + version + "'.\r\nThis is not a known " +
+          "bagpipe music file.");
+    return false;
+  }
+  dots[0] = "";
+  
+  // Some files have multiple headers *IN A ROW*
+  // We are just going to eat those.
+  (function() {
+   var i = 1;
+   var version = dots[i];
+   while (knownVersions.indexOf(version) !== -1) {
+     dots[i] = "";
+     i++;
+     version = dots[i];
+   }
+   
+  }());
+  
+  // And then we'll check if there is more than one score in this file.
+  // If so, die and gag for now.
+  var isOneScore = function() {
+    var l = dots.length;
+    var i = 0;
+    var version;
+    
+    for (i = 1; i < l; i++) {
+      version = dots[i];
+      if (knownVersions.indexOf(version) !== -1) {
+        return false;
+      }
+    }
+    return true;
+  };
+  
+  if (!isOneScore()) {
+    alert("There seem to be multiple scores within this file.\n" +
+          "Sorry, can't handle that yet.");
+    return false;
+  }
+  
+  
+  
+  
+  function getTokenList(a) {
+    var a1 = [];
+    if (a.push) {
+      return a;
+    }
+    
+    API.forEachProperty(a, function(el, i) { a1.push(i); });
+    return a1;
+  }
+  
+  function importException (message)
+  {
+    this.message=message;
+    this.name="BWW Import Exception";
+  }
+  
+  
+  /*
+  "Layout Tester",(T,L,0,0,Times New Roman,16,700,0,0,18,0,0,0)
+  "test",(Y,C,0,0,Times New Roman,14,400,0,0,18,0,0,0)
+  "Jeremy J Starcher",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)
+  
+  "It just is",(F,R,0,0,Times New Roman,10,400,0,0,18,0,0,0)
+  */
+  
+  var grok_metaData = (function() {
+                       var a = {
+                       MIDINoteMappings: {ignore: true},
+                       FrequencyMappings: {ignore: true},
+                       InstrumentMappings: {ignore: true},
+                       GracenoteDurations: {ignore: true},
+                       FontSizes: {ignore: true},
+                       TuneFormat: {ignore: true},
+                       TuneTempo: {ignore: false}
+                       };
+                       
+                       function isType(s) {
+                         // Look for things that start with a quote.
+                         
+                         //alert(typeof s);
+                         //alert([s, s.substring(0,1), s.substring(0,1) === '"']); 
+                         if (s.substring(0,1) === '"') {
+                           return true;
+                         }
+                         
+                         var l = s.split(",")[0];
+                         // Handle the things on the list.
+                         if (typeof a[l] !== "undefined") {
+                           return true;
+                         }
+                         
+                         return false;
+                       }
+                       
+                       function setData(data, s) {
+                         var i, mode;
+                         var l, name, val;
+                         
+                         // If it is one of those that starts in a quote
+                         // handle it.
+                         if (s.substring(0,1) === '"') {
+                           i = s.indexOf(',(');
+                           if (i === -1) {return; }
+                           
+                           mode = s.substring(i+2, i+3);
+                           
+                           name = {
+                             T: "Title",
+                             Y: "Genre",
+                             M: "Composer",
+                             F: "Footer"
+                           }[mode];
+                           
+                           if (name) {
+                             val = s.split(",")[0].replace(/"/g, '')
+                             data[name] = val;
+                           } else {
+                             logit("Unknown meta data: `" + s + "'");
+                             //throw importException("Unknown type in text string");
+                           }
+                           return;
+                         }
+                         
+                         l = s.split(",");
+                         name = l[0];
+                         
+                         l.splice(0,1);
+                         val = l.join(" , ");
+                         
+                         data[name] = val;
+                       }
+                       return {
+                         getTokens: function() {return getTokenList(a);},					   
+                         isType: isType,
+                         setData: setData
+                       };
+  }());  
   
   // This doesn't really fix anything,
   //  it just tires to replicate the rules
@@ -1100,7 +1204,8 @@ function parseBWW(dots) {
     for (i = 0; i < score.data.length; i++) {
       mel = score.data[i];
       switch (mel.type) {
-      case "melody":        if (mel.tail) {
+      case "melody":
+        if (mel.tail) {
           if (!inBeam) {
             inBeam = true;
             bg = score.createBeamGroup();
@@ -1119,7 +1224,8 @@ function parseBWW(dots) {
       }
       break;
       
-    case "staffControl":  if (mel.newBar && inBeam) {
+      case "staffControl":
+        if (mel.newBar && inBeam) {
         inBeam = false;
         bg.elementType = "melody";
         bg = score.createBeamGroup();
@@ -1128,7 +1234,8 @@ function parseBWW(dots) {
     }
     break;
     
-  case "beat":          if (inBeam) {
+      case "beat":
+        if (inBeam) {
       inBeam = false;
       bg = score.createBeamGroup();
       bg.elementType = "melody";
@@ -1151,6 +1258,7 @@ function parseBWW(dots) {
   function parseBits(b, errors) {
     var i, l = b.length;
     var s, mel;
+    var msg;
     
     var wasFound;
     
@@ -1165,7 +1273,15 @@ function parseBWW(dots) {
       mel = undefined;
       
       if (z_invalid.isType(s)) {
-        errors.push("Symbol `" + s + "' is known, but not supported.");
+        if (useShortMessages) {
+          msg = s + " not supported";
+        } else {
+          msg = "Symbol `" + s + "' is known, but not supported.";
+        }
+        // We only need one copy of the error message
+        if (errors.indexOf(msg) === -1) {
+          errors.push(msg);
+        }
         continue;
       }
       
@@ -1174,22 +1290,10 @@ function parseBWW(dots) {
       // Loop through our melody element types and add it if a match is
       // found.  Don't abort the loop eary because some elements will 
       // create more than one node.
-      // Order kinda matters here.
-      //z_beat has to be before z_staffControl
-      //z_keysig must be after z_graphic
       wasFound = false;
-      [
-        z_nop,
-        z_graphic,
-        z_keysig,
-        z_timesig,
-        z_beat,
-        z_phrasegroup,
-        z_melody,
-        z_noteDot,
-        z_staffControl,
-        z_ghbgrace
-      ].forEach(function(f) {
+      
+      typeArr.forEach(function(f) {
+                      logit(s);
                 if (f.isType(s)) {
                 wasFound = true;
                 mel = f.create(s);
@@ -1201,8 +1305,16 @@ function parseBWW(dots) {
       });
       
       if (!wasFound) {
-        errors.push("Symbol `" + s + "' is totally unknown.");        
+        if (useShortMessages) {
+          msg = s + " unknown";
+        } else {
+          msg = "Symbol `" + s + "' is totally unknown."; 
       }
+        // We only need one copy of the error message
+        if (errors.indexOf(msg) === -1) {
+          errors.push(msg);
+    }    
+  }
     }    
   }
   
@@ -1241,12 +1353,16 @@ function parseBWW(dots) {
   }
   
   if (errors.length) {
+    if (useShortMessages) {
+      alert(errors);
+    } else {
     alert(errors.join("\r\n"));
+    }
     return false;
   }
   
   // This doesn't really fix anything,
-  //  it just tires to replicate the rules
+  //  it just tries to replicate the rules
   //  BP appears to use when beaming.
   //  
   fixBeamGroups();
@@ -1256,9 +1372,12 @@ function parseBWW(dots) {
   //alert(score.metaData.toSource());
   logit(score);
   return true;
-}
 
 
+  /**
+  Tokenize the BWW files as much as possible and attempt
+  to put each token on its own line.
+  */
 function cleanupBww(source) {
   source = source.replace(/~/g, " ~ ");
   source = source.replace(/\t/g, " ~ ");
@@ -1269,6 +1388,9 @@ function cleanupBww(source) {
   
   
   function getNextChar() {
+      if (si > source.length) {
+        throw("getNextChar: Past end of source.");
+      }
     return source[si++];
   }
   
@@ -1416,3 +1538,60 @@ function cleanupBww(source) {
   return dest;
 }
 
+  /**
+  There are some 'obsolete' tokens from earlier versions of Bagpipe Music Writer.
+  
+  It seems that these tokens are translated 'behind-the-scenes' to the new
+  format, so this code will replicate that.
+  
+  English translation:
+  Translates the stream from:
+  LA_4 ^tla LA_4
+	To the preferred:
+	^ts LA_4 LA_4 ^te
+	
+  FIXME:  Bagpipe Music Player handles a tie that spans a line boundry by
+  drawing it to the end of the line.
+  
+  Highland Dots currently makes a nice and messy arc across the score.	  
+  */
+  function cleanupBww2(source) {
+    var ties = ["^tlg", "^tla", "^tb", "^tc", "^td", "^te", "^tf", "^tha", "^thg"];
+    var lastMelodyTokenIdx = 0;
+    var inTie = false;
+    var i, l = source.length;
+    var isMel;
+    
+    // These are the tokens that identify melody notes.
+    var melodyTokens = z_melody.getTokens();
+    
+    var mel;
+    var dots = [];
+    
+    for (i = 0; i < l; i++) {
+      mel = source[i];
+      
+      if (ties.indexOf(mel) !== -1) {
+        // Force a token earlier into the stream
+        dots.splice(lastMelodyTokenIdx,0,"^ts");
+        inTie = true;
+        continue;
+      }
+      
+      isMel = melodyTokens.indexOf(mel) !== -1;
+      
+      if (isMel) {
+        lastMelodyTokenIdx = i;
+      }
+      
+      dots.push(mel);
+      
+      if (inTie && isMel) {
+    	  dots.push("^te");
+    	  inTie = false;
+      }
+    }    
+    return dots;
+  }
+  
+}
