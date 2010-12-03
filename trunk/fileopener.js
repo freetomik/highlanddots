@@ -248,6 +248,7 @@ var fileOpener = (
                     var useActiveX = false;
                     var divElem;
                     
+					if (API.isHostMethod(window, "ActiveXObject")) {
                     try {
                       var xhr= new ActiveXObject('Microsoft.XMLHTTP');
                       if (API.isHostMethod(xhr, "open")) {
@@ -255,7 +256,8 @@ var fileOpener = (
                       }
                     } catch (ex) {
                     }
-                    
+                    }
+					
                     if (uiElement === undefined) {
                       frg = document.createDocumentFragment();
                       divElem = document.createElement('div');
