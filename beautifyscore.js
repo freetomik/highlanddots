@@ -335,3 +335,45 @@ function dumpNotes(a) {
   return s.join(" ");
 }
 
+function calcNewStaffGap(staff) {
+//staffGap = calcNewStaffGap(staff);
+    var stuff = [];
+   var maxGap = 0;
+   var gap;
+   var i;
+   
+   score.data.forEach
+   (function(mel)
+    {	  
+	  r = mel.rect;
+	  if (!r) {return;}
+	  
+	  var y = r.y;
+	  var y1 = r.y + r.height;
+	  
+	  if (isNaN(y) || isNaN(y1)) {return;}
+
+	  
+	  var maxY = Math.max(y, y1);
+	  var minY = Math.min(y, y1);
+	  
+	  var lineDet = stuff[mel.c.staffCounter];
+	  if (!lineDet) {lineDet = {maxY:0, minY:999999}; }
+	  
+	  lineDet.maxY = Math.max(lineDet.maxY, maxY);
+	  lineDet.minY = Math.min(lineDet.minY, minY);
+      stuff[mel.c.staffCounter] = lineDet;
+   });
+	
+	
+	({1:{maxY:205, minY:116.3}, 2:{maxY:335, minY:246.3}, 3:{maxY:465, minY:371.3}, 4:{maxY:595, minY:501.3}, 5:{maxY:725, minY:636.3}, 6:{maxY:855, minY:766.3}, 7:{maxY:985, minY:896.3}, 8:{maxY:1115, minY:1021.3}, 9:{maxY:1245, minY:1156.3}})
+
+	for (i = 0+2; i < stuff.length; i++) {
+	  gap = -(stuff[i-1].maxY - stuff[i].minY);
+	  maxGap = Math.max(maxGap, gap);
+	}
+		
+	return gap + (3 * staff.details.space);
+}
+
+

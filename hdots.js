@@ -232,14 +232,16 @@ function plotMusic_inner(score)
 {
   var sdet = staff.details;
   var needStaff = true;
-  
+  var staffCounter;
   var ctx;
+  var staffGap = sdet.space * 6;
   
   function prepNewStaff() {
     staff.drawStaff();
     sdet.x = sdet.leftMargin;
     ctx.fillStyle = sdet.noteColor1;
     ctx.strokeStyle = sdet.noteColor1;
+	staffCounter++;
   }
   
   
@@ -248,7 +250,8 @@ function plotMusic_inner(score)
       w: sdet.maxX,
       h: sdet.top
     };
-    
+    staffCounter = 0;
+	
     var drawBoundingBox = hdots_prefs.getValueOf("boundingbox") === "true";
     
     sdet.top = sdet.newTop;
@@ -298,6 +301,9 @@ function plotMusic_inner(score)
         sdet.x = mel.forceToX;
       }
       
+	  if (mel.c) {
+	    mel.c.staffCounter = staffCounter;
+	  }
       
       if (typeof mel.calc === "function") {
         mel.calc(staff);
@@ -369,7 +375,7 @@ function plotMusic_inner(score)
       
       if (mel.staffEnd) {
         needStaff = true;
-        sdet.top += sdet.space * 3;
+        sdet.top += staffGap;
       }
     }
     
@@ -404,7 +410,12 @@ function plotMusic_inner(score)
   
   var f = hdots_prefs.getPluginFunction("beauty_engine");
   
+  
   reFlowAndReDraw(false); // Calculate sizes
+  
+  staffGap = calcNewStaffGap(staff);
+  
+  
   f(staff, 1);  // Pass 1
   reFlowAndReDraw(false); // Readjust everything
   f(staff, 2);  // Pass 2

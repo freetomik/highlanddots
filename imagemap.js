@@ -14,6 +14,7 @@ function makeImageMap(staff, score) {
     var o = {};
     
     o.idx = score.data.indexOf(mel);
+	
     setIfExists(mel, o, "type");
     setIfExists(mel, o, "note");
     setIfExists(mel, o, "midiName");
@@ -33,6 +34,11 @@ function makeImageMap(staff, score) {
     if (mel.rect) {
       setIfExists(mel.rect, o, "x");
     }
+
+    if (mel.c && mel.c.staffCounter) {
+      setIfExists(mel.c, o, "staffCounter");
+    }
+
     
     setIfExists(mel, o, "isLeadIn");
     setIfExists(mel, o, "isLeadOut");
