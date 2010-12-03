@@ -1,7 +1,53 @@
-fieldset {
+#popup_outer {
+  border: 1px solid black;
+}
+
+#popup_title {
+  border-bottom: 1px dotted black;
+  background-color: blue;
+  color: yellow;
+  white-space:nowrap;
+}
+
+#popup_contents {
+  background-color: black;
+  color: white;
+}
+
+#popup_outer, #popup_title,  #popup_contents {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#popup_close {
+  white-space:nowrap;
+  margin-left: 1em;
+  margin-right: 0.25em;
+}
+
+#popup_dim {
+  background-color: black;
+}
+
+
+
+
+div.fileOpen {
+  background: blue;
+  color: yellow;
+}
+
+
+div.fileOpen fieldset {
   border: 1px solid green;
   width: 100%;
 }
+
+div.fileOpen #popup_title {
+  background: white;
+  color: black;
+}
+
 
 span.icon_list img {
   /* float:right; */
@@ -180,37 +226,6 @@ span.icon_list img {
 }
 
 
-
-#popup_outer {
-  border: 1px solid black;
-}
-
-#popup_title {
-  border-bottom: 1px dotted black;
-  background-color: blue;
-  color: yellow;
-  white-space:nowrap;
-}
-
-#popup_contents {
-  background-color: black;
-  color: white;
-}
-
-#popup_outer, #popup_title,  #popup_contents {
-  margin-left: auto;
-  margin-right: auto;
-}
-
-#popup_close {
-  white-space:nowrap;
-  margin-left: 1em;
-  margin-right: 0.25em;
-}
-
-#popup_dim {
-  background-color: black;
-}
 
 
 div.suggestions {

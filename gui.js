@@ -414,6 +414,7 @@ var hdots_prefs = (
                                             
                                             uiElement.parentNode.removeChild(uiElement);
                                             uiElement = null;
+											popupManager.close();
                                             return API.cancelDefault(evt);
                          });
                          target.appendChild(el);
@@ -613,7 +614,7 @@ var popupManager =
    
    
    if (props.title) {
-     API.setElementText(titleDiv, "This is a title");
+     API.setElementText(titleDiv, props.title);
      tr = API.createElement("tr");
      td = API.createElement("td");
      tbody.appendChild(tr);
@@ -624,6 +625,11 @@ var popupManager =
    if (props.message) {
      API.setElementText(contentsDiv, props.message);
    }
+   
+   if (props.element) {
+     contentsDiv = props.element;
+   }
+   
    tr = API.createElement("tr");
    td = API.createElement("td");
    tbody.appendChild(tr);
@@ -641,6 +647,8 @@ var popupManager =
      el = API.createElementWithProperties('span', { id: 'popup_close' });
      API.setElementText(el, "[X]");
      titleDiv.appendChild(el);
+	 el.title = "Click here to close";
+     API.attachListener(el, 'click', function() { close();   } );
    }
    
    
@@ -1073,3 +1081,117 @@ StateSuggestions.prototype.requestSuggestions = function (oAutoSuggestControl /*
   //provide suggestions to the control
   oAutoSuggestControl.autosuggest(aSuggestions, bTypeAhead);
 };
+
+
+function graft (parent, t, doc) {
+function complaining (s) { alert(s); return new Error(s); }
+
+    // graft() function
+  // Originally by Sean M. Burke from interglacial.com
+  // Closure support added by Maciek Adwent
+  // Updated again by Jeremy J Starcher (2009)
+  //   * Removed all use of attributes and set properties directly.
+  //   * Removed implied class names
+  //   * Text nodes have a psudeo element called "#".  This got rid of
+  //     regular expression testing and speeded up the resulting code
+  //     by a rough 10% per the profiler.
+  
+  //logit("Grafting -" + t + "- to " + parent.nodeName));
+  
+  //console.group("start");
+  //console.log("Grafting -" + t + "- to " + parent.nodeName);
+  //console.dir(t)
+  //console.groupEnd();
+  
+  // Usage: graft( somenode, [ "I like ", ['em',
+  //               { 'class':"stuff" },"stuff"], " oboy!"] )
+  
+  doc = (doc || parent.ownerDocument || document);
+  var e;
+  var propertyValue;
+  var tLength = t.length;
+  
+  if(t.nodeType) { parent.appendChild(t); return; }
+  if(typeof t == 'object' && t[0].nodeType) { parent.appendChild(t[0]); return; }
+  
+  
+  if(t == undefined) {
+    throw complaining( "Can't graft an undefined value");
+  } else if(typeof t === 'string') {
+    e = doc.createTextNode( t );
+  } else if(tLength == 0) {
+    e = doc.createElement( "span" );
+  } else {
+    if (t[0] === "#") {
+      e = doc.createElement( "span" );
+      //e = document.createDocumentFragment();
+    } else {
+      e = doc.createElement(t[0]);
+    }
+
+    for(var i = 1; i < tLength; i++) {
+      if( i === 0 && t[i].constructor == String ) {
+          //console.log(t[i]);
+          e = doc.createElement(   t[i] );
+          continue;
+      }
+      
+	  
+	  
+	  
+      if( t[i] == undefined ) {
+        throw complaining("Can't graft an undefined value in a list!");
+      } else if(  t[i].constructor == String ||  t[i].constructor == Array ) {
+        graft( e, t[i], doc );
+      } else if(  t[i].constructor == Number ) {
+        graft( e, t[i].toString(), doc );
+      } else if(  t[i].nodeType ) {  // Let us pass HTML elements directly too
+	    e.appendChild(t[i]);
+      } else if(  t[i].constructor == Object ) {
+        // hash's properties => element's attributes
+        for(var k in t[i]) {
+          // support for attaching closures to DOM objects
+          propertyValue = t[i][k];
+          
+          switch(k) {
+          case 'class':
+            e.className = propertyValue;
+            break;
+          case 'id':
+          case 'name':
+          case 'type':
+          case 'size':
+          case 'value':
+          case 'title':
+          case 'src':
+          case 'className':
+          case 'alt':
+          case 'rows':
+          case 'cols':
+          case 'checked':
+          case 'colSpan':
+            e[k] = propertyValue;
+            break;
+          case 'onclick':
+          case 'onchange':
+          case 'onfocus':
+            if (typeof propertyValue === "function") {
+              e[k] = propertyValue;
+            } else {
+              throw complaining( "Property " + k + " must take a function" );
+            }
+            break;
+          default:
+            throw complaining( "Property " + k + " is unknown." );                        
+          }
+        }
+      } else {
+        throw complaining( "Object " + t[i] +
+          " is inscrutable as an graft arglet." );
+      }
+    }
+  }
+  
+  parent.appendChild( e );
+  return e; // return the topmost created node
+}
