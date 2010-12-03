@@ -106,35 +106,10 @@ function uiDoFileOpen(displayElemId, srcElem) {
 
 
 
-function localPathToURI(path) {
-  var uri = path;
-  uri = uri.replace(/\\/g, '/');
-  uri = uri.replace(/:/g, '|');
-  uri = "file://" + uri;
-  return uri;
-}
-
 function loadFromEditor() {
   var t = document.getElementById('editor').value;
   uiLoadTune('bww', t);
   closeInputDialog();
-}
-
-function handleLoadTunes(list) {
-  var t = list[0].getAsText("");
-  document.getElementById('editor').value = t;
-  uiLoadTune('bww', t);
-
-  closeInputDialog();
-}
-
-function reload() {
-	plotMusic(score);
-}
-
-function doEval(elemId) {
-  var o = document.getElementById(elemId);
-  if (o.value && o.value.length > 0) eval(o.value);
 }
 
 
