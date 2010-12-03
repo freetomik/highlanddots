@@ -35,7 +35,7 @@ var scriptLoader = (function HDotsLoader() {
   ];
 
   var hdotsComponents = [
-    "fileopener.js"
+    "fileopener.js",
   ];
 
   var include = function(jsFile) {
