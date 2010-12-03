@@ -1,0 +1,282 @@
+fieldset {
+  border: 1px solid green;
+  width: 100%;
+}
+
+span.icon_list img {
+  /* float:right; */
+  height:25px;
+  width:25px;
+  /* text-align:center; */
+}
+
+.inputArea {
+  width: auto;
+  z-index: 500;
+  background-color: #eeeeee;
+	border-left: 2px solid #CCCCCC;
+	border-bottom: 2px solid #CCCCCC;
+	border-right: 2px solid #CCCCCC;
+	visibility: hidden;
+	display:none;
+}
+
+
+.uiInputHeading {
+  width:100%;
+  font-weight:bold;
+  background-image:url('ui/images/bg-header.png');
+  background-repeat:repeat-x;
+}
+
+.sectionHeader {
+  /*
+  width:800px;
+  height:20px;
+  */
+  background-image:url('ui/images/bg-header.png');
+  background-repeat:repeat-x;
+  border-bottom: 1px solid #cccccc;
+  font-family: Verdana, Arial, SunSans-Regular, Sans-Serif;
+  font-weight:bold;
+  font-size: 14px;
+  
+}
+
+
+/* ids */
+#menuBar {
+  /* width:800px;
+  height:30px;
+  */
+  
+  width: 100%;
+  background-image:url('ui/images/bg-menu.png');
+  background-repeat:repeat;
+  border: 1px solid gray;
+  
+}
+
+
+#menuBar span {
+  padding:0px 0px 0px 0px;
+}
+#menuBar ul {
+	list-style: none;
+	/*    height:30px; */
+	padding:0px 0px 0px 0px;
+	margin-top:4px;
+}
+
+#menuBar li {
+  display:inline;
+  /* height:30px; */
+  padding:0px 0px 0px 0px;
+}
+
+#menuBar a {
+	width: auto;
+	/*	padding: 3px 0px 2px 20px; */
+	color: black;
+	font-family: Verdana, Arial, SunSans-Regular, Sans-Serif;
+	font-weight:bold;
+	text-decoration: none;
+}
+
+#menuBar a:hover {
+	color: #66cc66;
+}
+
+
+
+/* xSplitter Styles */
+
+.xSplitter {
+  position: absolute;
+  overflow: hidden;
+  visibility: hidden;
+  margin: 0;
+  padding: 0;
+  background: #FFF;
+  border: none;
+}
+
+.xsp-pane, .xsp-toolbar-pane {
+  position: absolute;
+  overflow: auto;
+  visibility: visible;
+  margin: 0;
+  padding: 0;
+  background: #EEE;
+  border: none;
+}
+
+.xsp-toolbar-pane {
+  overflow: hidden; 
+}
+
+
+.xsp-dragbar {
+  position: absolute;
+  overflow: hidden;
+  visibility: visible;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+/* Cool images! Thanks very much to http://gnuzoo.org/rssreader/test.htm */
+.xsp-dragbar-vframe {
+  width: 6px;
+  height: 8px;
+  background-image: url('ui/vframe.png');
+  background-repeat: repeat-y;
+}
+.xsp-dragbar-hframe {
+  width: 8px;
+  height: 6px;
+  background-image: url('ui/hframe.png');
+  background-repeat: repeat-x;
+}
+
+#xBody {
+  /*
+  margin: 10px 60px 20px 60px;
+  padding: 10px 10px 10px 10px;
+  */
+  overflow: visible;
+  background-color: #FFF;
+}
+
+.temp-container { /* replace this with something like xFenster */
+  position: relative;
+  overflow: visible;
+  visibility: visible;
+  /* height: 310px; */
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+#xsp5 {
+  border: 8px solid #ddd;
+}
+#xsp1, #xsp2, #xsp3, #xsp4, #xsp6, #xsp7, #xsp8 {
+  border: 2px solid #999;
+}
+
+/* iframe support */
+
+.xsp-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+#xsp1-pane1,
+#xsp1-pane2,
+#xsp2-pane2 {
+  overflow: hidden;
+  background-color: #fff;
+}
+
+
+
+#popup_outer {
+  border: 1px solid black;
+}
+
+#popup_title {
+  border-bottom: 1px dotted black;
+  background-color: blue;
+  color: yellow;
+  white-space:nowrap;
+}
+
+#popup_contents {
+  background-color: black;
+  color: white;
+}
+
+#popup_outer, #popup_title,  #popup_contents {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#popup_close {
+  white-space:nowrap;
+  margin-left: 1em;
+  margin-right: 0.25em;
+}
+
+#popup_dim {
+  background-color: black;
+}
+
+
+div.suggestions {
+  border: 1px solid black;
+  position: absolute;
+  z-index: 1000;
+  background-color: blue;
+  color: yellow;
+}
+
+div.suggestions div {
+  cursor: default;
+  padding: 0px 3px;
+}
+
+div.suggestions div.current {
+  background-color: #3366cc;
+  color: white;
+}
+
+
+/* From layout.css */
+#hd_config_plugin {
+}
+
+
+
+
+#hd_config {
+}
+
+.hd_pluginPref {
+  border: 1px solid green;
+}
+
+
+
+#hd_config label {
+  color: green;
+}
+
+#hd_config label span {
+  float:left;
+  width:50%; 
+  margin-right:0.5em;
+  padding-top:0.2em;
+  text-align:right;
+  font-weight:bold;
+  color: white;
+  padding-right: 0.5em;
+  border: 1px solid black;
+  background: blue;
+}
+
+
+/* The values for that particular plugin */
+.hd_pluginPref_i label span {
+  border-left: 1em solid white !important;
+}
+
+
+#hd_config div.breaker {
+  clear: both;
+}
+
+.log_error {
+  background-color: red;
+  color: white;
+}
