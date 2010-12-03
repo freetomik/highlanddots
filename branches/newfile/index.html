@@ -12,6 +12,9 @@
 <link rel="stylesheet" type="text/css" href="reset.css">
 <link rel="stylesheet" type="text/css" href="hdots.css">
 
+<link rel="shortcut icon" href="ui/favicon.ico">
+<link rel="icon" href="ui/favicon.ico" type="image/x-icon">
+
 <!--[if IE]>
 <script src="jslib/excanvas.js"></script>
 <![endif]-->
@@ -20,97 +23,21 @@
 
 
 <script type="text/javascript">
-
-
-function closeInputDialog() {
-  var id = "inputDialog";
-  if (arguments.length == 1)
-    id = arguments[0];
-
-  document.getElementById(id).style.visibility = 'hidden';
-  document.getElementById(id).style.display = 'none';
-
-}
-
 function openSettings(srcElem) {
-  var elem1, elem2,elem3,p;
+  var div = document.createElement("div");
 
-  p = srcElem.parentNode;
-  while (p.tagName.toLowerCase() !== "div") {
-    p = p.parentNode;
-  }
-  ui = document.getElementById('settings');
-  hdots_prefs.uiConfig.useForUi = ui;
+  hdots_prefs.uiConfig.useForUi = div;
   hdots_prefs.getUi();
-
-  //ui.style.position = 'absolute';
-  //ui.style.top = p.style.top + p.style.height;
-  //ui.style.cssFloat = "right";
-  ui.style.width = '50%';
-  //ui.style.height = '50%';
-
-  ui.style.display = 'block';
-  ui.style.visibility = 'visible';
-}
-
-
-function uiDoFileOpen(displayElemId, srcElem) {
-
-  // get the FileOpener component DOM content
-  // remove dom nodes from
-  //  elem id="inputAreaContent"
-  // add FO dom content
-  // get FO title
-  // set dialog title with FO title
-  // show dialog
-
-  var node, ui, p;
-
-  // dialog title
-  node = document.getElementById(displayElemId + 'Title');
-  if (node.childNodes.length) node.removeChild(node.childNodes[0]);
-  node.appendChild(document.createTextNode("Open File"));
-
-  var fileOpenData = {
-    //  filename:  "mystuff.bww",
-    //  fileUrl: "./mystuff.bww";
-    //  tuneTxt: "";
-    //  errorMsg = "";
-    //  onFailure:  function() {API.getEBI(displayElemId+"Content").innerHTML=errorMsg; },
-    onSuccess:  function() {closeInputDialog();uiLoadTune('bww', API.getEBI("editor").value);},
-    useForUi:  API.getEBI(displayElemId+"Content"),
-    useForEditor:  API.getEBI("editor")
-  };
-
-
-  // dialog content
-  node = document.getElementById(displayElemId+"Content");
-  if (node.childNodes.length) node.removeChild(node.childNodes[0]);
-
-  fileOpener(fileOpenData).filePicker();
-
-
-  p = srcElem.parentNode;
-  while (p.tagName.toLowerCase() !== "div") {
-    p = p.parentNode;
+  popupManager.open({
+                    close: true,
+                    dim: true,
+                    title: "Settings",
+                    element: div
   }
-
-  ui = document.getElementById(displayElemId);
-  ui.style.position = 'absolute';
-  ui.style.top = p.style.top + p.style.height;
-  ui.style.left = p.style.left;
-  ui.style.display = 'block';
-  ui.style.visibility = 'visible';
+  );
 
 }
 
-
-
-function loadFromEditor() {
-  var t = document.getElementById('editor').value;
-  uiLoadTune('bww', t);
-  closeInputDialog();
-}
 
 
 function initHtmlGui() {
@@ -218,7 +145,7 @@ scriptLoader.loadHDots();
    <li>
       <img src="ui/images/tuliana/reload.png" onclick="loadFromEditor();">
    </li>
-    <li><a href="#" onClick="uiDoFileOpen('inputDialog',this);return false;">OPEN</a></li>
+    <li><a href="#" onClick="loadFile();return false;">OPEN</a></li>
     <li><a href="#" onClick="alert('Not yet implemented');return false;">LIBRARY</a></li>
     <li><a href="#" onClick="alert('Not yet implemented');return false;">PRINT</a></li>
 
