@@ -3,7 +3,7 @@ function scoretoaudio(score) {
   var i, l, mel;
   var pass = 1;
   var repeatStack = [];
-
+  
   
   l = score.data.length;
   i = 0;
@@ -12,7 +12,7 @@ function scoretoaudio(score) {
     mel = score.data[i];
     
     if (mel.type === "melody") {
-       out.push(mel);
+      out.push(mel);
     }
     
     if (mel.repeatStart) {

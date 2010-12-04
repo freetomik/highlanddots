@@ -1545,7 +1545,7 @@ function parseBWW(dots) {
     var TOKEN_AT_END = 1;
     var TOKEN_BETWEEN_TWO = 2;
 	  
-	var tie;
+    var tie;
     var inTie = false;
     var i, l = source.length;
     var isMelodyToken;
@@ -1616,7 +1616,7 @@ function parseBWW(dots) {
         // Force a token earlier into the stream
         wantedIdx = melodyTokenIndexStack[melodyTokenIndexStack.length-tie.tieReach+1];
         dots.splice(wantedIdx,0,tie.newStartToken);
- 
+        
         if (tie.style == TOKEN_AT_END) { dots.push(tie.newEndToken); }
         if (tie.style == TOKEN_BETWEEN_TWO) { countdown = 1; }
         continue;

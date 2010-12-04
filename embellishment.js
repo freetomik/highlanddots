@@ -18,16 +18,16 @@
  ThisType.prototype.isPrintable = true;
  ThisType.prototype.scaleFactor = 0.6;
  ThisType.prototype.duration = 32;
-
-
+ 
+ 
  ThisType.prototype.autoStem = function() {
    if (arguments) {
    } else {
      return false;
    }
  };
-
-
+ 
+ 
  Score.prototype.createEmbellishment = function() {
    return new ThisType();
  };

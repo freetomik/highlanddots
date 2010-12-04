@@ -16,13 +16,13 @@
    var sdet = staff.details;
    var ctx = sdet.ctx;
    var tf = c.font;
-
+   
    if (this.beatSymbol === "C" || this.beatSymbol === "C_") {
      this.singleCharacterSize(staff);     
    } else {
      this.fractionalSize(staff);
    }
-
+   
    
    c.font = "" + (sdet.space*2.5) + "px sans-serif";
    ctx.font = c.font;
@@ -34,9 +34,9 @@
    // Alas, not all canvas have a measureText that actually works.
    if (!c.width) {c.width = c.height * 0.5;} 
    ctx.font = tf;
-
+   
  };
-
+ 
  ThisType.prototype.singleCharacterSize = function(staff) {
    var c = this.c;
    var sdet = staff.details;
@@ -48,7 +48,7 @@
    
    c.y1 = c.y;
    c.y2 = sdet.noteInfo.d2.y;
-      
+   
    c.longestCharsToDraw = "C";
  }
  
@@ -61,10 +61,10 @@
    c.y = sdet.noteInfo.f2.y;
    c.height = sdet.noteInfo.e1.y - sdet.noteInfo.f2.y; 
    c.longestCharsToDraw = Math.max(this.beatsPerBar, this.beatUnit);
-
+   
    c.y1 = sdet.noteInfo.b2.y;
    c.y2 = sdet.noteInfo.e1.y;
-
+   
  }
  
  ThisType.prototype.getBoundingRect = function(staff) {
@@ -94,7 +94,7 @@
    var ta = ctx.textAlign;
    ctx.font = c.font;
    ctx.textAlign = 'start';
-
+   
    if (this.beatSymbol === "C" || this.beatSymbol === "C_") {
      ctx.fillText("C", c.x, c.y1, c.width);
      if (this.beatSymbol === "C_") {

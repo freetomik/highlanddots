@@ -19,7 +19,7 @@ var staff =
  var HIDDEN_LINE_COLOR = "rgb(200, 200, 200)";
  var details = {};
  var coords = {};
-
+ 
  // These are values that are set at load time, but are user-changeable and
  // shouldn't reset when the score is re-rendered.
  details.thick = 1;          // Thickness of staff line segment
@@ -27,7 +27,7 @@ var staff =
  details.beamStyle = "bww";  // can be "bww" or "straight" or "sloped"
  details.logging = false;    // true | false toggles bounding box tracing
  details.uiTracing = false;  // true | false toggles bounding box tracing
-  
+ 
  function resetValues() {
    details.height = -1;      // Calculated at run time
    details.width = 0;        // The width of the staff
@@ -241,7 +241,7 @@ function plotMusic_inner(score)
     sdet.x = sdet.leftMargin;
     ctx.fillStyle = sdet.noteColor1;
     ctx.strokeStyle = sdet.noteColor1;
-	staffCounter++;
+    staffCounter++;
   }
   
   
@@ -251,7 +251,7 @@ function plotMusic_inner(score)
       h: sdet.top
     };
     staffCounter = 0;
-	
+    
     var drawBoundingBox = hdots_prefs.getValueOf("boundingbox") === "true";
     
     sdet.top = sdet.newTop;
@@ -301,9 +301,9 @@ function plotMusic_inner(score)
         sdet.x = mel.forceToX;
       }
       
-	  if (mel.c) {
-	    mel.c.staffCounter = staffCounter;
-	  }
+      if (mel.c) {
+        mel.c.staffCounter = staffCounter;
+      }
       
       if (typeof mel.calc === "function") {
         mel.calc(staff);
@@ -390,7 +390,7 @@ function plotMusic_inner(score)
     }
     
     //NUKE try {
-      score.data.forEach(processMel);
+    score.data.forEach(processMel);
     //NUKE } catch(err) {
     //NUKE   alert("Something horrible has happened! I've crashed trying to show that score.\r\n\r\n" +
     //NUKE         "Please forgive me, I'm just a humble bit of Javascript.");

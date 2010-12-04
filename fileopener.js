@@ -147,7 +147,7 @@ function loadFile() {
   if (API.isHostMethod(window, "ActiveXObject")) {
     graft(div, makeActiveXDiv());
   }
-   
+  
   //div.appendChild(makeExampleDiv());
   
   popupManager.open({
@@ -157,5 +157,5 @@ function loadFile() {
                     element: div
   }
   );
-    
+  
 }  

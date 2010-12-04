@@ -159,7 +159,7 @@ function postImport(score) {
   var lineMeasureNumber = 0;
   var staffLine = 1;
   var lastKeySig;
-     
+  
   for (i = 0, l = score.data.length; i < l; i++) {
     mel = score.data[i];
     if (!mel) {continue;}
@@ -177,7 +177,7 @@ function postImport(score) {
         };
       }   
     }
-        
+    
     if (mel.type === "timesig") {
       beatUnit = mel.beatUnit; 
       beatsPerBar = mel.beatsPerBar;
