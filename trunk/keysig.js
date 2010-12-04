@@ -22,7 +22,7 @@
    g.staffNote = "f2";
    g.calc(staff);
    var r = g.getBoundingRect(staff);
-
+   
    c.order = "f2,c2,g2,d2,a2,e2,b2".split(","); // The order for things in a major key.
    if (this.type === "flat") {
      c.order = c.order.reverse();
@@ -32,8 +32,8 @@
    
    c.gap = sdet.space /4;
    //alert([this.data.count, r.width, sdet.space]);
-  c.width = (this.data.count+1) * ( r.width + c.gap);
-  c.height = sdet.staffHeight;
+   c.width = (this.data.count+1) * ( r.width + c.gap);
+   c.height = sdet.staffHeight;
    
  };
  
@@ -44,10 +44,10 @@
    var c = this.c;
    
    var o = {
-   x: c.x,
-   y: c.y,
-   width: c.width,
-   height: c.height
+     x: c.x,
+     y: c.y,
+     width: c.width,
+     height: c.height
    };
    return o;
  }

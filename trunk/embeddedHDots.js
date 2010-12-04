@@ -2,7 +2,7 @@
 
 function HDotsLoader() {
   var i;
-
+  
   var jsScripts = [
     "tools.js",
     "mylib.js",
@@ -24,22 +24,22 @@ function HDotsLoader() {
     "beautifyscore.js",
     "manager.js"
   ];
-
-
-
+  
+  
+  
   this.include = function(jsFile) {
     var he = document.getElementsByTagName('head').item(0);
     var js = document.createElement('script');
     js.setAttribute('src', jsFile);
     he.appendChild(js);
   }
-
+  
   for (i=0; i< jsScripts.length; i++) {
     include(jsScripts[i]);
   }
-
+  
   return this;
-
+  
 };
 
 var HDL = HDotsLoader();
