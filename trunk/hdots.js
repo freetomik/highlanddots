@@ -172,6 +172,10 @@ var staff =
      if (typeof G_vmlCanvasManager !== 'undefined') {
        G_vmlCanvasManager.initElement(details.canvas);
      }
+     if (typeof FlashCanvas != "undefined") {
+       FlashCanvas.initElement(details.canvas);
+     }     
+     
    }
    
    var canvasName = "hdots_canvas";
