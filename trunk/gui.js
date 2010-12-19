@@ -928,11 +928,13 @@ var popupManager =
    };
    
    //JJS
-   if (this.showOnFocus) {
+   if (oThis.provider.bAutoShow) {
      this.textbox.onfocus = function () {
        oThis.provider.requestSuggestions(oThis, true);
      };
-     this.textbox.onclick = this.textbox.onfocus;
+     this.textbox.onclick = function () {
+       oThis.provider.requestSuggestions(oThis, true);
+     };
    }
    
    
@@ -1032,6 +1034,42 @@ var popupManager =
      this.selectRange(iLen, sSuggestion.length);
    }
  };
+
+ function reducingSuggestionBox(oAutoSuggestControl /*:AutoSuggestControl*/,
+                                                           bTypeAhead /*:boolean*/,
+                                values /*:Array*/) 
+ {
+   var aSuggestions = [];
+   var sTextboxValue = oAutoSuggestControl.textbox.value;
+   
+   if (sTextboxValue.length > 0){
+     //search for matching values
+     for (var i=0; i < values.length; i++) { 
+       if (values[i].indexOf(sTextboxValue) == 0) {
+         aSuggestions.push(values[i]);
+       } 
+     }
+   } else {
+     aSuggestions = values;
+   }
+   
+   //provide suggestions to the control
+   oAutoSuggestControl.autosuggest(aSuggestions, bTypeAhead);
+ };
+
+ function nonreducingSuggestionList(oAutoSuggestControl /*:AutoSuggestControl*/,
+                                                           bTypeAhead /*:boolean*/,
+                                    values /*:Array */) 
+ {
+   var aSuggestions = [];
+   var sTextboxValue = oAutoSuggestControl.textbox.value;
+   
+   aSuggestions = values;
+   
+   bTypeAhead = false;
+   //provide suggestions to the control
+   oAutoSuggestControl.autosuggest(aSuggestions, bTypeAhead);
+ }
  
  
  /**
@@ -1040,7 +1078,7 @@ var popupManager =
  * @scope public
  */
  function StateSuggestions() {
-   this.states = [
+   this.values = [
      "Alabama", "Alaska", "Arizona", "Arkansas",
      "California", "Colorado", "Connecticut",
      "Delaware", "Florida", "Georgia", "Hawaii",
@@ -1064,23 +1102,50 @@ var popupManager =
  StateSuggestions.prototype.requestSuggestions = function (oAutoSuggestControl /*:AutoSuggestControl*/,
                                                            bTypeAhead /*:boolean*/) 
  {
-   var aSuggestions = [];
-   var sTextboxValue = oAutoSuggestControl.textbox.value;
-   
-   if (sTextboxValue.length > 0){
-     //search for matching states
-     for (var i=0; i < this.states.length; i++) { 
-       if (this.states[i].indexOf(sTextboxValue) == 0) {
-         aSuggestions.push(this.states[i]);
-       } 
-     }
-   } else {
-     aSuggestions = this.states;
-   }
-   
-   //provide suggestions to the control
-   oAutoSuggestControl.autosuggest(aSuggestions, bTypeAhead);
+   reducingSuggestionBox(oAutoSuggestControl, bTypeAhead, this.values);
  };
+
+ 
+ 
+ function TempoSuggestions() {
+   // From:
+   // http://forums.bobdunsire.com/forums/showpost.php?p=1120801&postcount=7
+   this.bAutoShow = true;
+   this.values = [
+"48 - Slow Air",
+"104 - Hornpipe",
+"110 - Hornpipe",
+"120 - Jig",
+"128 - Jig",
+"25 - Lament",
+"84 - Light March 2/4,4/4",
+"94 - Light March 2/4,4/4",
+"68 - Competition March",
+"72 - Competition March",
+"80 - 6/8 march",
+"84 - 6/8 march",
+"98 - March 3/4,9/8",
+"132 - Strathspey",
+"84 - Reel",
+"120 - Reel",
+"60 - Slow March",
+"48 - Waltz"
+   ];
+ }
+ 
+ 
+ /**
+ * Request suggestions for the given autosuggest control. 
+ * @scope protected
+ * @param oAutoSuggestControl The autosuggest control to provide suggestions for.
+ */
+ TempoSuggestions.prototype.requestSuggestions = function (oAutoSuggestControl /*:AutoSuggestControl*/,
+                                                           bTypeAhead /*:boolean*/) 
+ {
+   nonreducingSuggestionList(oAutoSuggestControl, bTypeAhead, this.values)
+ };
+ 
+//////////////////////////////////////////////////////////////////////////////// 
  
  
  function graft (parent, t, doc) {
