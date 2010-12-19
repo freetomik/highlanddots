@@ -54,8 +54,7 @@ function initHtmlGui() {
 
   setSplitSize();
 
-  var oTextbox = new AutoSuggestControl(document.getElementById("text_bpm"), new StateSuggestions());
-  oTextbox.showOnFocus = true;
+  var oTextbox = new AutoSuggestControl(document.getElementById("text_bpm"), new TempoSuggestions());
 }
 
 

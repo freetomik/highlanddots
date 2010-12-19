@@ -342,6 +342,7 @@ function calcNewStaffGap(staff) {
   var gap;
   var i;
   
+  // Find the highest and lowest points on each staff line.
   score.data.forEach
   (function(mel)
    {	  
@@ -366,7 +367,7 @@ function calcNewStaffGap(staff) {
    });
 	
 	for (i = 0+2; i < stuff.length; i++) {
-	  gap = -(stuff[i-1].maxY - stuff[i].minY);
+	  gap = stuff[i].minY - stuff[i-1].maxY; 
 	  maxGap = Math.max(maxGap, gap);
 	}	
 	
