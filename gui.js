@@ -590,7 +590,7 @@ function prepConfig() {
 prepConfig();
 
 
-var popupManager = 
+var popupManagerOld = 
 (
  function() {
  
@@ -682,6 +682,91 @@ var popupManager =
  
  })();
  
+
+
+var popupManager = 
+(
+ function() {
+ var outerDiv;
+   var titleDiv;
+   var contentsDiv;
+   var body;
+ 
+ function open(props) {
+   
+   close(); // Make sure we clean up if there was anything left open.
+   
+   if (!props) props = {};
+   if (!props.position) {props.position = "center";}
+   
+   body = API.getBodyElement();
+   outerDiv = API.createElementWithProperties('div', { id: 'popup_outer' });
+   titleDiv = API.createElementWithProperties('div', { id: 'popup_title' });
+   contentsDiv = API.createElementWithProperties('div', { id: 'popup_contents' });
+   var el;
+   
+   if (props.title) {
+     API.setElementText(titleDiv, props.title);
+     outerDiv.appendChild(titleDiv);
+   }  
+   
+   if (props.message) {
+     API.setElementText(contentsDiv, props.message);
+   }
+   
+   if (props.element) {
+     contentsDiv = props.element;
+   }
+
+  outerDiv.appendChild(contentsDiv);
+      
+  outerDiv.style.zIndex=1000;
+      
+   if (props.close)
+   {
+     el = API.createElementWithProperties('span', { id: 'popup_close' });
+     API.setElementText(el, "[XX]");
+     titleDiv.appendChild(el);
+     el.title = "Click here to close";
+     API.attachListener(el, 'click', function() { close();   } );
+   }
+   
+   if (props.dim) {
+     el = API.createElementWithProperties('span', { id: 'popup_dim' });
+     body.appendChild(el);
+     API.setElementText(el, " ");
+     el.style.zIndex=999;
+     API.setOpacity(el, 0.5);     
+     API.coverDocument(el);
+   }
+   
+   body.appendChild(outerDiv);
+   if (props.position == "center") {
+     API.centerElement(outerDiv);
+   }
+   
+ }
+ 
+ function close() {
+   var a = "popup_outer|popup_dim".split("|");
+   
+   API.forEach(a, 
+               function(s, i) {
+               var el = API.getEBI(s);
+               if (el) { el.parentNode.removeChild(el); }
+               }
+               );
+ }
+ 
+ return {
+   open: open,
+   close: close
+ };
+ 
+ })();
+
+
+
  
  ////////////////////////////////////////////////////////////////////////////
  

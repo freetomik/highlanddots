@@ -6,20 +6,18 @@
  */
 #popup_outer {
   border: 1px solid black;
-}
-#popup_title {
-  border-bottom: 1px dotted black;
-  background-color: blue;
-  color: yellow;
-  white-space: nowrap;
-}
-#popup_contents {
-  background-color: black;
-  color: white;
-}
-#popup_outer, #popup_title, #popup_contents {
-  margin-left: auto;
-  margin-right: auto;
+  position: absolute;
+  /* Start off with browsers that don't have gradients */
+
+  background-color: #8fa0b5;
+  background: -webkit-gradient(linear, 0 0, 0 bottom, #b0c4de, #6e7b8b);
+  background: -moz-linear-gradient(#b0c4de, #6e7b8b);
+  background: -o-linear-gradient(#b0c4de, #6e7b8b);
+  background: linear-gradient(#b0c4de, #6e7b8b);
+  -pie-background: linear-gradient(#b0c4de, #6e7b8b);
+  behavior: url(./././././././././././././jslib/PIE.htc);
+  /* background-color: red; */
+
 }
 #popup_close {
   white-space: nowrap;
@@ -30,15 +28,6 @@
   background-color: black;
 }
 div.fileOpen {
-  /* Start off with browsers that don't have gradients */
-
-  background-color: #0099ff;
-  background: -webkit-gradient(linear, 0 0, 0 bottom, #0099ff, #00ccff);
-  background: -moz-linear-gradient(#0099ff, #00ccff);
-  background: -o-linear-gradient(#0099ff, #00ccff);
-  background: linear-gradient(#0099ff, #00ccff);
-  -pie-background: linear-gradient(#0099ff, #00ccff);
-  behavior: url(./././././././././././././jslib/PIE.htc);
   border: 1px solid #a43c20;
 }
 div.fileOpen fieldset {
@@ -72,23 +61,23 @@ span.icon_list img {
   font-weight: bold;
   /* Start off with browsers that don't have gradients */
 
-  background-color: #0099ff;
-  background: -webkit-gradient(linear, 0 0, 0 bottom, #0099ff, #00ccff);
-  background: -moz-linear-gradient(#0099ff, #00ccff);
-  background: -o-linear-gradient(#0099ff, #00ccff);
-  background: linear-gradient(#0099ff, #00ccff);
-  -pie-background: linear-gradient(#0099ff, #00ccff);
+  background-color: #176fc5;
+  background: -webkit-gradient(linear, 0 0, 0 bottom, #1e90ff, #104e8b);
+  background: -moz-linear-gradient(#1e90ff, #104e8b);
+  background: -o-linear-gradient(#1e90ff, #104e8b);
+  background: linear-gradient(#1e90ff, #104e8b);
+  -pie-background: linear-gradient(#1e90ff, #104e8b);
   behavior: url(./././././././././././././jslib/PIE.htc);
 }
 .sectionHeader {
   /* Start off with browsers that don't have gradients */
 
-  background-color: #0099ff;
-  background: -webkit-gradient(linear, 0 0, 0 bottom, #0099ff, #00ccff);
-  background: -moz-linear-gradient(#0099ff, #00ccff);
-  background: -o-linear-gradient(#0099ff, #00ccff);
-  background: linear-gradient(#0099ff, #00ccff);
-  -pie-background: linear-gradient(#0099ff, #00ccff);
+  background-color: #176fc5;
+  background: -webkit-gradient(linear, 0 0, 0 bottom, #1e90ff, #104e8b);
+  background: -moz-linear-gradient(#1e90ff, #104e8b);
+  background: -o-linear-gradient(#1e90ff, #104e8b);
+  background: linear-gradient(#1e90ff, #104e8b);
+  -pie-background: linear-gradient(#1e90ff, #104e8b);
   behavior: url(./././././././././././././jslib/PIE.htc);
   border-bottom: 1px solid #cccccc;
   font-family: Verdana, Arial, SunSans-Regular, Sans-Serif;
@@ -100,12 +89,12 @@ span.icon_list img {
   width: 100%;
   /* Start off with browsers that don't have gradients */
 
-  background-color: #0099ff;
-  background: -webkit-gradient(linear, 0 0, 0 bottom, #0099ff, #00ccff);
-  background: -moz-linear-gradient(#0099ff, #00ccff);
-  background: -o-linear-gradient(#0099ff, #00ccff);
-  background: linear-gradient(#0099ff, #00ccff);
-  -pie-background: linear-gradient(#0099ff, #00ccff);
+  background-color: #176fc5;
+  background: -webkit-gradient(linear, 0 0, 0 bottom, #1e90ff, #104e8b);
+  background: -moz-linear-gradient(#1e90ff, #104e8b);
+  background: -o-linear-gradient(#1e90ff, #104e8b);
+  background: linear-gradient(#1e90ff, #104e8b);
+  -pie-background: linear-gradient(#1e90ff, #104e8b);
   behavior: url(./././././././././././././jslib/PIE.htc);
   border: 1px solid #a43c20;
 }
@@ -116,12 +105,12 @@ span.icon_list img {
   behavior: url(./././jslib/PIE.htc);
   /* Start off with browsers that don't have gradients */
 
-  background-color: #113355;
-  background: -webkit-gradient(linear, 0 0, 0 bottom, #113355, #ffffff);
-  background: -moz-linear-gradient(#113355, #ffffff);
-  background: -o-linear-gradient(#113355, #ffffff);
-  background: linear-gradient(#113355, #ffffff);
-  -pie-background: linear-gradient(#113355, #ffffff);
+  background-color: #8bbdbd;
+  background: -webkit-gradient(linear, 0 0, 0 bottom, #668b8b, #afeeee);
+  background: -moz-linear-gradient(#668b8b, #afeeee);
+  background: -o-linear-gradient(#668b8b, #afeeee);
+  background: linear-gradient(#668b8b, #afeeee);
+  -pie-background: linear-gradient(#668b8b, #afeeee);
   behavior: url(./././././././././././././jslib/PIE.htc);
   border: 1px solid #a43c20;
   width: auto;
@@ -137,12 +126,12 @@ span.icon_list img {
   color: #ffffff;
   /* Start off with browsers that don't have gradients */
 
-  background-color: #ffffff;
-  background: -webkit-gradient(linear, 0 0, 0 bottom, #ffffff, #113355);
-  background: -moz-linear-gradient(#ffffff, #113355);
-  background: -o-linear-gradient(#ffffff, #113355);
-  background: linear-gradient(#ffffff, #113355);
-  -pie-background: linear-gradient(#ffffff, #113355);
+  background-color: #8bbdbd;
+  background: -webkit-gradient(linear, 0 0, 0 bottom, #afeeee, #668b8b);
+  background: -moz-linear-gradient(#afeeee, #668b8b);
+  background: -o-linear-gradient(#afeeee, #668b8b);
+  background: linear-gradient(#afeeee, #668b8b);
+  -pie-background: linear-gradient(#afeeee, #668b8b);
   behavior: url(./././././././././././././jslib/PIE.htc);
 }
 #menuBar span {
