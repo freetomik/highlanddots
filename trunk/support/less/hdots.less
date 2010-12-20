@@ -14,7 +14,7 @@
 
 .background-linear-gradient(@i: #fff, @j: #000) {
   /* Start off with browsers that don't have gradients */
-  background-color: @i;
+  background-color: (@i + @j) /2;
   background: -webkit-gradient(linear, 0 0, 0 bottom, @i, @j);
   background: -moz-linear-gradient(@i, @j);
   background: -o-linear-gradient(@i, @j);
@@ -23,29 +23,24 @@
   behavior: url(jslib/PIE.htc);
 }
 
-@hd_fade1: #0099FF;
-@hd_fade2: #00CCFF; 
+@hd_fade1: #1E90FF; 
+@hd_fade2: #104E8B;
 @hd_border: #A43C20;
+
+@chrome1: #135;
+@chrome2: #fff;
+
+@chrome1: #668B8B;
+@chrome2: #AFEEEE;
+
+@popchrome1: #B0C4DE;
+@popchrome2: #6E7B8B;
 
 #popup_outer {
   border: 1px solid black;
-}
-
-#popup_title {
-  border-bottom: 1px dotted black;
-  background-color: blue;
-  color: yellow;
-  white-space:nowrap;
-}
-
-#popup_contents {
-  background-color: black;
-  color: white;
-}
-
-#popup_outer, #popup_title,  #popup_contents {
-  margin-left: auto;
-  margin-right: auto;
+  position: absolute;
+  .background-linear-gradient(@popchrome1, @popchrome2); 
+  /* background-color: red; */
 }
 
 #popup_close {
@@ -62,7 +57,6 @@
 
 
 div.fileOpen {
-  .background-linear-gradient(@hd_fade1, @hd_fade2);
   border: 1px solid @hd_border;
 
   fieldset {
@@ -118,11 +112,8 @@ span.icon_list img {
 
 /* ids */
 #menuBar { 
-  @shade1: #135;
-  @shade2: #fff;
-
-  //@shade1: @hd_fade2 + #222;
-  //@shade2: @hd_fade1 + #222;
+  //@chrome1: @hd_fade2 + #222;
+  //@chrome2: @hd_fade1 + #222;
   @text-color: #000000;
   @highlight-color: #FFF;
   
@@ -132,7 +123,7 @@ span.icon_list img {
 
   a {
     .rounded(5px);
-    .background-linear-gradient(@shade1, @shade2);
+    .background-linear-gradient(@chrome1, @chrome2);
 
     border: 1px solid @hd_border;
     width: auto;
@@ -147,7 +138,7 @@ span.icon_list img {
 
   a:hover {
 	  color: @highlight-color;  
-    .background-linear-gradient(@shade2, @shade1);
+    .background-linear-gradient(@chrome2, @chrome1);
   }
 
   span {
