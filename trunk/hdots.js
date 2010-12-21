@@ -194,7 +194,6 @@ var staff =
    
    var ctx = details.canvas.getContext("2d");
    details.ctx = ctx;
-   details.canvas.style.border = "5px solid red";
  }
  
  return {

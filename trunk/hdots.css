@@ -4,25 +4,55 @@
  * Turned into a CSS file by scripting.  Do not hand-edit the CSS file.
  *
  */
+body {
+  behavior: url("././jslib/csshover3.htc");
+}
+.button {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  border: 1px solid black;
+  padding-left: 0.25em;
+  padding-right: 0.25em;
+  cursor: pointer;
+}
 #popup_outer {
+  padding: 1em 1em 1em 1em;
+  color: #a0a0a0;
   border: 1px solid black;
   position: absolute;
   /* Start off with browsers that don't have gradients */
 
-  background-color: #8fa0b5;
+  background-color: #e7ffff;
+  color: #4f3b21;
   background: -webkit-gradient(linear, 0 0, 0 bottom, #b0c4de, #6e7b8b);
   background: -moz-linear-gradient(#b0c4de, #6e7b8b);
   background: -o-linear-gradient(#b0c4de, #6e7b8b);
   background: linear-gradient(#b0c4de, #6e7b8b);
-  -pie-background: linear-gradient(#b0c4de, #6e7b8b);
-  behavior: url(./././././././././././././jslib/PIE.htc);
-  /* background-color: red; */
+  progid: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#b0c4de, endColorstr=#6e7b8b)";
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#b0c4de, endColorstr=#6e7b8b)";
+}
+#popup_outer .button {
+  /* Start off with browsers that don't have gradients */
 
+  background-color: #e7ffff;
+  color: #4f3b21;
+  background: -webkit-gradient(linear, 0 0, 0 bottom, #b0c4de, #6e7b8b);
+  background: -moz-linear-gradient(#b0c4de, #6e7b8b);
+  background: -o-linear-gradient(#b0c4de, #6e7b8b);
+  background: linear-gradient(#b0c4de, #6e7b8b);
+  progid: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#b0c4de, endColorstr=#6e7b8b)";
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#b0c4de, endColorstr=#6e7b8b)";
+}
+#popup_title {
+  /* This makes the title div 'expand' and accept its floated contents */
+
+  overflow: auto;
+  color: #a0a0a0;
 }
 #popup_close {
+  float: right;
   white-space: nowrap;
-  margin-left: 1em;
-  margin-right: 0.25em;
 }
 #popup_dim {
   background-color: black;
@@ -31,12 +61,8 @@ div.fileOpen {
   border: 1px solid #a43c20;
 }
 div.fileOpen fieldset {
-  border: 1px solid green;
+  border: 1px solid #a43c20;
   width: 100%;
-}
-div.fileOpen #popup_title {
-  background: white;
-  color: black;
 }
 span.icon_list img {
   /* float:right; */
@@ -61,24 +87,28 @@ span.icon_list img {
   font-weight: bold;
   /* Start off with browsers that don't have gradients */
 
-  background-color: #176fc5;
+  background-color: #26b7ff;
+  color: #e16f00;
   background: -webkit-gradient(linear, 0 0, 0 bottom, #1e90ff, #104e8b);
   background: -moz-linear-gradient(#1e90ff, #104e8b);
   background: -o-linear-gradient(#1e90ff, #104e8b);
   background: linear-gradient(#1e90ff, #104e8b);
-  -pie-background: linear-gradient(#1e90ff, #104e8b);
-  behavior: url(./././././././././././././jslib/PIE.htc);
+  progid: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#1e90ff, endColorstr=#104e8b)";
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#1e90ff, endColorstr=#104e8b)";
+  color: #ffffff;
 }
 .sectionHeader {
   /* Start off with browsers that don't have gradients */
 
-  background-color: #176fc5;
+  background-color: #26b7ff;
+  color: #e16f00;
   background: -webkit-gradient(linear, 0 0, 0 bottom, #1e90ff, #104e8b);
   background: -moz-linear-gradient(#1e90ff, #104e8b);
   background: -o-linear-gradient(#1e90ff, #104e8b);
   background: linear-gradient(#1e90ff, #104e8b);
-  -pie-background: linear-gradient(#1e90ff, #104e8b);
-  behavior: url(./././././././././././././jslib/PIE.htc);
+  progid: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#1e90ff, endColorstr=#104e8b)";
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#1e90ff, endColorstr=#104e8b)";
+  color: #ffffff;
   border-bottom: 1px solid #cccccc;
   font-family: Verdana, Arial, SunSans-Regular, Sans-Serif;
   font-weight: bold;
@@ -89,29 +119,35 @@ span.icon_list img {
   width: 100%;
   /* Start off with browsers that don't have gradients */
 
-  background-color: #176fc5;
+  background-color: #26b7ff;
+  color: #e16f00;
   background: -webkit-gradient(linear, 0 0, 0 bottom, #1e90ff, #104e8b);
   background: -moz-linear-gradient(#1e90ff, #104e8b);
   background: -o-linear-gradient(#1e90ff, #104e8b);
   background: linear-gradient(#1e90ff, #104e8b);
-  -pie-background: linear-gradient(#1e90ff, #104e8b);
-  behavior: url(./././././././././././././jslib/PIE.htc);
+  progid: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#1e90ff, endColorstr=#104e8b)";
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#1e90ff, endColorstr=#104e8b)";
+  color: #ffffff;
   border: 1px solid #a43c20;
 }
 #menuBar a {
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
-  behavior: url(./././jslib/PIE.htc);
+  border: 1px solid black;
+  padding-left: 0.25em;
+  padding-right: 0.25em;
+  cursor: pointer;
   /* Start off with browsers that don't have gradients */
 
-  background-color: #8bbdbd;
-  background: -webkit-gradient(linear, 0 0, 0 bottom, #668b8b, #afeeee);
-  background: -moz-linear-gradient(#668b8b, #afeeee);
-  background: -o-linear-gradient(#668b8b, #afeeee);
-  background: linear-gradient(#668b8b, #afeeee);
-  -pie-background: linear-gradient(#668b8b, #afeeee);
-  behavior: url(./././././././././././././jslib/PIE.htc);
+  background-color: #80a2c4;
+  color: #eeccaa;
+  background: -webkit-gradient(linear, 0 0, 0 bottom, #113355, #dddddd);
+  background: -moz-linear-gradient(#113355, #dddddd);
+  background: -o-linear-gradient(#113355, #dddddd);
+  background: linear-gradient(#113355, #dddddd);
+  progid: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#113355, endColorstr=#dddddd)";
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#113355, endColorstr=#dddddd)";
   border: 1px solid #a43c20;
   width: auto;
   padding-left: .5em;
@@ -126,13 +162,18 @@ span.icon_list img {
   color: #ffffff;
   /* Start off with browsers that don't have gradients */
 
-  background-color: #8bbdbd;
-  background: -webkit-gradient(linear, 0 0, 0 bottom, #afeeee, #668b8b);
-  background: -moz-linear-gradient(#afeeee, #668b8b);
-  background: -o-linear-gradient(#afeeee, #668b8b);
-  background: linear-gradient(#afeeee, #668b8b);
-  -pie-background: linear-gradient(#afeeee, #668b8b);
-  behavior: url(./././././././././././././jslib/PIE.htc);
+  background-color: #e6f7ff;
+  color: #222222;
+  background: -webkit-gradient(linear, 0 0, 0 bottom, #dddddd, #113355);
+  background: -moz-linear-gradient(#dddddd, #113355);
+  background: -o-linear-gradient(#dddddd, #113355);
+  background: linear-gradient(#dddddd, #113355);
+  progid: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#dddddd, endColorstr=#113355)";
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#dddddd, endColorstr=#113355)";
+}
+#menuBar img {
+  height: 1em;
+  vertical-align: middle;
 }
 #menuBar span {
   padding: 0px 0px 0px 0px;
@@ -237,16 +278,32 @@ div.suggestions {
   border: 1px solid black;
   position: absolute;
   z-index: 1000;
-  background-color: blue;
-  color: yellow;
+  /* Start off with browsers that don't have gradients */
+
+  background-color: #e7ffff;
+  color: #4f3b21;
+  background: -webkit-gradient(linear, 0 0, 0 bottom, #b0c4de, #6e7b8b);
+  background: -moz-linear-gradient(#b0c4de, #6e7b8b);
+  background: -o-linear-gradient(#b0c4de, #6e7b8b);
+  background: linear-gradient(#b0c4de, #6e7b8b);
+  progid: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#b0c4de, endColorstr=#6e7b8b)";
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#b0c4de, endColorstr=#6e7b8b)";
 }
 div.suggestions div {
   cursor: default;
   padding: 0px 3px;
 }
 div.suggestions div.current {
-  background-color: #3366cc;
-  color: white;
+  /* Start off with browsers that don't have gradients */
+
+  background-color: #c6ddfa;
+  color: #918474;
+  background: -webkit-gradient(linear, 0 0, 0 bottom, #6e7b8b, #b0c4de);
+  background: -moz-linear-gradient(#6e7b8b, #b0c4de);
+  background: -o-linear-gradient(#6e7b8b, #b0c4de);
+  background: linear-gradient(#6e7b8b, #b0c4de);
+  progid: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#6e7b8b, endColorstr=#b0c4de)";
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#6e7b8b, endColorstr=#b0c4de)";
 }
 /* From layout.css */
 .hd_pluginPref {
@@ -277,6 +334,22 @@ div.suggestions div.current {
 .log_error {
   background-color: red;
   color: white;
+}
+div.fileinputs {
+  position: relative;
+}
+div.fakefile {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  z-index: 2001;
+}
+input.file {
+  position: relative;
+  text-align: right;
+  -moz-opacity: 0 ;
+  opacity: 0;
+  z-index: 2002;
 }
 
 /* * Cut and paste this file to replace the CSS file */

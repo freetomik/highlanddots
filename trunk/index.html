@@ -139,6 +139,11 @@ function toggleLog() {
 
 scriptLoader.loadHDots();
 
+function loadFromEditor() {
+  var t = API.getEBI("editor").value;
+  loadTune("bww", t);
+}
+
 </script>
 
 
@@ -148,40 +153,40 @@ scriptLoader.loadHDots();
 
 <div>
   <ul id="menuBar">
-   <li>
-      <img src="ui/images/tuliana/reload.png" onclick="loadFromEditor();">
-   </li>
+    <li>
+      <img src="ui/images/tuliana/reload.png" onclick="loadFromEditor();" title="Redraw Score">
+    </li>
     <li><a href="#" onClick="loadFile();return false;">OPEN</a></li>
     <li><a href="#" onClick="alert('Not yet implemented');return false;">LIBRARY</a></li>
     <li><a href="#" onClick="alert('Not yet implemented');return false;">PRINT</a></li>
 
-   <li>
-   <img src="ui/images/tuliana/player_start.png" onclick="alert('Not yet implemented');return false;" title="Rewind to beginning">
-   </li>
+    <li>
+    <img src="ui/images/tuliana/player_start.png" onclick="alert('Not yet implemented');return false;" title="Rewind to beginning">
+    </li>
 
-   <li>
+    <li>
       <img src="ui/images/tuliana/player_stop.png" onclick="alert('Not yet implemented');return false;" title="Stop playing">
-   </li>
-   <li>
+    </li>
+    <li>
       <img src="ui/images/tuliana/player_play.png" onclick="alert('Not yet implemented');return false;" title="Start playing">
-   </li>
+    </li>
 
-   <li>
+    <li>
       <img src="ui/images/tuliana/arts.png" onclick="alert('Not yet implemented');return false;">
-   </li>
+    </li>
 
-   <li>
+    <li>
       <input type="text" id="text_bpm" value="80" size="3" style="background:transparent;">
       <b>BPM</b>
-   </li>
+    </li>
 
 
     <li><a href="#" onClick="openSettings(this);return false;">SETTINGS</a></li>
     <li><a style="margin-left: 2em" href="#" onClick="alert('Not yet implemented');return false;">HELP</a></li>
-   <li>
+    <li>
       <img src="ui/log.png" onclick="toggleLog()" title="Toggle log.">
-   </li>
- </ul>
+    </li>
+  </ul>
 </div>
 
 

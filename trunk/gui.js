@@ -289,7 +289,6 @@ var hdots_prefs = (
                          el = API.createElement("legend");
                          API.addElementText(el, v.label);
                          f.appendChild(el);
-                         API.setStyle(f, 'border', '1px solid black')
                          opt = v.options;
                          
                          
@@ -725,10 +724,11 @@ var popupManager =
    if (props.close)
    {
      el = API.createElementWithProperties('span', { id: 'popup_close' });
-     API.setElementText(el, "[XX]");
+     el.className = "button";
+     API.setElementText(el, "X");
      titleDiv.appendChild(el);
      el.title = "Click here to close";
-     API.attachListener(el, 'click', function() { close();   } );
+     API.attachListener(el, 'click', function() { close(); } );
    }
    
    if (props.dim) {
@@ -845,7 +845,10 @@ var popupManager =
    this.layer = document.createElement("div");
    this.layer.className = "suggestions";
    this.layer.style.visibility = "hidden";
-   this.layer.style.width = this.textbox.offsetWidth;
+   
+   // Disabled by JJS.
+   // Let the div find its own natural width
+   //this.layer.style.width = this.textbox.offsetWidth;
    
    //when the user clicks on the a suggestion, get the text (innerHTML)
    //and place it into a textbox
