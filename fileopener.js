@@ -1,7 +1,7 @@
 "use strict";
 
 var FileErrorText = {
-  4: "Google Chrome won't read local files when the web page is run locally.",
+  4: "File permission error.\nIf you are using Google Chrome, it won't read local files when the web page is run locally.",
   8: "File not found.",
   24: "File could not be read.",
   18: "The file could not be accessed for security reasons.",
@@ -49,7 +49,9 @@ function loadFile() {
           ['fieldset',
           /* */ ['legend', 'Built in examples'],
           /* */ [select],
-          /* */ ["input", {type: 'button', value: 'Load the selected file', onclick: load}]
+          /* */ ["input", 
+          /* */   {type: 'button', value: 'Load the selected file', onclick: load, className: "button"}
+          /* */ ]
           ]);
     return elem;
   }
@@ -69,7 +71,10 @@ function loadFile() {
     graft(elem,
           ['fieldset',
           /* */ ['legend', 'Load a local file'],
-          /* */ ["input", {type: 'file',  onchange: function () {load(this);} }]
+          /* */ ['div', 
+          /* */   {className: 'fileinputs'},
+          /* */   ["input", {type: 'file',  onchange: function () {load(this);}, className: "button"}]
+          /* */ ]
           ]);
     return elem;    
   }
@@ -129,7 +134,7 @@ function loadFile() {
     graft(elem,
           ['fieldset',
           /* */ ['legend', 'Load a local file (ActiveX)'],
-          /* */ ["input", {type: 'button',  onclick: function () {promptForFile()}, value: "Load a local file" }]
+          /* */ ["input", {type: 'button',  onclick: function () {promptForFile()}, value: "Load a local file", className: "button"}]
           ]);
     return elem;    
   }
@@ -158,4 +163,40 @@ function loadFile() {
   }
   );
   
+  //initFileUploads(div);
+  
 }  
+
+
+
+function initFileUploads(root) {
+  // It really is a shame that we can't actually this code.  Too many browsers
+  // don't let you style an input[type="file] element and Chrome detects that
+  // one is doing something 'tricky' and mangles the link.
+  //
+  // Dunno why since the file selection box pops up,.. I mean, its not like
+  // something could happen without the user's knowledge.
+  
+  root = root || document;
+	var fakeFileUpload = document.createElement('div');
+	fakeFileUpload.className = 'fakefile';
+	fakeFileUpload.appendChild(document.createElement('input'));
+	var image = document.createElement('img');
+	image.src='ui/button_select.gif';
+	fakeFileUpload.appendChild(image);
+	var x = root.getElementsByTagName('input');
+	for (var i=0;i<x.length;i++) {
+		if (x[i].type != 'file') continue;
+		if (x[i].parentNode.className != 'fileinputs') continue;
+		
+		
+		x[i].className = 'file hidden';
+		var clone = fakeFileUpload.cloneNode(true);
+		x[i].parentNode.appendChild(clone);
+		x[i].relatedElement = clone.getElementsByTagName('input')[0];
+		x[i].onchange = x[i].onmouseout = function () {
+			this.relatedElement.value = this.value;
+		}
+	}
+}
+
