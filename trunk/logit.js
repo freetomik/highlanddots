@@ -60,7 +60,9 @@ var loger =
          };
          
          function logMsg(s, msgType) {
-           //    if (!configData.logging) {return;}
+           var canlog = hdots_prefs.getValueOf("logging") === "true";
+           if (!canlog) {return;}
+           
            if (typeof s === "object") { // Yes, it catches arrays.  That is good.
              s = JSON.stringify(s, undefined, 2);
              

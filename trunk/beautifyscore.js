@@ -49,7 +49,7 @@
      padding = (maxX - lineLength) / melsThisLine;
      
      //logit([maxX, melsThisLine, line[melsThisLine-1].toSource(), line[melsThisLine-1].c.x]);
-     logit("Padding = " + padding);
+     //logit("Padding = " + padding);
      
      for (j = 0; j < melsThisLine-1; j++) { // Don't do the staffControl
        mel  = line[j];
@@ -348,7 +348,7 @@ function calcNewStaffGap(staff) {
   score.data.forEach
   (function(mel)
    {	  
-   r = mel.rect;
+   var r = mel.rect;
    if (!r) {return;}
    
    var y = r.y;

@@ -347,7 +347,7 @@ function plotMusic_inner(score)
         rect = mel.getBoundingRect(staff);
         
         if (rect) {
-          logit([mel.type, "rect: ", rect.x, rect.y, rect.width, rect.height, mel.paddingRight]);
+          //logit([mel.type, "rect: ", rect.x, rect.y, rect.width, rect.height, mel.paddingRight]);
           mel.rect = rect;
           if (doPaint && drawBoundingBox) {
             try {
@@ -365,8 +365,6 @@ function plotMusic_inner(score)
           }
         }
       }
-      
-      
       
       switch(mel.type) {
       case "melody":
