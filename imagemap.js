@@ -95,7 +95,8 @@ function makeImageMap(staff, score) {
                        
                        area = document.createElement("area");
                        
-                       area.href = "#";
+                       area.nohref = 'nohref'; 
+                       area.className = 'hand';                       
                        area.shape = "rect";
                        //logit(["ImageMap", x1, y1, x2, y2]);
                        area.coords = [x1, y1, x2, y2].join(",");

@@ -29,10 +29,19 @@ var staff =
  details.uiTracing = false;  // true | false toggles bounding box tracing
  
  function resetValues() {
+   var scaleEl = document.getElementById("scale");
+   var scale = scaleEl.value;
+   scale = parseInt(scale, 10);
+   if (!scale) {scale = 100};
+   scaleEl.value = scale + "%"; 
+   
+   scale = scale/100;
+   
+   details.space = 10 * scale;
    details.height = -1;      // Calculated at run time
    details.width = 0;        // The width of the staff
-   details.leftMargin = 10;  // Margin for a new staff line
-   details.newTop = 50;      // Top of a new score
+   details.leftMargin = 10 * scale;  // Margin for a new staff line
+   details.newTop = 50 * scale;      // Top of a new score
    details.top = -1;         // Where to draw the top line of the CURRENT line of music
    details.x = 0;            // Cursor postion
    details.maxX = 0;         // Max width of score
@@ -43,7 +52,6 @@ var staff =
    details.noteColor3 = "blue";
    details.noteColor4 = "red";
  }
- resetValues();
  
  function drawStaff(width) {
    var ctx = details.ctx;
@@ -206,14 +214,29 @@ var staff =
 
 
 function loadTune(ext, tuneText) {
-  var tuneOk = false;
-  score.removeAllNodes();
-  staff.prepForDrawing(); // Erase old tune.
-  tuneOk = parseBWW(tuneText);
-  if (tuneOk) {
-    plotMusic(score);
+  function inner() {
+    var tuneOk = false;
+    score.removeAllNodes();
+    staff.prepForDrawing(); // Erase old tune.
+    tuneOk = parseBWW(tuneText);
+    if (tuneOk) {
+      plotMusic(score);
+    } else {
+      popupManager.close();
+      alert("There was a problem translating the music");
+    }
   }
+  
+  popupManager.open({
+                    close: false,
+                    dim: true,
+                    message: "Parsing Music"
+  }
+  );
+  setTimeout(function() {inner(); }, 1);    
+  
 }
+
 
 
 function plotMusic(score)
@@ -221,7 +244,7 @@ function plotMusic(score)
   var sdet = staff.details;
   
   popupManager.open({
-                    close: true,
+                    close: false,
                     dim: true,
                     message: "Drawing score.  Please wait."
   }
