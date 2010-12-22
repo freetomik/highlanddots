@@ -228,9 +228,12 @@ function loadTune(ext, tuneText) {
     staff.prepForDrawing(); // Erase old tune.
     tuneOk = parseBWW(tuneText);
     if (tuneOk) {
+      document.getElementById("text_bpm").value = score.metaData.TuneTempo;
+      document.title = score.metaData.Title + " - Highland Dots";
       plotMusic(score);
     } else {
       popupManager.close();
+      document.title = "Music Error - Highland Dots";
       alert("There was a problem translating the music");
     }
   }
