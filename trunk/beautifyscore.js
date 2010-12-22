@@ -1,5 +1,128 @@
 "use strict";
 
+(function() {
+ hdots_prefs.registerPlugin("beauty_engine", "pportion3", "Proportional Layout", beautifyScore2);
+ 
+ hdots_prefs.registerPluginPreference("beauty_engine", "pportion3",
+                                      {
+                                      type: "text",
+                                      label: "One beat, measured in spaces",
+                                      name: "beatInSpaces",
+                                      def:  3.7
+                                      });
+ 
+ // Static to passOne and passTwo
+ var lineMels;
+ var lineCount;
+ 
+ function IncLineData() {
+   lineCount++;
+   lineMels[lineCount] = [];
+ }
+ 
+ function beautifyScore2(pref, staff, pass) {
+   switch(pass) {
+   case 1:
+     beautifyScorePassOne(pref, staff);
+     break;
+   case 2:
+     beautifyScorePassTwo(pref, staff);
+     break;
+   }
+ }
+ 
+ function beautifyScorePassTwo(pref, staff) {
+   var maxX = staff.details.maxX;
+   var i = 0, j;
+   var line;
+   
+   var melsThisLine;
+   var lineLength;
+   var padding;
+   var mel;
+   
+   for (i = 0; i < lineCount; i++) {
+     line = lineMels[i];
+     
+     melsThisLine = line.length;
+     lineLength = line[melsThisLine-1].c.x;
+     padding = (maxX - lineLength) / melsThisLine;
+     
+     //logit([maxX, melsThisLine, line[melsThisLine-1].toSource(), line[melsThisLine-1].c.x]);
+     logit("Padding = " + padding);
+     
+     for (j = 0; j < melsThisLine-1; j++) { // Don't do the staffControl
+       mel  = line[j];
+       mel.paddingRight += padding;
+     }
+   }
+ } 
+ 
+ function beautifyScorePassOne(pref, staff) {
+   
+   var beatInPixels = +parseFloat(pref.beatInSpaces);
+   beatInPixels = beatInPixels * staff.details.space; 
+   
+   var beatUnit; // What length note takes one beat...
+   var beatCount = 0; // Count up parts of a beat...
+   
+   var beatFraction;
+   var beatWidth;
+   var w;
+   var padding;
+   var lastx;
+   
+   lineMels = [];
+   lineCount = -1; // So the new data starts at zero
+   IncLineData();
+   
+   var lastMel; 
+   score.data.forEach
+   (function(mel)
+    {
+    if (!mel) {return;}
+    
+    if (mel.type === "melody" || mel.staffEnd) { // We like having the end of the staff padding out as well
+      
+      lineMels[lineCount].push(mel);
+      
+      if (lastMel) {
+        beatWidth = (beatInPixels * lastMel.beatFraction); 
+        lastx = lastMel.c.x /* + lastMel.rect.width  + lastMel.paddingRight */;
+        
+        w = mel.c.x - lastx; 
+        padding = beatWidth - w;
+        if (padding > 0) {
+          lastMel.paddingRight +=  padding;
+        }
+        
+        //logit(["Beauty " + mel.note + ":" + mel.duration ,  beatWidth, mel.beatFraction, lastMel.paddingRight, beatWidth, w]);
+        
+      }
+      lastMel = mel;
+    }
+    
+    if (mel.type === "timesig") {
+      beatUnit = mel.beatUnit; 
+      //logit(["Beauty Beat Unit", beatUnit]);
+    }
+    
+    if (mel.newBar) {
+      mel.beatCount = beatCount;
+      beatCount = 0;
+    }
+    
+    if (mel.staffEnd) {
+      lastMel = undefined;
+      IncLineData();
+    }
+    
+    });
+ }
+}());
+
+
+
 hdots_prefs.registerPlugin("beauty_engine", "beat", "To the beat", beautifyScore);
 
 hdots_prefs.registerPluginPreference("beauty_engine", "beat",
@@ -200,127 +323,6 @@ function beautifyScore(pref, staff, pass) {
     if (mel.staffEnd) { mel.forceToX  = FORCEWIDTH + spaceForLeadIn;}
   }
 }
-
-
-(function() {
- hdots_prefs.registerPlugin("beauty_engine", "pportion", "Proportional Layout", beautifyScore2);
- 
- hdots_prefs.registerPluginPreference("beauty_engine", "pportion",
-                                      {
-                                      type: "text",
-                                      label: "One beat, in pixels",
-                                      name: "beatInPixels",
-                                      def:  "50"
-                                      });
- 
- // Static to passOne and passTwo
- var lineMels;
- var lineCount;
- 
- function IncLineData() {
-   lineCount++;
-   lineMels[lineCount] = [];
- }
- 
- function beautifyScore2(pref, staff, pass) {
-   switch(pass) {
-   case 1:
-     beautifyScorePassOne(pref, staff);
-     break;
-   case 2:
-     beautifyScorePassTwo(pref, staff);
-     break;
-   }
- }
- 
- function beautifyScorePassTwo(pref, staff) {
-   var maxX = staff.details.maxX;
-   var i = 0, j;
-   var line;
-   
-   var melsThisLine;
-   var lineLength;
-   var padding;
-   var mel;
-   
-   for (i = 0; i < lineCount; i++) {
-     line = lineMels[i];
-     
-     melsThisLine = line.length;
-     lineLength = line[melsThisLine-1].c.x;
-     padding = (maxX - lineLength) / melsThisLine;
-     
-     //logit([maxX, melsThisLine, line[melsThisLine-1].toSource(), line[melsThisLine-1].c.x]);
-     logit("Padding = " + padding);
-     
-     for (j = 0; j < melsThisLine-1; j++) { // Don't do the staffControl
-       mel  = line[j];
-       mel.paddingRight += padding;
-     }
-   }
- } 
- 
- function beautifyScorePassOne(pref, staff) {
-   
-   var beatInPixels = pref.beatInPixels;  
-   
-   var beatUnit; // What length note takes one beat...
-   var beatCount = 0; // Count up parts of a beat...
-   
-   var beatFraction;
-   var beatWidth;
-   var w;
-   var padding;
-   var lastx;
-   
-   lineMels = [];
-   lineCount = -1; // So the new data starts at zero
-   IncLineData();
-   
-   var lastMel; 
-   score.data.forEach
-   (function(mel)
-    {
-    if (!mel) {return;}
-    
-    if (mel.type === "melody" || mel.staffEnd) { // We like having the end of the staff padding out as well
-      
-      lineMels[lineCount].push(mel);
-      
-      if (lastMel) {
-        beatWidth = (beatInPixels * lastMel.beatFraction); 
-        lastx = lastMel.c.x /* + lastMel.rect.width  + lastMel.paddingRight */;
-        
-        w = mel.c.x - lastx; 
-        padding = beatWidth - w;
-        if (padding > 0) {
-          lastMel.paddingRight +=  padding;
-        }
-        
-        //logit(["Beauty " + mel.note + ":" + mel.duration ,  beatWidth, mel.beatFraction, lastMel.paddingRight, beatWidth, w]);
-        
-      }
-      lastMel = mel;
-    }
-    
-    if (mel.type === "timesig") {
-      beatUnit = mel.beatUnit; 
-      //logit(["Beauty Beat Unit", beatUnit]);
-    }
-    
-    if (mel.newBar) {
-      mel.beatCount = beatCount;
-      beatCount = 0;
-    }
-    
-    if (mel.staffEnd) {
-      lastMel = undefined;
-      IncLineData();
-    }
-    
-    });
- }
-}());
 
 
 /* Debugging, can be dropped later */  

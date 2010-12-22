@@ -61,7 +61,8 @@ function initHtmlGui() {
 
   setSplitSize();
 
-  var oTextbox = new AutoSuggestControl(document.getElementById("text_bpm"), new TempoSuggestions());
+  var oTextbox1 = new AutoSuggestControl(document.getElementById("text_bpm"), new TempoSuggestions());
+  var oTextbox2 = new AutoSuggestControl(document.getElementById("scale"), new ScaleSuggestions());
 }
 
 
@@ -156,6 +157,12 @@ function loadFromEditor() {
     <li>
       <img src="ui/images/tuliana/reload.png" onclick="loadFromEditor();" title="Redraw Score">
     </li>
+    <li>
+      <input type="text" id="scale" value="100%" size="4">
+      <b>Scale</b>
+    </li>
+
+    
     <li><a href="#" onClick="loadFile();return false;">OPEN</a></li>
     <li><a href="#" onClick="alert('Not yet implemented');return false;">LIBRARY</a></li>
     <li><a href="#" onClick="alert('Not yet implemented');return false;">PRINT</a></li>
@@ -176,13 +183,13 @@ function loadFromEditor() {
     </li>
 
     <li>
-      <input type="text" id="text_bpm" value="80" size="3" style="background:transparent;">
+      <input type="text" id="text_bpm" value="80" size="3">
       <b>BPM</b>
     </li>
 
 
     <li><a href="#" onClick="openSettings(this);return false;">SETTINGS</a></li>
-    <li><a style="margin-left: 2em" href="#" onClick="alert('Not yet implemented');return false;">HELP</a></li>
+    <li><a style="margin-left: 2em" href="#" onClick="showIframe('help');">HELP</a></li>
     <li>
       <img src="ui/log.png" onclick="toggleLog()" title="Toggle log.">
     </li>

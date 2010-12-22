@@ -205,9 +205,12 @@ var bwwExamples = (function()
                      
                    }
                    
-                   function loadData(el) {
-                     
+                   function loadData(el) {                     
                      var idx = el.selectedIndex;
+                     if (!el.options[idx]) {
+                       alert("No file selected");
+                       return;
+                     }
                      var o = el.options[idx].text;
                      var s = tunes[o].join("\r\n");
                      s = s.replace("~", "\t", "g");

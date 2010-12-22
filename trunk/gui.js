@@ -124,14 +124,29 @@ var hdots_prefs = (
                                              localPrefs[a.join(SEP)] = v;
                                              }
                          });
+
+                         var p = getPreferenceByName(n, hdConfigData);
+                         var f = pluginTracker[pluginName];
+                         if (typeof f != "function") {
+                           // No such plugin, no problem .. we'll find the 
+                           // first usabale on instead.
+                           for (var oname in p.options[0]) {
+                             if (p.options[0].hasOwnProperty(oname)) {
+                               s = oname;
+                               break;
+                             }
+                           }
+                         }
+                         pluginName = [n, s].join(SEP);                         
+                         f = pluginTracker[pluginName];
                          
                          // Capture those values in a closure, and create a function to pass
                          // the parameters through.
-                         var r = (function(_name, _pref) {
+                         var r = (function(_f, _pref) {
                                   return function(p1, p2, p3) {
-                                  pluginTracker[_name](_pref, p1, p2, p3);
+                                  _f(_pref, p1, p2, p3);
                                   }
-                         }(pluginName,localPrefs) );
+                         }(f,localPrefs) );
                          return r;
                        }
                      }
@@ -1221,13 +1236,45 @@ var popupManager =
    ];
  }
  
- 
  /**
  * Request suggestions for the given autosuggest control. 
  * @scope protected
  * @param oAutoSuggestControl The autosuggest control to provide suggestions for.
  */
  TempoSuggestions.prototype.requestSuggestions = function (oAutoSuggestControl /*:AutoSuggestControl*/,
+                                                           bTypeAhead /*:boolean*/) 
+ {
+   nonreducingSuggestionList(oAutoSuggestControl, bTypeAhead, this.values)
+ };
+ 
+
+ function ScaleSuggestions() {
+   this.bAutoShow = true;
+   this.values = [
+"10%",
+"20%",
+"30%",
+"40%",
+"50%",
+"60%",
+"70%",
+"80%",
+"90%",
+"100%",
+"110%",
+"120%",
+"130%",
+"140%",
+"150%",
+"160%",
+"170%",
+"180%",
+"190%",
+"200%"
+   ];
+ }
+
+ ScaleSuggestions.prototype.requestSuggestions = function (oAutoSuggestControl /*:AutoSuggestControl*/,
                                                            bTypeAhead /*:boolean*/) 
  {
    nonreducingSuggestionList(oAutoSuggestControl, bTypeAhead, this.values)
@@ -1347,4 +1394,25 @@ var popupManager =
    
    parent.appendChild( e );
    return e; // return the topmost created node
+ }
+ 
+ function showIframe(fname) {
+   var src = fname + ".i.html";
+   var iframe = document.createElement("iframe");
+
+   var size = API.getViewportSize(document);
+   
+   iframe.src = src;   
+   iframe.height = (size[0] * .75) + "px";
+   iframe.width = (size[1] * .75) + "px";
+
+   popupManager.open({
+                    close: true,
+                    dim: true,
+                    title: "From file: " + fname,
+                    element: iframe
+  }
+  );
+   
+   
  }

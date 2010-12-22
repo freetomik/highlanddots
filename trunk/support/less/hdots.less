@@ -34,16 +34,6 @@
 @hd_color: #FFF;
 
 
-@chrome1: #B0C4DE;
-@chrome2: #6E7B8B;
-
-@chrome1: @hd_fade1 / 1;
-@chrome2: @hd_fade2 / 1.5;
-
-@chrome1: #148F16;
-@chrome2: @chrome1 + #333; 
-
-
 @chrome1: #135;
 @chrome2: #fff - #222;
 
@@ -52,6 +42,11 @@
 @popchrome_color: #A0A0A0;
 
 body { behavior: url("jslib/csshover3.htc"); } 
+
+.hand {
+   cursor: pointer;
+}
+
 
 .button {
   .rounded(5px);
@@ -62,7 +57,8 @@ body { behavior: url("jslib/csshover3.htc"); }
 }
 
 #popup_outer {
-  padding: 1em 1em 1em 1em;
+  padding: .25em .25em .25em .25em;
+  margin: .5em .5em .5em .5em;
   color: @popchrome_color;
   border: 1px solid black;
   position: absolute;
@@ -76,7 +72,8 @@ body { behavior: url("jslib/csshover3.htc"); }
 #popup_title {
   /* This makes the title div 'expand' and accept its floated contents */
   overflow: auto;
-  color: @popchrome_color;
+  color: #FFF;
+  background-color: #000;
 }
 
 #popup_close {
@@ -192,6 +189,10 @@ span.icon_list img {
   li {
     display:inline;
     padding:0px 0px 0px 0px;
+  }
+  
+  input {
+    background: transparent;
   }
 }
 
