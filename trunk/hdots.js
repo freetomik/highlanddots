@@ -33,11 +33,19 @@ var staff =
    var scale = scaleEl.value;
    scale = parseInt(scale, 10);
    if (!scale) {scale = 100};
+   
+   if (scale > 200) {
+     scale = 200;
+   }
+   
    scaleEl.value = scale + "%"; 
+   
    
    scale = scale/100;
    
    details.space = 10 * scale;
+   details.thick = details.space / 9;
+   
    details.height = -1;      // Calculated at run time
    details.width = 0;        // The width of the staff
    details.leftMargin = 10 * scale;  // Margin for a new staff line
