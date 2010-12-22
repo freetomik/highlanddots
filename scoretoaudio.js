@@ -33,7 +33,4 @@ function scoretoaudio(score) {
     
     i++;
   }
-  
-  logit(dumpNotes(out));
-  
 }

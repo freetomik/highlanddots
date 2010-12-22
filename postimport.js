@@ -128,7 +128,6 @@ function postImport(score) {
         
         data.count++;
         note = mel.staffNote.split('')[0];
-        logit("note = " + note);
         data.key[note] = modes[mel.name];
         continue;
       }
@@ -138,7 +137,6 @@ function postImport(score) {
         lastKeySig = keyMel;
       }
       // Nothing left to catch
-      logit(data);
       break;
     }
   }

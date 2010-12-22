@@ -80,6 +80,12 @@ function makeImageMap(staff, score) {
   
   domTools.removeChildren(map);
   
+  var babble = hdots_prefs.getValueOf("fill_image_map") === "true";
+  var areaProto = document.createElement("area");
+  areaProto.nohref = 'nohref'; 
+  areaProto.className = 'hand';                       
+  areaProto.shape = "rect";
+  
   score.data.forEach(function(mel) {
                      if (!mel) {return;}
                      
@@ -93,18 +99,17 @@ function makeImageMap(staff, score) {
                        var x2 = x1 + Math.round(rect.width);
                        var y2 = y1 + Math.round(rect.height);
                        
-                       area = document.createElement("area");
+                       area = areaProto.cloneNode(true);
                        
-                       area.nohref = 'nohref'; 
-                       area.className = 'hand';                       
-                       area.shape = "rect";
                        //logit(["ImageMap", x1, y1, x2, y2]);
                        area.coords = [x1, y1, x2, y2].join(",");
                        
                        //ctx.fillStyle = "red";
                        //ctx.fillRect(x1, y1, 2, 2);
                        
+                       if (babble) {
                        area.title = "Element: " + JSON.stringify(getInfo(mel), undefined, " ");
+                       }
                        map.appendChild(area);
                        
                      }                         

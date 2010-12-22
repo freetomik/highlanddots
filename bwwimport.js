@@ -219,7 +219,7 @@ function parseBWW(dots) {
   
   var z_keysig = (function() {
                   
-                  a = [
+                  var a = [
                   "&"
                   ];  
                   function isType(s) {

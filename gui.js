@@ -592,6 +592,13 @@ function prepConfig() {
                                  label: "Enable logging?",
                                  def: false
   });
+
+  hdots_prefs.registerPreference( {
+                                 type: "boolean",
+                                 name: "fill_image_map",
+                                 label: "Load image map with debugging?",
+                                 def: false
+  });
   
   
   hdots_prefs.registerPreference( {
