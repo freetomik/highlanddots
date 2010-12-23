@@ -24,7 +24,6 @@ var staff =
  // shouldn't reset when the score is re-rendered.
  details.thick = 1;          // Thickness of staff line segment
  details.space = 10;         // The thickness of each space
- details.beamStyle = "bww";  // can be "bww" or "straight" or "sloped"
  details.logging = false;    // true | false toggles bounding box tracing
  details.uiTracing = false;  // true | false toggles bounding box tracing
  
@@ -59,6 +58,8 @@ var staff =
    details.noteColor2 = "green";
    details.noteColor3 = "blue";
    details.noteColor4 = "red";
+
+   details.beamStyle = hdots_prefs.getValueOf("beam_style");
  }
  
  function drawStaff(width) {
