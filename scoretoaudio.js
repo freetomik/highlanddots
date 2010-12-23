@@ -43,7 +43,7 @@ function scoretoaudio(score, ticks) {
   var i, l, mel;
   var pass = 1;
   var repeatStack = [];
-
+  
   
   l = score.data.length;
   i = 0;
@@ -60,14 +60,14 @@ function scoretoaudio(score, ticks) {
   
   while (i < l) {
     mel = score.data[i];
-
+    
   // TJM : TODO : - adjust note off time correctly for embellishments
   //              - unroll voltas
   //              - enable different tunings
 
     if (mel.type === "melody") pushNoteMidiEvents(evnts, mel, ticks, mel.duration);
     else if (mel.type === "gracenote" ) pushNoteMidiEvents(evnts, mel, ticks, 64);
-
+    
 /*    
     if (mel.repeatStart) {
       mel.repeatCount = 2;
@@ -97,7 +97,7 @@ function scoretoaudio(score, ticks) {
   // save => write data URL to new window
   //tune.save();
   // play => add layer with embedded QT plugin and set data URL 
-  tune.play();
+  tune.load();tune.play();
  
  
 }

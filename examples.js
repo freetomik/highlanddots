@@ -135,7 +135,7 @@ var bwwExamples = (function()
                      ""
                    ];
                    tunes["Mairi's Wedding"] = tune;
-
+                   
                    tune = [
                      "Bagpipe Reader:1.0",
                      "MIDINoteMappings,(55,57,59,60,62,64,65,67,69,57,59,61,62,64,66,67,69,71,56,58,60,61,63,65,66,68,70)",
@@ -205,9 +205,12 @@ var bwwExamples = (function()
                      
                    }
                    
-                   function loadData(el) {
-                     
+                   function loadData(el) {                     
                      var idx = el.selectedIndex;
+                     if (!el.options[idx]) {
+                       alert("No file selected");
+                       return;
+                     }
                      var o = el.options[idx].text;
                      var s = tunes[o].join("\r\n");
                      s = s.replace("~", "\t", "g");

@@ -9,9 +9,11 @@ var GHPRef = {
   E: "e2",
   F: "f2",
   HG: "g2",
-  HA: "a3"
+  HA: "a3",
+  REST: "c2"
 };
 
+var useShortMessages = true;
 
 var beamGroupDef = {
   start:  {sectionStart: true},
@@ -19,112 +21,10 @@ var beamGroupDef = {
 };
 
 
-
 function parseBWW(dots) {
-  dots = cleanupBww(dots)
-  
-  var knownVersions = [
-    "Bagpipe Reader:1.0",
-    "Bagpipe Music Writer Gold:1.0"
-  ];
-  
-  
-  var version = dots[0];
-  if (knownVersions.indexOf(version) === -1) {
-    alert("This document starts with `" + version + "'.\r\nThis is not a known " +
-          "bagpipe music file.");
-    return false;
-  }
-  dots[0] = "";
-  
-  function importException (message)
-  {
-    this.message=message;
-    this.name="BWW Import Exception";
-  }
-  
-  
-  /*
-  "Layout Tester",(T,L,0,0,Times New Roman,16,700,0,0,18,0,0,0)
-  "test",(Y,C,0,0,Times New Roman,14,400,0,0,18,0,0,0)
-  "Jeremy J Starcher",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)
-  
-  "It just is",(F,R,0,0,Times New Roman,10,400,0,0,18,0,0,0)
-  */
-  
-  var grok_metaData = (function() {
-                       var a = {
-                       MIDINoteMappings: {ignore: true},
-                       FrequencyMappings: {ignore: true},
-                       InstrumentMappings: {ignore: true},
-                       GracenoteDurations: {ignore: true},
-                       FontSizes: {ignore: true},
-                       TuneFormat: {ignore: true},
-                       TuneTempo: {ignore: false}
-                       };
-                       
-                       function isType(s) {
-                         // Look for things that start with a quote.
-                         
-                         //alert(typeof s);
-                         //alert([s, s.substring(0,1), s.substring(0,1) === '"']); 
-                         if (s.substring(0,1) === '"') {
-                           return true;
-                         }
-                         
-                         var l = s.split(",")[0];
-                         // Handle the things on the list.
-                         if (typeof a[l] !== "undefined") {
-                           return true;
-                         }
-                         
-                         return false;
-                       }
-                       
-                       function setData(data, s) {
-                         var i, mode;
-                         var l, name, val;
-                         
-                         // If it is one of those that starts in a quote
-                         // handle it.
-                         if (s.substring(0,1) === '"') {
-                           i = s.indexOf(',(');
-                           if (i === -1) {return; }
-                           
-                           mode = s.substring(i+2, i+3);
-                           
-                           name = {
-                             T: "Title",
-                             Y: "Genre",
-                             M: "Composer",
-                             F: "Footer"
-                           }[mode];
-                           
-                           if (name) {
-                             val = s.split(",")[0].replace(/"/g, '')
-                             data[name] = val;
-                           } else {
-                             alert("Unknown meta data: `" + s + "'");
-                             //throw importException("Unknown type in text string");
-                           }
-                           return;
-                         }
-                         
-                         l = s.split(",");
-                         name = l[0];
-                         
-                         l.splice(0,1);
-                         val = l.join(" , ");
-                         
-                         data[name] = val;
-                       }
-                       return {
-                         isType: isType,
-                         setData: setData
-                       };
-  }());
-  
-  
+  //////////////////////////////////////////////////////////////////////////
+  /// Data declarations
+  //////////////////////////////////////////////////////////////////////////
   
   var z_invalid = (function() {
                    /* 
@@ -133,15 +33,6 @@ function parseBWW(dots) {
                    make sure to remove them from this list.
                    */
                    var a = [  
-                     "naturalha",
-                     "naturalhg",
-                     "naturalf",
-                     "naturale",
-                     "naturald",
-                     "naturalc",
-                     "naturalb",
-                     "naturalla",
-                     "naturallg",
                      "pdarodo16",
                      "phdarodo",
                      "plbrea",
@@ -209,56 +100,33 @@ function parseBWW(dots) {
                      "pttripb",
                      "pttripc",
                      "pcblg",
-                     "REST_1",
-                     "REST_2",
-                     "REST_4",
+                     // TODO : complete graphic elements for these rests
                      "REST_8",
                      "REST_16",
                      "REST_32",
-                     "bis_'",
-                     "'si",
-                     "'do",
+                     // TODO : enhance phrase group for these tuplets
+                     "^2s",
                      "^2e",
+                     "^43s",
                      "^43e",
-                     "^53e",
-                     "^64e",
-                     "^74e",
+                     "^46s",
                      "^46e",
+                     "^53s",
+                     "^53e",
+                     "^54s",
                      "^54e",
+                     "^64s",
+                     "^64e",
+                     "^74s",
+                     "^74e",
+                     "^76s",
                      "^76e",
                      "=^3b",
                      "=^3c",
-                     "^3d",
-                     "^3f",
-                     "^3ha",
-                     "^3hg",
-                     "^3la",
-                     "^3lg",
-                     "^2s",
-                     "^43s",
-                     "^53s",
-                     "^64s",
-                     "^74s",
-                     "^46s",
-                     "^54s",
-                     "^76s",
-                     "^tb",
-                     "^tc",
-                     "^td",
-                     "^tf",
-                     "^tha",
-                     "^thg",
-                     "^tla",
-                     "^tlg",
-                     "flatlg",
-                     "flatla",
-                     "flatb",
-                     "flatc",
-                     "flatd",
-                     "flate",
-                     "flatf",
-                     "flathg",
-                     "flatha",
+                     
+                     
+                     "'si",
+                     "'do",
                      "xfermatlg",
                      "fermatla",
                      "fermatb",
@@ -287,6 +155,7 @@ function parseBWW(dots) {
                      alert("can't create an invalid type");
                    }
                    return {
+                     getTokens: function() {return getTokenList(a);},
                      isType: isType,
                      create: create
                    };
@@ -296,35 +165,40 @@ function parseBWW(dots) {
   
   // No-operations.  BWW tokens that we realize, but we completely ignore.
   var z_nop = (function() {
-                   var a = [  
-                     "space"
-                   ];
-                   
-                   function isType(s) {
-                     return (a.indexOf(s) !== -1);
-                   }
-                   
-                   function create(s) {
-                     return undefined;
-                   }
-                   return {
-                     isType: isType,
-                     create: create
-                   };
-                   
-                   
+               var a = [  
+               "space"
+               ];
+               
+               function isType(s) {
+                 return (a.indexOf(s) !== -1);
+               }
+               
+               function create(s) {
+                 return undefined;
+               }
+               return {
+                 getTokens: function() {return getTokenList(a);},
+                 isType: isType,
+                 create: create
+               };
+               
+               
   }());
-    
+  
   
   // Is this a beat? Which would end a beam?
   var z_beat = (function() {
-                function isType(s) {
-                var mel = z_staffControl.create(s);
+                var a = [
+                "~",
+                "\t"
+                ];
                 
-                if (s === "~") {return true;}
-                if (s === "\t") {return true;}
-                if (mel.newBar) {return true;}
-                return false;
+                function isType(s) {
+                  var mel = z_staffControl.create(s);
+                  
+                  if (a.indexOf(s) !== -1) {return true;}
+                  if (mel.newBar) {return true;}
+                  return false;
                 };
                 
                 
@@ -336,6 +210,7 @@ function parseBWW(dots) {
                   return mel;
                 }
                 return {
+                  getTokens: function() {return getTokenList(a);},				
                   isType: isType,
                   create: create
                 };
@@ -344,8 +219,11 @@ function parseBWW(dots) {
   
   var z_keysig = (function() {
                   
+                  var a = [
+                  "&"
+                  ];  
                   function isType(s) {
-                  return (s === "&");
+                    return (a.indexOf(s) !== -1);
                   }
                   
                   function create(s) {
@@ -353,6 +231,7 @@ function parseBWW(dots) {
                   }
                   
                   return {
+                    getTokens: function() {return getTokenList(a);},				  
                     isType: isType,
                     create: create
                   };
@@ -374,6 +253,15 @@ function parseBWW(dots) {
                    "sharpb":    {name: "sharp", staffNote: GHPRef.B},
                    "sharpla":   {name: "sharp", staffNote: GHPRef.LA},
                    "sharplg":   {name: "sharp", staffNote: GHPRef.LG},
+                   "flatha":     {name: "flat", staffNote: GHPRef.HA},
+                   "flathg":     {name: "flat", staffNote: GHPRef.HG},
+                   "flatf":     {name: "flat", staffNote: GHPRef.F},
+                   "flate":     {name: "flat", staffNote: GHPRef.E},
+                   "flatd":     {name: "flat", staffNote: GHPRef.D},
+                   "flatc":     {name: "flat", staffNote: GHPRef.C},
+                   "flatb":     {name: "flat", staffNote: GHPRef.B},
+                   "flatla":     {name: "flat", staffNote: GHPRef.LA},
+                   "flatlg":     {name: "flat", staffNote: GHPRef.LG},
                    "naturalha": {name: "natural", staffNote: GHPRef.HA},
                    "naturalhg": {name: "natural", staffNote: GHPRef.HG},
                    "naturalf":  {name: "natural", staffNote: GHPRef.F},
@@ -382,7 +270,15 @@ function parseBWW(dots) {
                    "naturalc":  {name: "natural", staffNote: GHPRef.C},
                    "naturalb":  {name: "natural", staffNote: GHPRef.B},
                    "naturalla": {name: "natural", staffNote: GHPRef.LA},
-                   "naturallg": {name: "natural", staffNote: GHPRef.LG}
+                   "naturallg": {name: "natural", staffNote: GHPRef.LG},
+                   "REST_1":    {name: "rest1",   duration: "1",   staffNote: GHPRef.C},
+                   "REST_2":    {name: "rest2",   duration: "2",   staffNote: GHPRef.C},
+                   "REST_4":    {name: "rest4",   duration: "4",   staffNote: GHPRef.C},
+                   "REST_8":    {name: "rest8",   duration: "8",   staffNote: GHPRef.C},
+                   "REST_16":   {name: "rest16",  duration: "16",  staffNote: GHPRef.C},
+                   "REST_32":   {name: "rest32",  duration: "32",  staffNote: GHPRef.C},
+                   "REST_64":   {name: "rest64",  duration: "64",  staffNote: GHPRef.C},
+                   "REST_128":  {name: "rest128", duration: "128", staffNote: GHPRef.C}
                    };
                    
                    function isType(s) {
@@ -401,6 +297,7 @@ function parseBWW(dots) {
                      }
                    }
                    return {
+                     getTokens: function() {return getTokenList(a);},				   
                      isType: isType,
                      create: create
                    };
@@ -449,6 +346,7 @@ function parseBWW(dots) {
                      
                    }
                    return {
+                     getTokens: function() {return getTokenList(a);},				   
                      isType: isType,
                      create: create
                    };                 
@@ -891,6 +789,7 @@ function parseBWW(dots) {
                     }
                     
                     return {
+                      getTokens: function() {return getTokenList(a);},					
                       isType: isType,
                       create: create
                     };                  
@@ -943,11 +842,13 @@ function parseBWW(dots) {
                     
                   }
                   return {
+                    getTokens: function() {return getTokenList(a);},				  
                     isType: isType,
                     create: create
                   };
                   
   }());
+  
   
   var z_phrasegroup = (function() {
                        
@@ -969,8 +870,24 @@ function parseBWW(dots) {
                        var a = {
                          "^ts":    {collectionName: "ties", sectionStart: true, style: "arc"},
                          "^te":    {collectionName: "ties", sectionEnd: true},
+                         "^2s":    {collectionName: "doublets", sectionStart: true, label: "2", style: "arc"},
+                         "^2e":    {collectionName: "doublets", sectionEnd: true},
                          "^3s":    {collectionName: "triplets", sectionStart: true, label: "3", style: "arc"},
                          "^3e":    {collectionName: "triplets", sectionEnd: true},
+                         "^43s":   {collectionName: "tuples", sectionStart: true, label: "4", style: "arc"},
+                         "^43e":   {collectionName: "tuples", sectionEnd: true},
+                         "^46s":   {collectionName: "tuples", sectionStart: true, label: "4", style: "arc"},
+                         "^46e":   {collectionName: "tuples", sectionEnd: true},
+                         "^53s":   {collectionName: "tuples", sectionStart: true, label: "5", style: "arc"},
+                         "^53e":   {collectionName: "tuples", sectionEnd: true},
+                         "^54s":   {collectionName: "tuples", sectionStart: true, label: "5", style: "arc"},
+                         "^54e":   {collectionName: "tuples", sectionEnd: true},
+                         "^64s":   {collectionName: "tuples", sectionStart: true, label: "6", style: "arc"},
+                         "^64e":   {collectionName: "tuples", sectionEnd: true},
+                         "^74s":   {collectionName: "tuples", sectionStart: true, label: "7", style: "arc"},
+                         "^74e":   {collectionName: "tuples", sectionEnd: true},
+                         "^76s":   {collectionName: "tuples", sectionStart: true, label: "7", style: "arc"},
+                         "^76e":   {collectionName: "tuples", sectionEnd: true},
                          "'bis":   {collectionName: "voltas", sectionStart: true, label: "bis", style: "straight"},
                          "'1":     {collectionName: "voltas", sectionStart: true, label: "1st", style: "straight", repeatOnPasses: [1]},
                          "'2":     {collectionName: "voltas", sectionStart: true, label: "2nd", style: "straight", repeatOnPasses: [2]},
@@ -983,6 +900,7 @@ function parseBWW(dots) {
                          "'28":    {collectionName: "voltas", sectionStart: true, label: "8th of part 2", style: "straight"},
                          "'224":   {collectionName: "voltas", sectionStart: true, label: "2nd of parts 2 and 4", style: "straight"},
                          "'intro": {collectionName: "voltas", sectionStart: true, label: "Introduction", style: "straight"},
+                         "bis_'":  {collectionName: "voltas", sectionEnd: true},
                          "_'":     {collectionName: "voltas", sectionEnd: true}
                        };
                        
@@ -998,6 +916,7 @@ function parseBWW(dots) {
                          
                        }
                        return {
+                         getTokens: function() {return getTokenList(a);},					   
                          isType: isType,
                          create: create
                        };
@@ -1012,6 +931,7 @@ function parseBWW(dots) {
                         "!I": {sectionEnd: true,staffEnd: true, newBar: true},
                         "!t": {staffEnd: true, newBar: true},
                         "''!I": {sectionEnd: true, repeatEnd: true, staffEnd: true, newBar: true},
+                        "''!It": {sectionEnd: true, repeatEnd: true, staffEnd: true, newBar: true},
                         "!!": {sectionEnd: true, staffEnd: true, newBar: true}
                         };
                         
@@ -1026,6 +946,7 @@ function parseBWW(dots) {
                           return mel;
                         }
                         return {
+                          getTokens: function() {return getTokenList(a);},						
                           isType: isType,
                           create: create
                         };
@@ -1065,12 +986,199 @@ function parseBWW(dots) {
                      return undefined;
                    }
                    return {
+                     getTokens: function() {return getTokenList(a);},				   
                      isType: isType,
                      create: create
                    };                 
   }());
   
+  // Order kinda matters here.
+  //z_beat has to be before z_staffControl
+  //z_keysig must be after z_graphic
+  var typeArr = [
+    z_nop,
+    z_graphic,
+    z_keysig,
+    z_timesig,
+    z_beat,
+    z_phrasegroup,
+    z_melody,
+    z_noteDot,
+    z_staffControl,
+    z_ghbgrace
+  ];
   
+  var knownVersions = [
+    "Bagpipe Reader:1.0",
+    "Bagpipe Music Writer Gold:1.0",
+    "Bagpipe Musicworks Gold:1.0"
+  ];  
+  
+  //////////////////////////////////////////////////////////////////////////
+  /// Code that depends on the above data can start here
+  //////////////////////////////////////////////////////////////////////////
+  
+  function makeTokenList() {
+    var allTokens = ""
+    typeArr.forEach(function(f) {
+                    allTokens += f.getTokens().join(" ") + " ";
+                    });
+    var arr = allTokens.split(" ");
+    
+    
+    arr.sort();
+    arr.reverse();
+    return arr;
+  }
+  
+  //console.log(makeTokenList());
+  
+  dots = cleanupBww(dots);  
+  dots = cleanupBww2(dots);  
+  
+  var version = dots[0];
+  if (knownVersions.indexOf(version) === -1) {
+    alert("This document starts with `" + version + "'.\r\nThis is not a known " +
+          "bagpipe music file.");
+    return false;
+  }
+  dots[0] = "";
+  
+  // Some files have multiple headers *IN A ROW*
+  // We are just going to eat those.
+  (function() {
+   var i = 1;
+   var version = dots[i];
+   while (knownVersions.indexOf(version) !== -1) {
+     dots[i] = "";
+     i++;
+     version = dots[i];
+   }
+   
+  }());
+  
+  // And then we'll check if there is more than one score in this file.
+  // If so, die and gag for now.
+  var isOneScore = function() {
+    var l = dots.length;
+    var i = 0;
+    var version;
+    
+    for (i = 1; i < l; i++) {
+      version = dots[i];
+      if (knownVersions.indexOf(version) !== -1) {
+        return false;
+      }
+    }
+    return true;
+  };
+  
+  if (!isOneScore()) {
+    alert("There seem to be multiple scores within this file.\n" +
+          "Sorry, can't handle that yet.");
+    return false;
+  }
+  
+  
+  
+  
+  function getTokenList(a) {
+    var a1 = [];
+    if (a.push) {
+      return a;
+    }
+    
+    API.forEachProperty(a, function(el, i) { a1.push(i); });
+    return a1;
+  }
+  
+  function importException (message)
+  {
+    this.message=message;
+    this.name="BWW Import Exception";
+  }
+  
+  
+  /*
+  "Layout Tester",(T,L,0,0,Times New Roman,16,700,0,0,18,0,0,0)
+  "test",(Y,C,0,0,Times New Roman,14,400,0,0,18,0,0,0)
+  "Jeremy J Starcher",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)
+  
+  "It just is",(F,R,0,0,Times New Roman,10,400,0,0,18,0,0,0)
+  */
+  
+  var grok_metaData = (function() {
+                       var a = {
+                       MIDINoteMappings: {ignore: true},
+                       FrequencyMappings: {ignore: true},
+                       InstrumentMappings: {ignore: true},
+                       GracenoteDurations: {ignore: true},
+                       FontSizes: {ignore: true},
+                       TuneFormat: {ignore: true},
+                       TuneTempo: {ignore: false}
+                       };
+                       
+                       function isType(s) {
+                         // Look for things that start with a quote.
+                         
+                         //alert(typeof s);
+                         //alert([s, s.substring(0,1), s.substring(0,1) === '"']); 
+                         if (s.substring(0,1) === '"') {
+                           return true;
+                         }
+                         
+                         var l = s.split(",")[0];
+                         // Handle the things on the list.
+                         if (typeof a[l] !== "undefined") {
+                           return true;
+                         }
+                         
+                         return false;
+                       }
+                       
+                       function setData(data, s) {
+                         var i, mode;
+                         var l, name, val;
+                         
+                         // If it is one of those that starts in a quote
+                         // handle it.
+                         if (s.substring(0,1) === '"') {
+                           i = s.indexOf(',(');
+                           if (i === -1) {return; }
+                           
+                           mode = s.substring(i+2, i+3);
+                           
+                           name = {
+                             T: "Title",
+                             Y: "Genre",
+                             M: "Composer",
+                             F: "Footer"
+                           }[mode];
+                           
+                           if (name) {
+                             val = s.split(",")[0].replace(/"/g, '')
+                             data[name] = val;
+                           } else {
+                             logit("Unknown meta data: `" + s + "'");
+                             //throw importException("Unknown type in text string");
+                           }
+                           return;
+                         }
+                         
+                         l = s.split(",");
+                         name = l[0];
+                         
+                         l.splice(0,1);
+                         val = l.join(" , ");
+                         
+                         data[name] = val;
+                       }
+                       return {
+                         getTokens: function() {return getTokenList(a);},					   
+                         isType: isType,
+                         setData: setData
+                       };
+  }());  
   
   // This doesn't really fix anything,
   //  it just tires to replicate the rules
@@ -1083,7 +1191,8 @@ function parseBWW(dots) {
     for (i = 0; i < score.data.length; i++) {
       mel = score.data[i];
       switch (mel.type) {
-      case "melody":        if (mel.tail) {
+      case "melody":
+        if (mel.tail) {
           if (!inBeam) {
             inBeam = true;
             bg = score.createBeamGroup();
@@ -1091,7 +1200,28 @@ function parseBWW(dots) {
             meldObjectToObject(beamGroupDef.start, bg);
             score.data.splice(i,0,bg);
           }
-      } else {
+        } else {
+          if (inBeam) {
+            inBeam = false;
+            bg = score.createBeamGroup();
+            bg.elementType = "melody";
+            meldObjectToObject(beamGroupDef.end, bg);
+            score.data.splice(i,0,bg);
+          }
+        }
+        break;
+        
+      case "staffControl":
+        if (mel.newBar && inBeam) {
+          inBeam = false;
+          bg.elementType = "melody";
+          bg = score.createBeamGroup();
+          meldObjectToObject(beamGroupDef.end, bg);
+          score.data.splice(i,0,bg);
+        }
+        break;
+        
+      case "beat":
         if (inBeam) {
           inBeam = false;
           bg = score.createBeamGroup();
@@ -1099,27 +1229,8 @@ function parseBWW(dots) {
           meldObjectToObject(beamGroupDef.end, bg);
           score.data.splice(i,0,bg);
         }
-      }
-      break;
-      
-    case "staffControl":  if (mel.newBar && inBeam) {
-        inBeam = false;
-        bg.elementType = "melody";
-        bg = score.createBeamGroup();
-        meldObjectToObject(beamGroupDef.end, bg);
-        score.data.splice(i,0,bg);
-    }
-    break;
-    
-  case "beat":          if (inBeam) {
-      inBeam = false;
-      bg = score.createBeamGroup();
-      bg.elementType = "melody";
-      meldObjectToObject(beamGroupDef.end, bg);
-      score.data.splice(i,0,bg);
-  }
-  break;
-  
+        break;
+        
       }
     }
     
@@ -1134,6 +1245,7 @@ function parseBWW(dots) {
   function parseBits(b, errors) {
     var i, l = b.length;
     var s, mel;
+    var msg;
     
     var wasFound;
     
@@ -1148,7 +1260,15 @@ function parseBWW(dots) {
       mel = undefined;
       
       if (z_invalid.isType(s)) {
-        errors.push("Symbol `" + s + "' is known, but not supported.");
+        if (useShortMessages) {
+          msg = s + " not supported";
+        } else {
+          msg = "Symbol `" + s + "' is known, but not supported.";
+        }
+        // We only need one copy of the error message
+        if (errors.indexOf(msg) === -1) {
+          errors.push(msg);
+        }
         continue;
       }
       
@@ -1157,34 +1277,30 @@ function parseBWW(dots) {
       // Loop through our melody element types and add it if a match is
       // found.  Don't abort the loop eary because some elements will 
       // create more than one node.
-      // Order kinda matters here.
-      //z_beat has to be before z_staffControl
-      //z_keysig must be after z_graphic
       wasFound = false;
-      [
-        z_nop,
-        z_graphic,
-        z_keysig,
-        z_timesig,
-        z_beat,
-        z_phrasegroup,
-        z_melody,
-        z_noteDot,
-        z_staffControl,
-        z_ghbgrace
-      ].forEach(function(f) {
-                if (f.isType(s)) {
-                wasFound = true;
-                mel = f.create(s);
-                if (mel) {
-                  mel.bww = s;
-                  score.appendNode(mel);
-                }
-                }
+      
+      typeArr.forEach(function(f) {
+                      logit(s);
+                      if (f.isType(s)) {
+                        wasFound = true;
+                        mel = f.create(s);
+                        if (mel) {
+                          mel.bww = s;
+                          score.appendNode(mel);
+                        }
+                      }
       });
       
       if (!wasFound) {
-        errors.push("Symbol `" + s + "' is totally unknown.");        
+        if (useShortMessages) {
+          msg = s + " unknown";
+        } else {
+          msg = "Symbol `" + s + "' is totally unknown."; 
+        }
+        // We only need one copy of the error message
+        if (errors.indexOf(msg) === -1) {
+          errors.push(msg);
+        }    
       }
     }    
   }
@@ -1224,12 +1340,16 @@ function parseBWW(dots) {
   }
   
   if (errors.length) {
-    alert(errors.join("\r\n"));
+    if (useShortMessages) {
+      alert(errors);
+    } else {
+      alert(errors.join("\r\n"));
+    }
     return false;
   }
   
   // This doesn't really fix anything,
-  //  it just tires to replicate the rules
+  //  it just tries to replicate the rules
   //  BP appears to use when beaming.
   //  
   fixBeamGroups();
@@ -1239,163 +1359,285 @@ function parseBWW(dots) {
   //alert(score.metaData.toSource());
   logit(score);
   return true;
-}
-
-
-function cleanupBww(source) {
-  source = source.replace(/~/g, " ~ ");
-  source = source.replace(/\t/g, " ~ ");
-  source = source.split("");
-  
-  var tokenChars = /[A-Z]|[a-z]|[0-9]|_|'|&|~|\t|!|\^|=/;
-  var whiteSpaceToEat = / |\n|\r/;
   
   
-  function getNextChar() {
-    return source[si++];
-  }
-  
-  function peektNextChar() {
-    if (source[si]) {
-      return source[si];
-    } else {
-      return "";
-    }
-  }
-  
-  function getTokenArray(l) {
-    var out = []
-    while (l-- > 0) {
-      eatWhiteSpace();
-      out.push(readToken());      
-    }
-    return out;
-  }
-  
-  function eatWhiteSpace() {
-    while (peektNextChar().match(whiteSpaceToEat)) {
-      getNextChar();
-    }
-  }
-  
-  function getStringUntil(term) {
-    var out = [];
-    var q;
+  /**
+  Tokenize the BWW files as much as possible and attempt
+  to put each token on its own line.
+  */
+  function cleanupBww(source) {
+    source = source.replace(/~/g, " ~ ");
+    source = source.replace(/\t/g, " ~ ");
+    source = source.split("");
     
-    q = getNextChar(); // Read the quote
-    out.push(q);
-    q = getNextChar();
-    while (q !== term) {
+    var tokenChars = /[A-Z]|[a-z]|[0-9]|_|'|&|~|\t|!|\^|=/;
+    var whiteSpaceToEat = / |\n|\r/;
+    
+    
+    function getNextChar() {
+      if (si > source.length) {
+        throw("getNextChar: Past end of source.");
+      }
+      return source[si++];
+    }
+    
+    function peektNextChar() {
+      if (source[si]) {
+        return source[si];
+      } else {
+        return "";
+      }
+    }
+    
+    function getTokenArray(l) {
+      var out = []
+      while (l-- > 0) {
+        eatWhiteSpace();
+        out.push(readToken());      
+      }
+      return out;
+    }
+    
+    function eatWhiteSpace() {
+      while (peektNextChar().match(whiteSpaceToEat)) {
+        getNextChar();
+      }
+    }
+    
+    function getStringUntil(term) {
+      var out = [];
+      var q;
+      
+      q = getNextChar(); // Read the quote
       out.push(q);
       q = getNextChar();
+      while (q !== term) {
+        out.push(q);
+        q = getNextChar();
+      }
+      out.push(q);
+      
+      return out.join("");    
     }
-    out.push(q);
     
-    return out.join("");    
-  }
-  
-  function getQuotedString() {
-    var out = [];
-    var q;
-    
-    q = getNextChar(); // Read the quote
-    out.push(q);
-    q = getNextChar();
-    while (q !== '"') {
+    function getQuotedString() {
+      var out = [];
+      var q;
+      
+      q = getNextChar(); // Read the quote
       out.push(q);
       q = getNextChar();
-    }
-    out.push(q);
-    
-    return out.join("");
-  }
-  
-  
-  function readToken() {
-    var q;
-    var t = "";
-    
-    q = getNextChar();
-    if (!q.match(tokenChars)) {
-      return q;
+      while (q !== '"') {
+        out.push(q);
+        q = getNextChar();
+      }
+      out.push(q);
+      
+      return out.join("");
     }
     
-    t += q;
     
-    while (peektNextChar().match(tokenChars)) {
+    function readToken() {
+      var q;
+      var t = "";
+      
       q = getNextChar();
+      if (!q.match(tokenChars)) {
+        return q;
+      }
+      
       t += q;
+      
+      while (peektNextChar().match(tokenChars)) {
+        q = getNextChar();
+        t += q;
+      }
+      return t;
     }
-    return t;
-  }
-  
-  var si;
-  var line;
-  var dest = [];
-  var l;
-  var token;
-  var q;
-  
-  // Cheap duck test
-  //if (API.hasMethod(source, "push")) {
-  //  source = source.join(" ");
-  //}
-  
-  si = 0;
-  l = source.length;
-  while (si < l) {
-    eatWhiteSpace();
-    token = undefined;
-    q = peektNextChar();
     
-    if (token === undefined) {
-      if (q === '"') { // Its a quoted string
-        token = getQuotedString();
-        if (peektNextChar() == ",") {
-          //alert("found a comma, reading line");
-          token = token + getStringUntil(")");
+    var si;
+    var line;
+    var dest = [];
+    var l;
+    var token;
+    var q;
+    
+    // Cheap duck test
+    //if (API.hasMethod(source, "push")) {
+    //  source = source.join(" ");
+    //}
+    
+    si = 0;
+    l = source.length;
+    while (si < l) {
+      eatWhiteSpace();
+      token = undefined;
+      q = peektNextChar();
+      
+      if (token === undefined) {
+        if (q === '"') { // Its a quoted string
+          token = getQuotedString();
+          if (peektNextChar() == ",") {
+            //alert("found a comma, reading line");
+            token = token + getStringUntil(")");
+          }
+          //alert(token);
         }
-        //alert(token);
+      }
+      
+      if (token === undefined) {
+        if (q.match(tokenChars)) {
+          token = readToken();
+        }
+      }
+      
+      if (token == " ") {
+        token = "<space>";
+      }
+      
+      if (token === undefined) {
+        si++;
+      }
+      
+      // And now that we have a token, decide what to do with it.
+      switch(token) {
+      case "Bagpipe":
+        token = token + getStringUntil(":");
+        token = token + getTokenArray(3).join("");
+        break;
+      case "MIDINoteMappings":
+      case "FrequencyMappings":
+      case "InstrumentMappings":
+      case "GracenoteDurations":
+      case "FontSizes":
+      case "TuneFormat":
+        token = token + getStringUntil(")");
+        break;
+      case "TuneTempo":
+        token = token  + getTokenArray(2).join("");      
+      }
+      
+      if (token) {
+        dest.push(token);
       }
     }
-    
-    if (token === undefined) {
-      if (q.match(tokenChars)) {
-        token = readToken();
-      }
-    }
-    
-    if (token == " ") {
-      token = "<space>";
-    }
-    
-    if (token === undefined) {
-      si++;
-    }
-    
-    // And now that we have a token, decide what to do with it.
-    switch(token) {
-    case "Bagpipe":
-      token = token + getStringUntil(":");
-      token = token + getTokenArray(3).join("");
-      break;
-    case "MIDINoteMappings":
-    case "FrequencyMappings":
-    case "InstrumentMappings":
-    case "GracenoteDurations":
-    case "FontSizes":
-    case "TuneFormat":
-      token = token + getStringUntil(")");
-      break;
-    case "TuneTempo":
-      token = token  + getTokenArray(2).join("");      
-    }
-    
-    if (token) {
-      dest.push(token);
-    }
+    //document.write("<pre>" + JSON.stringify(dest, undefined, 2));
+    return dest;
   }
-  //document.write("<pre>" + JSON.stringify(dest, undefined, 2));
-  return dest;
+  
+  /**
+  There are some 'obsolete' tokens from earlier versions of Bagpipe Music Writer.
+  
+  It seems that these tokens are translated 'behind-the-scenes' to the new
+  format, so this code will replicate that.
+  
+  English translation:
+  Translates the stream from:
+  LA_4 ^tla LA_4
+  To the preferred:
+  ^ts LA_4 LA_4 ^te
+  
+  Highland Dots currently makes a nice and messy arc across the score.	  
+  */
+  function cleanupBww2(source) {
+    
+    var ties = {};
+    var TOKEN_AT_END = 1;
+    var TOKEN_BETWEEN_TWO = 2;
+	  
+    var tie;
+    var inTie = false;
+    var i, l = source.length;
+    var isMelodyToken;
+    var melodyTokenIndexStack = [];
+    var wantedIdx;
+    
+    // These are the tokens that identify melody notes.
+    var melodyTokens = z_melody.getTokens();
+    
+    var mel;
+    var dots = [];
+    
+    var countdown;
+    
+    function makeList() {
+      
+      // The nicest way to show data to a human and to a computer are sometimes quite different
+      // This routine takes a couple of very logical looking lists and turns them into a
+      // big object for the other code to handle.
+      var joinList = [
+        {
+          name: "tie",
+          style: TOKEN_BETWEEN_TWO,
+          tokens: ["^tlg", "^tla", "^tb", "^tc", "^td", "^te", "^tf", "^tha", "^thg"],
+          newStartToken: "^ts",
+          newEndToken: "^te",
+          tieReach: 2
+        },
+        {
+          name: "triplet",
+          style: TOKEN_AT_END,
+          tokens: ["^3lg", "^3la", "^3b", "^3c", "^3d", "^3e", "^3f", "^3ha", "^3hg"],
+          newStartToken: "^3s",
+          newEndToken: "^3e",
+          tieReach: 3
+        }
+      ];
+      var i, j;
+      var o;
+      var token;
+      for (i = 0; i < joinList.length; i++) {
+        o = joinList[i];
+        for (j = 0; j < o.tokens.length; j++) {
+          ties[o.tokens[j]] = {
+            newStartToken: o.newStartToken,
+            newEndToken: o.newEndToken,
+            tieReach: o.tieReach,
+            style: o.style
+          };
+        }
+      }
+    }  
+    makeList();
+    //alert(ties.toSource());
+    
+    countdown = 0;
+    for (i = 0; i < l; i++) {
+      mel = source[i];
+      
+      isMelodyToken = melodyTokens.indexOf(mel) !== -1;
+      
+      if (isMelodyToken) {
+        melodyTokenIndexStack.push(dots.length-1);
+      }
+      
+      if (ties[mel]) {
+        tie = ties[mel];
+        // Force a token earlier into the stream
+        wantedIdx = melodyTokenIndexStack[melodyTokenIndexStack.length-tie.tieReach+1];
+        dots.splice(wantedIdx,0,tie.newStartToken);
+        
+        if (tie.style == TOKEN_AT_END) { dots.push(tie.newEndToken); }
+        if (tie.style == TOKEN_BETWEEN_TWO) { countdown = 1; }
+        continue;
+      }      
+      
+      
+      dots.push(mel);
+      
+      if (countdown && isMelodyToken) {
+        countdown--;
+        if (!countdown) { dots.push(tie.newEndToken); }
+      }
+      
+    }    
+    
+    var s = dots.join(" ")
+    s = s.replace(/!/g, "!<br>");
+    s = s.replace(/&/g, "&<br>");
+    
+    //document.write("<pre>" + s);
+    
+    return dots;
+  } 
 }
-
