@@ -399,9 +399,9 @@ var hdots_prefs = (
                          opt = v.options;
                          for (i = 0, l = opt.length; i < l; i++) {
                            o = opt[i];
-                           API.forEachProperty(o, function(p) {
+                           API.forEachProperty(o, function(p, vv) {
                                                API.addOptions(el, o);
-                                               if (p === val) { el.selectedIndex = i; }
+                                               if (vv === val) { el.selectedIndex = i; }
                            });
                          }
                          addToForm(v, el, target);
@@ -578,6 +578,20 @@ if (API.getOptionValue) {
 
 function prepConfig() {
   var pref;
+  //jjzr
+  
+  hdots_prefs.registerPreference( {
+                                 type: "select",
+                                 name: "beam_style",
+                                 label: "Beaming style",
+                                 def: "bww",
+                                 options: [
+                                   {"bww": "Bagpipe Music Writer Style"},
+                                   {"straight": "Straight"}, 
+                                   {"sloped": "Sloped (experimental)"}
+                                 ]
+  });
+
   
   hdots_prefs.registerPreference( {
                                  type: "boolean",
