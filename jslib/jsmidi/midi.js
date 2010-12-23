@@ -207,33 +207,34 @@ var MidiWriter = function(config) {
                     embed.setAttribute("EnableJavaScript", "true");
 
                     elem.appendChild(embed);
+                  }
 
                 },
-                play: function() {
+            play: function() {
                   var qt = document.getElementsByTagName("embed");
                   if (qt[0].GetPluginStatus().toUpperCase() == "playable") {
                     qt[0].Play();
                   }
 // TJM : TODO : throw something if not playbale
-               }
-               pause: function() {
+            },
+            pause: function() {
                  var qt = document.getElementsByTagName("embed");
                  if (qt[0].GetPluginStatus().toUpperCase() == "playable") {
                    qt[0].Play();
                  }
 // TJM : TODO : throw something if not playbale
               },
-              stop: function() {
+            stop: function() {
                  var qt = document.getElementsByTagName("embed");
                  if (qt[0].GetPluginStatus().toUpperCase() == "playable") {
                    qt[0].Play();
                  }
 // TJM : TODO : throw something if not playbale
               },
-              setVolume: function(vol) {
+            setVolume: function(vol) {
                  var qt = document.getElementsByTagName("embed");
-                 if (qt[0].SetVolume(vol))
-              }
+                 if (qt[0].SetVolume(vol)) {
+                 }
             },
             save: function() {
                 window.open("data:audio/midi;base64," + this.b64,
