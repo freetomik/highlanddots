@@ -1,313 +1,202 @@
 "use strict";
 
-var fileOpener = (
-                  function() {
-                  
-                  var self = this;
-                  
-                  var localPathToURI = function (path) {
-                    var uri = path;
-                    uri = uri.replace(/\\/g, '/');
-                    uri = uri.replace(/:/g, '|');
-                    uri = "file://" + uri;
-                    return uri;
-                  };
-                  
-                  var toRelativePath = function (path) {
-                    var uri = path;
-                    uri = uri.replace(/\\/g, '/');
-                    uri = uri.replace(/:/g, '|');
-                    uri = "file://" + uri;
-                    return uri;
-                  };
-                  
-                  var uiElement, fileInput, tuneTxt;
-                  var httpElemId = "httpOpenTuneUrl";
-                  var data;                  
-                  var frg;
-                  
-                  var openHttpFile = function() {
-                    var url, req, txt;
-                    
-                    function reqFailed() {
-                      if (data.onFailure) { data.onFailure(); }
-                    }
-                    
-                    url = API.getEBI(httpElemId).value;
-                    data.filename = url.substring(url.lastIndexOf('/'));
-                    data.fileUrl = url;
-                    
-                    req = API.createXmlHttpRequest();
-                    req.open("GET", "http://malcolmbagpipes.com/index.html", false);
-                    req.send(null);
-                    
-                    if(req.status == 200) {
-                      txt = req.responseText;
-                      
-                      if (txt && txt.length > 0) {
-                        tuneTxt = txt;
-                        if (data.useForEditor) { data.useForEditor.value = txt; }
-                        if (data.onSuccess) { data.onSuccess(); }
-                      } else {
-                        reqFailed();
-                      }
-                    } else {
-                      reqFailed();
-                    }
-                    
-                  };
-                  
-                  var httpFilePicker = function() {
-                    if (API.createXmlHttpRequest() != null) {
-                      var elem, inputElem;
-                      elem = document.createElement('fieldset');
-                      
-                      elem.appendChild(document.createElement('legend'));
-                      elem.childNodes[0].appendChild(document.createTextNode("HTTP"));
-                      
-                      inputElem = document.createElement('input');
-                      inputElem.setAttribute('id', httpElemId);
-                      inputElem.setAttribute('type', 'text');
-                      inputElem.setAttribute('size', '40');
-                      inputElem.setAttribute('value', 'http://');
-                      elem.appendChild(inputElem);
-                      data.httpInput = inputElem;
-                      
-                      inputElem = document.createElement('input');
-                      inputElem.setAttribute('type', 'button');
-                      inputElem.setAttribute('value', 'Open');
-                      API.attachListener(inputElem, "click", openHttpFile);
-                      elem.appendChild(inputElem);
-                      
-                      return (elem);
-                      
-                    } else {
-                      return null;
-                    }
-                  };
-                  
-                  var builtinFilePicker = function () {
-                    var elem;
-                    var inputElem;
-                    
-                    elem = document.createElement('fieldset');
-                    elem.appendChild(document.createElement('legend'));
-                    elem.childNodes[0].appendChild(document.createTextNode("Built in examples"));
-                    
-                    inputElem = document.createElement('select');
-                    //inputElem.setAttribute('type', 'button');
-                    //inputElem.setAttribute('value', 'Open');
-                    elem.appendChild(inputElem);
-                    bwwExamples.makeOptions(inputElem);
-                    
-                    
-                    elem.appendChild(document.createElement('br'));
-                    
-                    var s = inputElem;
-                    inputElem = document.createElement('input');
-                    inputElem.setAttribute('type', 'button');
-                    inputElem.setAttribute('value', 'Load the selected file');
-                    elem.appendChild(inputElem);
-                    API.attachListener(inputElem, "click", function() {
-                                       var txt = bwwExamples.loadData(s);
-                                       if (data.useForEditor) { data.useForEditor.value = txt; }
-                                       if (data.onSuccess) { data.onSuccess(); }
-                    });
-                    
-                    return (elem);  
-                  };
-                  
-                  var ieOpenFile =  {
-                    openLocalFile: function() {
-                      var dialog,path;
-                      try {
-                        /*
-                        // Vista/Win7 ? needs testing
-                        From: http://www.databaseforum.info/11/1059402.aspx
-                        The documentation  for System.Shell.chooseFile seems to be wrong:
-                        oShellItem = System.Shell.chooseFile( [bForOpen], strFilter [, strInitialDirectory] [, strFileInit])
-                        should in fact be:
-                        oShellItem = System.Shell.chooseFile( bForOpen, strFilter , strInitialDirectory , strFileInit)
-                        If you don't have all four parameters, you get an object error.
-                        EDIT:  The System.Shell.Item it returns doesn't support System.Shell.Item.isFile as per the documentation either!
-                        
-                        
-                        From: http://social.msdn.microsoft.com/Forums/en/sidebargadfetdevelopment/thread/71011dc5-e4df-4c86-9706-26af3af7c82a
-                        Can you not use the Sidebar file dialogue?
-                        var cfItem = System.Shell.chooseFile(true, "All Files:*.*::", "", "");
-                        if (cfItem.path != "")
-                        {
-                        //do something with cfItem.path
-                        }
-                        
-                        */
-                        // FIXME : set proper filters based on what parsers are installed
-                        
-                        
-                        dialog = new ActiveXObject('System.Shell');
-                        var fileItem = dialog.chooseFile(true, "All Files:*.*::", "", "");
-                        if (fileItem.path != "")
-                          path = fileItem.path;
-                      } catch (ex) {
-                        // Win XP
-                        dialog = new ActiveXObject('UserAccounts.CommonDialog');
-                        if (data.fileFilter) { inputElem.setAttribute('filter', data.fileFilter); }
-                        
-                        dialog.Filter = 'All files (*.*)|*.*| ';
-                        var result = dialog.ShowOpen();
-                        if (result != 0 )
-                          path = dialog.FileName;
-                      }
-                      
-                      if (!path)
-                        return false;
-                      
-                      var fso = new ActiveXObject("Scripting.FileSystemObject");
-                      var f = fso.OpenTextFile(path, 1, false); // open for reading, don't create file
-                      tuneTxt = f.ReadAll();
-                      
-                      if (tuneTxt && tuneTxt.length > 0) {
-                        if (data.useForEditor) { data.useForEditor.value = tuneTxt; }
-                        if (data.onSuccess) { data.onSuccess(); }
-                      } else {
-                        if (data.onFailure) { data.onFailure(); }
-                      }
-                      
-                    },
-                    
-                    filePicker:  function(divElem) {
-                      var  elem, inputElem;
-                      
-                      
-                      elem = document.createElement('fieldset');
-                      divElem.appendChild(elem)
-                      elem.appendChild(document.createElement('legend'));
-                      elem.childNodes[0].appendChild(document.createTextNode("Load a file"));
-                      
-                      inputElem = document.createElement('button');
-                      inputElem.setAttribute('value', 'Browse Files');
-                      
-                      API.attachListener(inputElem, "click", ieOpenFile.openLocalFile);
-                      elem.appendChild(inputElem)
-                      
-                      uiElement = frg;   
-                    }
-                  };
-                  
-                  
-                  var w3cOpenFile = {    
-                    openLocalFile: function() {
-                      var f = data.fileInput.files[0];
-                      data.filename = f.name;
-                      data.fileUrl = f.url;
-                      
-                      
-                      if (API.isHostMethod(f, "getAsText")) {
-                        tuneTxt = f.getAsText("");
-                      } else {
-                        alert("I'm sorry!\r\nThis browser doesn't support loading " +
-                              "local files.\r\nTry Firefox 3.6+ or IE6+.");
-                        return;
-                      }
-                      if (tuneTxt && tuneTxt.length > 0) {
-                        if (data.useForEditor) { data.tuneTxt = tuneTxt;data.useForEditor.value = tuneTxt; }
-                        if (data.onSuccess) { data.onSuccess(); }
-                      } else {
-                        if (data.onFailure) { data.onFailure(); }
-                      }
-                    },
-                    
-                    filePicker: function(divElem) {
-                      var divElem, elem, inputElem;
-                      
-                      elem = document.createElement('fieldset');
-                      divElem.appendChild(elem)
-                      elem.appendChild(document.createElement('legend'));
-                      elem.childNodes[0].appendChild(document.createTextNode("Files"));
-                      
-                      
-                      // FIXME : set proper filters based on what parsers are installed
-                      
-                      inputElem = document.createElement('input');
-                      inputElem.setAttribute('type', 'file');
-                      inputElem.setAttribute('size', '30');
-                      
-                      if (data.fileFilter) { inputElem.setAttribute('filter', data.fileFilter); }
-                      
-                      API.attachListener(inputElem, "change", w3cOpenFile.openLocalFile);
-                      elem.appendChild(inputElem);
-                      
-                      uiElement = frg;
-                      data.fileInput = inputElem;
-                      
-                    }
-                  };
-                  
-                  var comboFilePicker = function() {
-                    var frag, elem;
-                    var useActiveX = false;
-                    var divElem;
-                    
-                    try {
-                      var xhr= new ActiveXObject('Microsoft.XMLHTTP');
-                      if (API.isHostMethod(xhr, "open")) {
-                        useActiveX = true;
-                      }
-                    } catch (ex) {
-                    }
-                    
-                    if (uiElement === undefined) {
-                      frg = document.createDocumentFragment();
-                      divElem = document.createElement('div');
-                      frg.appendChild(divElem);
-                      
-                      //elem = httpFilePicker();       
-                      //if (elem !== null) { divElem.appendChild(elem); }
-                      
-                      elem = builtinFilePicker();
-                      if (elem !== null) {
-                        divElem.appendChild(elem); 
-                        divElem.appendChild(document.createElement("br"));
-                      }
-                      
-                      elem = document.createElement('input');
-                      elem.setAttribute('type', 'file');
-                      elem.setAttribute('size', '30');
-                      
-                      
-                      if (API.isHostObjectProperty(elem, "files")) {
-                        w3cOpenFile.filePicker(divElem);
-                        divElem.appendChild(document.createElement("br"));
-                      }
-                      
-                      
-                      if (useActiveX) {
-                        ieOpenFile.filePicker(divElem);
-                        divElem.appendChild(document.createElement("br"));
-                      }
-                      
-                      if (data.useForUi) {
-                        data.useForUi.appendChild(frg);
-                      } else {
-                        return (uiElement);
-                      }
-                    }     
-                  }
-                  
-                  return (function (fileOpenData) {   
-                          data = fileOpenData;         
-                          // test for ActiveX support
-                          // FIXME : should test for input[type==file].files
-                          //         and ActiveX
-                          //         and give "not supported" message content for everything else
-                          
-                          var o = {};
-                          o.filePicker = comboFilePicker;
-                          
-                          return o;         
-                  });
-                  
-                  }
-                  ()
-                  );
+var FileErrorText = {
+  4: "File permission error.\nIf you are using Google Chrome, it won't read local files when the web page is run locally.",
+  8: "File not found.",
+  24: "File could not be read.",
+  18: "The file could not be accessed for security reasons.",
+  20: "The file operation was aborted, probably due to a call to the FileReader abort() method.",
+  26: "The file data cannot be accurately represented in a data URL."
+};
+
+function loadFile() {
+  var div = document.createElement("div");
+  div.className = 'fileOpen';
+  
+  var loadSuccess = function(s) {
+    s = s.replace(/\t/g, '~');
+    API.getEBI("editor").value = s;
+    
+    popupManager.open({
+                      close: true,
+                      dim: true,
+                      message: "File loaded successfully - Translating."
+    });
+    
+    
+    window.setTimeout(function() {
+                      uiLoadTune("bww", s);
+                      }, 1);
+  }
+  
+  var loadFailure = function(err) {
+    popupManager.close();
+    alert("Unable to load file:\n" + err);
+  }
+  
+  
+  function makeExampleDiv() {
+    var elem = document.createDocumentFragment();
+    var select = document.createElement('select');
+    bwwExamples.makeOptions(select);
+    
+    function load(el) {
+      var s = bwwExamples.loadData(select);
+      loadSuccess(s);
+    }    
+    
+    graft(elem,
+          ['fieldset',
+          /* */ ['legend', 'Built in examples'],
+          /* */ [select],
+          /* */ ["input", 
+          /* */   {type: 'button', value: 'Load the selected file', onclick: load, className: "button"}
+          /* */ ]
+          ]);
+    return elem;
+  }
+  
+  function makeFileReaderDiv() {
+    var elem = document.createElement("div");
+    
+    function load(input) {
+      file = input.files[0];
+      fr = new FileReader();
+      fr.onload = function() { loadSuccess(fr.result); }
+      fr.onerror = function() {var c = this.error.code; alert(c + ":" + FileErrorText[c]); }
+      
+      fr.readAsText(file, "");
+    }        
+    
+    graft(elem,
+          ['fieldset',
+          /* */ ['legend', 'Load a local file'],
+          /* */ ['div', 
+          /* */   {className: 'fileinputs'},
+          /* */   ["input", {type: 'file',  onchange: function () {load(this);}, className: "button"}]
+          /* */ ]
+          ]);
+    return elem;    
+  }
+  
+  function makeActiveXDiv() {
+    var elem = document.createElement("div");
+    
+    function promptForFile() {
+      var dialog,path;
+      try {
+        /*
+        // Vista/Win7 ? needs testing
+        From: http://www.databaseforum.info/11/1059402.aspx
+        The documentation  for System.Shell.chooseFile seems to be wrong:
+        oShellItem = System.Shell.chooseFile( [bForOpen], strFilter [, strInitialDirectory] [, strFileInit])
+        should in fact be:
+        oShellItem = System.Shell.chooseFile( bForOpen, strFilter , strInitialDirectory , strFileInit)
+        If you don't have all four parameters, you get an object error.
+        EDIT:  The System.Shell.Item it returns doesn't support System.Shell.Item.isFile as per the documentation either!
+        
+        
+        From: http://social.msdn.microsoft.com/Forums/en/sidebargadfetdevelopment/thread/71011dc5-e4df-4c86-9706-26af3af7c82a
+        Can you not use the Sidebar file dialogue?
+        var cfItem = System.Shell.chooseFile(true, "All Files:*.*::", "", "");
+        if (cfItem.path != "")
+        {
+        //do something with cfItem.path
+        }
+        
+        */
+        // FIXME : set proper filters based on what parsers are installed
+        
+        
+        dialog = new ActiveXObject('System.Shell');
+        var fileItem = dialog.chooseFile(true, "All Files:*.*::", "", "");
+        if (fileItem.path != "") { path = fileItem.path; }
+      } catch (ex) {
+        // Win XP
+        dialog = new ActiveXObject('UserAccounts.CommonDialog');
+        
+        dialog.Filter = 'All files (*.*)|*.*| ';
+        var result = dialog.ShowOpen();
+        if (result != 0 ) {path = dialog.FileName; }
+      }
+      
+      if (!path) {
+        loadFailure("Unable to find that path/file");
+        return false;
+      }
+      
+      var fso = new ActiveXObject("Scripting.FileSystemObject");
+      var f = fso.OpenTextFile(path, 1, false); // open for reading, don't create file
+      var tuneTxt = f.ReadAll();
+      loadSuccess(tuneTxt);
+    }        
+    
+    graft(elem,
+          ['fieldset',
+          /* */ ['legend', 'Load a local file (ActiveX)'],
+          /* */ ["input", {type: 'button',  onclick: function () {promptForFile()}, value: "Load a local file", className: "button"}]
+          ]);
+    return elem;    
+  }
+  
+  graft(div,
+        ["div",
+        /* */ makeExampleDiv()
+        ]
+        );
+  
+  if (API.isHostMethod(window, 'FileReader')) {
+    graft(div, makeFileReaderDiv());
+  }
+  
+  if (API.isHostMethod(window, "ActiveXObject")) {
+    graft(div, makeActiveXDiv());
+  }
+  
+  //div.appendChild(makeExampleDiv());
+  
+  popupManager.open({
+                    close: true,
+                    dim: true,
+                    title: "Open a file",
+                    element: div
+  }
+  );
+  
+  //initFileUploads(div);
+  
+}  
+
+
+
+function initFileUploads(root) {
+  // It really is a shame that we can't actually this code.  Too many browsers
+  // don't let you style an input[type="file] element and Chrome detects that
+  // one is doing something 'tricky' and mangles the link.
+  //
+  // Dunno why since the file selection box pops up,.. I mean, its not like
+  // something could happen without the user's knowledge.
+  
+  root = root || document;
+	var fakeFileUpload = document.createElement('div');
+	fakeFileUpload.className = 'fakefile';
+	fakeFileUpload.appendChild(document.createElement('input'));
+	var image = document.createElement('img');
+	image.src='ui/button_select.gif';
+	fakeFileUpload.appendChild(image);
+	var x = root.getElementsByTagName('input');
+	for (var i=0;i<x.length;i++) {
+		if (x[i].type != 'file') continue;
+		if (x[i].parentNode.className != 'fileinputs') continue;
+		
+		
+		x[i].className = 'file hidden';
+		var clone = fakeFileUpload.cloneNode(true);
+		x[i].parentNode.appendChild(clone);
+		x[i].relatedElement = clone.getElementsByTagName('input')[0];
+		x[i].onchange = x[i].onmouseout = function () {
+			this.relatedElement.value = this.value;
+		}
+	}
+}
 

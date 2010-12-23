@@ -124,14 +124,29 @@ var hdots_prefs = (
                                              localPrefs[a.join(SEP)] = v;
                                              }
                          });
+
+                         var p = getPreferenceByName(n, hdConfigData);
+                         var f = pluginTracker[pluginName];
+                         if (typeof f != "function") {
+                           // No such plugin, no problem .. we'll find the 
+                           // first usabale on instead.
+                           for (var oname in p.options[0]) {
+                             if (p.options[0].hasOwnProperty(oname)) {
+                               s = oname;
+                               break;
+                             }
+                           }
+                         }
+                         pluginName = [n, s].join(SEP);                         
+                         f = pluginTracker[pluginName];
                          
                          // Capture those values in a closure, and create a function to pass
                          // the parameters through.
-                         var r = (function(_name, _pref) {
+                         var r = (function(_f, _pref) {
                                   return function(p1, p2, p3) {
-                                  pluginTracker[_name](_pref, p1, p2, p3);
+                                  _f(_pref, p1, p2, p3);
                                   }
-                         }(pluginName,localPrefs) );
+                         }(f,localPrefs) );
                          return r;
                        }
                      }
@@ -289,7 +304,6 @@ var hdots_prefs = (
                          el = API.createElement("legend");
                          API.addElementText(el, v.label);
                          f.appendChild(el);
-                         API.setStyle(f, 'border', '1px solid black')
                          opt = v.options;
                          
                          
@@ -385,9 +399,9 @@ var hdots_prefs = (
                          opt = v.options;
                          for (i = 0, l = opt.length; i < l; i++) {
                            o = opt[i];
-                           API.forEachProperty(o, function(p) {
+                           API.forEachProperty(o, function(p, vv) {
                                                API.addOptions(el, o);
-                                               if (p === val) { el.selectedIndex = i; }
+                                               if (vv === val) { el.selectedIndex = i; }
                            });
                          }
                          addToForm(v, el, target);
@@ -414,6 +428,7 @@ var hdots_prefs = (
                                             
                                             uiElement.parentNode.removeChild(uiElement);
                                             uiElement = null;
+                                            popupManager.close();
                                             return API.cancelDefault(evt);
                          });
                          target.appendChild(el);
@@ -441,7 +456,7 @@ var hdots_prefs = (
                        makeFormFields(hdConfigData, formEl);
                        setPluginPrefVis(formEl);
                        
-
+                       
                        makeAcceptButton(v, formEl);
                        
                        uiElement = boxOver;
@@ -454,7 +469,7 @@ var hdots_prefs = (
                        
                        function disable(el) {
                          API.removeClass(el, innerClassName);
-
+                         
                          if (API.presentElement) {
                            API.presentElement(el, false); // Hide it
                          }
@@ -479,7 +494,7 @@ var hdots_prefs = (
                                    var s = API.HD_serializeFormUrl(srcForm);//API.getEBI(formId));
                                    a = el.id.split(SEP); // Split up the id
                                    s = s[a[0]];          // And get the right value from the form
-
+                                   
                                    if (s === a[1]) {     // If it matches what we are looking for
                                      enable(el);
                                    }
@@ -563,6 +578,20 @@ if (API.getOptionValue) {
 
 function prepConfig() {
   var pref;
+  //jjzr
+  
+  hdots_prefs.registerPreference( {
+                                 type: "select",
+                                 name: "beam_style",
+                                 label: "Beaming style",
+                                 def: "bww",
+                                 options: [
+                                   {"bww": "Bagpipe Music Writer Style"},
+                                   {"straight": "Straight"}, 
+                                   {"sloped": "Sloped (experimental)"}
+                                 ]
+  });
+
   
   hdots_prefs.registerPreference( {
                                  type: "boolean",
@@ -577,6 +606,13 @@ function prepConfig() {
                                  label: "Enable logging?",
                                  def: false
   });
+
+  hdots_prefs.registerPreference( {
+                                 type: "boolean",
+                                 name: "fill_image_map",
+                                 label: "Load image map with debugging?",
+                                 def: false
+  });
   
   
   hdots_prefs.registerPreference( {
@@ -589,7 +625,7 @@ function prepConfig() {
 prepConfig();
 
 
-var popupManager = 
+var popupManagerOld = 
 (
  function() {
  
@@ -613,7 +649,7 @@ var popupManager =
    
    
    if (props.title) {
-     API.setElementText(titleDiv, "This is a title");
+     API.setElementText(titleDiv, props.title);
      tr = API.createElement("tr");
      td = API.createElement("td");
      tbody.appendChild(tr);
@@ -624,6 +660,11 @@ var popupManager =
    if (props.message) {
      API.setElementText(contentsDiv, props.message);
    }
+   
+   if (props.element) {
+     contentsDiv = props.element;
+   }
+   
    tr = API.createElement("tr");
    td = API.createElement("td");
    tbody.appendChild(tr);
@@ -641,6 +682,8 @@ var popupManager =
      el = API.createElementWithProperties('span', { id: 'popup_close' });
      API.setElementText(el, "[X]");
      titleDiv.appendChild(el);
+     el.title = "Click here to close";
+     API.attachListener(el, 'click', function() { close();   } );
    }
    
    
@@ -673,403 +716,724 @@ var popupManager =
  };
  
  })();
+ 
 
 
-////////////////////////////////////////////////////////////////////////////
+var popupManager = 
+(
+ function() {
+ var outerDiv;
+   var titleDiv;
+   var contentsDiv;
+   var body;
+ 
+ function open(props) {
+   
+   close(); // Make sure we clean up if there was anything left open.
+   
+   if (!props) props = {};
+   if (!props.position) {props.position = "center";}
+   
+   body = API.getBodyElement();
+   outerDiv = API.createElementWithProperties('div', { id: 'popup_outer' });
+   titleDiv = API.createElementWithProperties('div', { id: 'popup_title' });
+   contentsDiv = API.createElementWithProperties('div', { id: 'popup_contents' });
+   var el;
+   
+   if (props.title) {
+     API.setElementText(titleDiv, props.title);
+     outerDiv.appendChild(titleDiv);
+   }  
+   
+   if (props.message) {
+     API.setElementText(contentsDiv, props.message);
+   }
+   
+   if (props.element) {
+     contentsDiv = props.element;
+   }
 
-/**
-* An autosuggest textbox control.
-* @class
-* @scope public
-*/
-function AutoSuggestControl(oTextbox /*:HTMLInputElement*/, 
-                            oProvider /*:SuggestionProvider*/) 
-{
-  
-  /**
-  * The currently selected suggestions.
-  * @scope private
-  */   
-  this.cur /*:int*/ = -1;
-  
-  /**
-  * The dropdown list layer.
-  * @scope private
-  */
-  this.layer = null;
-  
-  /**
-  * Suggestion provider for the autosuggest feature.
-  * @scope private.
-  */
-  this.provider /*:SuggestionProvider*/ = oProvider;
-  
-  /**
-  * The textbox to capture.
-  * @scope private
-  */
-  this.textbox /*:HTMLInputElement*/ = oTextbox;
-  
-  //initialize the control
-  this.init();
-  
-}
+  outerDiv.appendChild(contentsDiv);
+      
+  outerDiv.style.zIndex=1000;
+      
+   if (props.close)
+   {
+     el = API.createElementWithProperties('span', { id: 'popup_close' });
+     el.className = "button";
+     API.setElementText(el, "X");
+     titleDiv.appendChild(el);
+     el.title = "Click here to close";
+     API.attachListener(el, 'click', function() { close(); } );
+   }
+   
+   if (props.dim) {
+     el = API.createElementWithProperties('span', { id: 'popup_dim' });
+     body.appendChild(el);
+     API.setElementText(el, " ");
+     el.style.zIndex=999;
+     API.setOpacity(el, 0.5);     
+     API.coverDocument(el);
+   }
+   
+   body.appendChild(outerDiv);
+   if (props.position == "center") {
+     API.centerElement(outerDiv);
+   }
+   
+ }
+ 
+ function close() {
+   var a = "popup_outer|popup_dim".split("|");
+   
+   API.forEach(a, 
+               function(s, i) {
+               var el = API.getEBI(s);
+               if (el) { el.parentNode.removeChild(el); }
+               }
+               );
+ }
+ 
+ return {
+   open: open,
+   close: close
+ };
+ 
+ })();
 
-/**
-* Autosuggests one or more suggestions for what the user has typed.
-* If no suggestions are passed in, then no autosuggest occurs.
-* @scope private
-* @param aSuggestions An array of suggestion strings.
-* @param bTypeAhead If the control should provide a type ahead suggestion.
-*/
-AutoSuggestControl.prototype.autosuggest = 
-function (aSuggestions /*:Array*/,
-          
-          bTypeAhead /*:boolean*/) 
-{
-  
-  //make sure there's at least one suggestion
-  if (aSuggestions.length > 0) {
-    if (bTypeAhead) {
-      this.typeAhead(aSuggestions[0]);
-    }
-    
-    this.showSuggestions(aSuggestions);
-  } else {
-    this.hideSuggestions();
+
+
+ 
+ ////////////////////////////////////////////////////////////////////////////
+ 
+ /**
+ * An autosuggest textbox control.
+ * @class
+ * @scope public
+ */
+ function AutoSuggestControl(oTextbox /*:HTMLInputElement*/, 
+                             oProvider /*:SuggestionProvider*/) 
+ {
+   
+   /**
+   * The currently selected suggestions.
+   * @scope private
+   */   
+   this.cur /*:int*/ = -1;
+   
+   /**
+   * The dropdown list layer.
+   * @scope private
+   */
+   this.layer = null;
+   
+   /**
+   * Suggestion provider for the autosuggest feature.
+   * @scope private.
+   */
+   this.provider /*:SuggestionProvider*/ = oProvider;
+   
+   /**
+   * The textbox to capture.
+   * @scope private
+   */
+   this.textbox /*:HTMLInputElement*/ = oTextbox;
+   
+   //initialize the control
+   this.init();
+   
+ }
+ 
+ /**
+ * Autosuggests one or more suggestions for what the user has typed.
+ * If no suggestions are passed in, then no autosuggest occurs.
+ * @scope private
+ * @param aSuggestions An array of suggestion strings.
+ * @param bTypeAhead If the control should provide a type ahead suggestion.
+ */
+ AutoSuggestControl.prototype.autosuggest = 
+ function (aSuggestions /*:Array*/,
+           
+           bTypeAhead /*:boolean*/) 
+ {
+   
+   //make sure there's at least one suggestion
+   if (aSuggestions.length > 0) {
+     if (bTypeAhead) {
+       this.typeAhead(aSuggestions[0]);
+     }
+     
+     this.showSuggestions(aSuggestions);
+   } else {
+     this.hideSuggestions();
+   }
+ };
+ 
+ /**
+ * Creates the dropdown layer to display multiple suggestions.
+ * @scope private
+ */
+ AutoSuggestControl.prototype.createDropDown = function () {
+   
+   var oThis = this;
+   
+   //create the layer and assign styles
+   this.layer = document.createElement("div");
+   this.layer.className = "suggestions";
+   this.layer.style.visibility = "hidden";
+   
+   // Disabled by JJS.
+   // Let the div find its own natural width
+   //this.layer.style.width = this.textbox.offsetWidth;
+   
+   //when the user clicks on the a suggestion, get the text (innerHTML)
+   //and place it into a textbox
+   this.layer.onmousedown = 
+   this.layer.onmouseup = 
+   this.layer.onmouseover = function (oEvent) {
+     oEvent = oEvent || window.event;
+     oTarget = oEvent.target || oEvent.srcElement;
+     
+     if (oEvent.type == "mousedown") {
+       oThis.textbox.value = oTarget.firstChild.nodeValue;
+       oThis.hideSuggestions();
+     } else if (oEvent.type == "mouseover") {
+       oThis.highlightSuggestion(oTarget);
+     } else {
+       oThis.textbox.focus();
+     }
+   };
+   
+   
+   document.body.appendChild(this.layer);
+ };
+ 
+ /**
+ * Gets the left coordinate of the textbox.
+ * @scope private
+ * @return The left coordinate of the textbox in pixels.
+ */
+ AutoSuggestControl.prototype.getLeft = function () /*:int*/ {
+   
+   var oNode = this.textbox;
+   var iLeft = 0;
+   
+   while(oNode.tagName != "BODY") {
+     iLeft += oNode.offsetLeft;
+     oNode = oNode.offsetParent;        
+   }
+   
+   return iLeft;
+ };
+ 
+ /**
+ * Gets the top coordinate of the textbox.
+ * @scope private
+ * @return The top coordinate of the textbox in pixels.
+ */
+ AutoSuggestControl.prototype.getTop = function () /*:int*/ {
+   
+   var oNode = this.textbox;
+   var iTop = 0;
+   
+   while(oNode.tagName != "BODY") {
+     iTop += oNode.offsetTop;
+     oNode = oNode.offsetParent;
+   }
+   
+   return iTop;
+ };
+ 
+ /**
+ * Handles three keydown events.
+ * @scope private
+ * @param oEvent The event object for the keydown event.
+ */
+ AutoSuggestControl.prototype.handleKeyDown = function (oEvent /*:Event*/) {
+   
+   switch(oEvent.keyCode) {
+   case 38: //up arrow
+     this.previousSuggestion();
+     break;
+   case 40: //down arrow 
+     this.nextSuggestion();
+     break;
+   case 13: //enter
+     this.hideSuggestions();
+     break;
+   }
+   
+ };
+ 
+ /**
+ * Handles keyup events.
+ * @scope private
+ * @param oEvent The event object for the keyup event.
+ */
+ AutoSuggestControl.prototype.handleKeyUp = function (oEvent /*:Event*/) {
+   
+   var iKeyCode = oEvent.keyCode;
+   
+   //for backspace (8) and delete (46), shows suggestions without typeahead
+   if (iKeyCode == 8 || iKeyCode == 46) {
+     this.provider.requestSuggestions(this, false);
+     
+     //make sure not to interfere with non-character keys
+   } else if (iKeyCode < 32 || (iKeyCode >= 33 && iKeyCode < 46) || (iKeyCode >= 112 && iKeyCode <= 123)) {
+     //ignore
+   } else {
+     //request suggestions from the suggestion provider with typeahead
+     this.provider.requestSuggestions(this, true);
+   }
+ };
+ 
+ /**
+ * Hides the suggestion dropdown.
+ * @scope private
+ */
+ AutoSuggestControl.prototype.hideSuggestions = function () {
+   this.layer.style.visibility = "hidden";
+ };
+ 
+ /**
+ * Highlights the given node in the suggestions dropdown.
+ * @scope private
+ * @param oSuggestionNode The node representing a suggestion in the dropdown.
+ */
+ AutoSuggestControl.prototype.highlightSuggestion = function (oSuggestionNode) {
+   
+   for (var i=0; i < this.layer.childNodes.length; i++) {
+     var oNode = this.layer.childNodes[i];
+     if (oNode == oSuggestionNode) {
+       oNode.className = "current"
+     } else if (oNode.className == "current") {
+       oNode.className = "";
+     }
+   }
+ };
+ 
+ /**
+ * Initializes the textbox with event handlers for
+ * auto suggest functionality.
+ * @scope private
+ */
+ AutoSuggestControl.prototype.init = function () {
+   
+   //save a reference to this object
+   var oThis = this;
+   
+   //assign the onkeyup event handler
+   this.textbox.onkeyup = function (oEvent) {
+     
+     //check for the proper location of the event object
+     if (!oEvent) {
+       oEvent = window.event;
+     }    
+     
+     //call the handleKeyUp() method with the event object
+     oThis.handleKeyUp(oEvent);
+   };
+   
+   //assign onkeydown event handler
+   this.textbox.onkeydown = function (oEvent) {
+     
+     //check for the proper location of the event object
+     if (!oEvent) {
+       oEvent = window.event;
+     }    
+     
+     //call the handleKeyDown() method with the event object
+     oThis.handleKeyDown(oEvent);
+   };
+   
+   //assign onblur event handler (hides suggestions)    
+   this.textbox.onblur = function () {
+     oThis.hideSuggestions();
+   };
+   
+   //JJS
+   if (oThis.provider.bAutoShow) {
+     this.textbox.onfocus = function () {
+       oThis.provider.requestSuggestions(oThis, true);
+     };
+     this.textbox.onclick = function () {
+       oThis.provider.requestSuggestions(oThis, true);
+     };
+   }
+   
+   
+   //create the suggestions dropdown
+   this.createDropDown();
+ };
+ 
+ /**
+ * Highlights the next suggestion in the dropdown and
+ * places the suggestion into the textbox.
+ * @scope private
+ */
+ AutoSuggestControl.prototype.nextSuggestion = function () {
+   var cSuggestionNodes = this.layer.childNodes;
+   
+   if (cSuggestionNodes.length > 0 && this.cur < cSuggestionNodes.length-1) {
+     var oNode = cSuggestionNodes[++this.cur];
+     this.highlightSuggestion(oNode);
+     this.textbox.value = oNode.firstChild.nodeValue; 
+   }
+ };
+ 
+ /**
+ * Highlights the previous suggestion in the dropdown and
+ * places the suggestion into the textbox.
+ * @scope private
+ */
+ AutoSuggestControl.prototype.previousSuggestion = function () {
+   var cSuggestionNodes = this.layer.childNodes;
+   
+   if (cSuggestionNodes.length > 0 && this.cur > 0) {
+     var oNode = cSuggestionNodes[--this.cur];
+     this.highlightSuggestion(oNode);
+     this.textbox.value = oNode.firstChild.nodeValue;   
+   }
+ };
+ 
+ /**
+ * Selects a range of text in the textbox.
+ * @scope public
+ * @param iStart The start index (base 0) of the selection.
+ * @param iLength The number of characters to select.
+ */
+ AutoSuggestControl.prototype.selectRange = function (iStart /*:int*/, iLength /*:int*/) {
+   
+   //use text ranges for Internet Explorer
+   if (this.textbox.createTextRange) {
+     var oRange = this.textbox.createTextRange(); 
+     oRange.moveStart("character", iStart); 
+     oRange.moveEnd("character", iLength - this.textbox.value.length);      
+     oRange.select();
+     
+     //use setSelectionRange() for Mozilla
+   } else if (this.textbox.setSelectionRange) {
+     this.textbox.setSelectionRange(iStart, iLength);
+   }     
+   
+   //set focus back to the textbox
+   this.textbox.focus();      
+ }; 
+ 
+ /**
+ * Builds the suggestion layer contents, moves it into position,
+ * and displays the layer.
+ * @scope private
+ * @param aSuggestions An array of suggestions for the control.
+ */
+ AutoSuggestControl.prototype.showSuggestions = function (aSuggestions /*:Array*/) {
+   
+   var oDiv = null;
+   this.layer.innerHTML = "";  //clear contents of the layer
+   
+   for (var i=0; i < aSuggestions.length; i++) {
+     oDiv = document.createElement("div");
+     oDiv.appendChild(document.createTextNode(aSuggestions[i]));
+     this.layer.appendChild(oDiv);
+   }
+   
+   this.layer.style.left = this.getLeft() + "px";
+   this.layer.style.top = (this.getTop()+this.textbox.offsetHeight) + "px";
+   this.layer.style.visibility = "visible";
+   
+ };
+ 
+ /**
+ * Inserts a suggestion into the textbox, highlighting the 
+ * suggested part of the text.
+ * @scope private
+ * @param sSuggestion The suggestion for the textbox.
+ */
+ AutoSuggestControl.prototype.typeAhead = function (sSuggestion /*:String*/) {
+   
+   //check for support of typeahead functionality
+   if (this.textbox.createTextRange || this.textbox.setSelectionRange){
+     var iLen = this.textbox.value.length; 
+     this.textbox.value = sSuggestion; 
+     this.selectRange(iLen, sSuggestion.length);
+   }
+ };
+
+ function reducingSuggestionBox(oAutoSuggestControl /*:AutoSuggestControl*/,
+                                                           bTypeAhead /*:boolean*/,
+                                values /*:Array*/) 
+ {
+   var aSuggestions = [];
+   var sTextboxValue = oAutoSuggestControl.textbox.value;
+   
+   if (sTextboxValue.length > 0){
+     //search for matching values
+     for (var i=0; i < values.length; i++) { 
+       if (values[i].indexOf(sTextboxValue) == 0) {
+         aSuggestions.push(values[i]);
+       } 
+     }
+   } else {
+     aSuggestions = values;
+   }
+   
+   //provide suggestions to the control
+   oAutoSuggestControl.autosuggest(aSuggestions, bTypeAhead);
+ };
+
+ function nonreducingSuggestionList(oAutoSuggestControl /*:AutoSuggestControl*/,
+                                                           bTypeAhead /*:boolean*/,
+                                    values /*:Array */) 
+ {
+   var aSuggestions = [];
+   var sTextboxValue = oAutoSuggestControl.textbox.value;
+   
+   aSuggestions = values;
+   
+   bTypeAhead = false;
+   //provide suggestions to the control
+   oAutoSuggestControl.autosuggest(aSuggestions, bTypeAhead);
+ }
+ 
+ 
+ /**
+ * Provides suggestions for state names (USA).
+ * @class
+ * @scope public
+ */
+ function StateSuggestions() {
+   this.values = [
+     "Alabama", "Alaska", "Arizona", "Arkansas",
+     "California", "Colorado", "Connecticut",
+     "Delaware", "Florida", "Georgia", "Hawaii",
+     "Idaho", "Illinois", "Indiana", "Iowa",
+     "Kansas", "Kentucky", "Louisiana",
+     "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", 
+     "Mississippi", "Missouri", "Montana",
+     "Nebraska", "Nevada", "New Hampshire", "New Mexico", "New York",
+     "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", 
+     "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota",
+     "Tennessee", "Texas", "Utah", "Vermont", "Virginia", 
+     "Washington", "West Virginia", "Wisconsin", "Wyoming"  
+   ];
+ }
+ 
+ /**
+ * Request suggestions for the given autosuggest control. 
+ * @scope protected
+ * @param oAutoSuggestControl The autosuggest control to provide suggestions for.
+ */
+ StateSuggestions.prototype.requestSuggestions = function (oAutoSuggestControl /*:AutoSuggestControl*/,
+                                                           bTypeAhead /*:boolean*/) 
+ {
+   reducingSuggestionBox(oAutoSuggestControl, bTypeAhead, this.values);
+ };
+
+ 
+ 
+ function TempoSuggestions() {
+   // From:
+   // http://forums.bobdunsire.com/forums/showpost.php?p=1120801&postcount=7
+   this.bAutoShow = true;
+   this.values = [
+"48 - Slow Air",
+"104 - Hornpipe",
+"110 - Hornpipe",
+"120 - Jig",
+"128 - Jig",
+"25 - Lament",
+"84 - Light March 2/4,4/4",
+"94 - Light March 2/4,4/4",
+"68 - Competition March",
+"72 - Competition March",
+"80 - 6/8 march",
+"84 - 6/8 march",
+"98 - March 3/4,9/8",
+"132 - Strathspey",
+"84 - Reel",
+"120 - Reel",
+"60 - Slow March",
+"48 - Waltz"
+   ];
+ }
+ 
+ /**
+ * Request suggestions for the given autosuggest control. 
+ * @scope protected
+ * @param oAutoSuggestControl The autosuggest control to provide suggestions for.
+ */
+ TempoSuggestions.prototype.requestSuggestions = function (oAutoSuggestControl /*:AutoSuggestControl*/,
+                                                           bTypeAhead /*:boolean*/) 
+ {
+   nonreducingSuggestionList(oAutoSuggestControl, bTypeAhead, this.values)
+ };
+ 
+
+ function ScaleSuggestions() {
+   this.bAutoShow = true;
+   this.values = [
+"10%",
+"20%",
+"30%",
+"40%",
+"50%",
+"60%",
+"70%",
+"80%",
+"90%",
+"100%",
+"110%",
+"120%",
+"130%",
+"140%",
+"150%",
+"160%",
+"170%",
+"180%",
+"190%",
+"200%"
+   ];
+ }
+
+ ScaleSuggestions.prototype.requestSuggestions = function (oAutoSuggestControl /*:AutoSuggestControl*/,
+                                                           bTypeAhead /*:boolean*/) 
+ {
+   nonreducingSuggestionList(oAutoSuggestControl, bTypeAhead, this.values)
+ };
+ 
+//////////////////////////////////////////////////////////////////////////////// 
+ 
+ 
+ function graft (parent, t, doc) {
+   function complaining (s) { alert(s); return new Error(s); }
+   
+   // graft() function
+   // Originally by Sean M. Burke from interglacial.com
+   // Closure support added by Maciek Adwent
+   // Updated again by Jeremy J Starcher (2009)
+   //   * Removed all use of attributes and set properties directly.
+   //   * Removed implied class names
+   //   * Text nodes have a psudeo element called "#".  This got rid of
+   //     regular expression testing and speeded up the resulting code
+   //     by a rough 10% per the profiler.
+   
+   //logit("Grafting -" + t + "- to " + parent.nodeName));
+   
+   //console.group("start");
+   //console.log("Grafting -" + t + "- to " + parent.nodeName);
+   //console.dir(t)
+   //console.groupEnd();
+   
+   // Usage: graft( somenode, [ "I like ", ['em',
+   //               { 'class':"stuff" },"stuff"], " oboy!"] )
+   
+   doc = (doc || parent.ownerDocument || document);
+   var e;
+   var propertyValue;
+   var tLength = t.length;
+   
+   if(t.nodeType) { parent.appendChild(t); return; }
+   if(typeof t == 'object' && t[0].nodeType) { parent.appendChild(t[0]); return; }
+   
+   
+   if(t == undefined) {
+     throw complaining( "Can't graft an undefined value");
+   } else if(typeof t === 'string') {
+     e = doc.createTextNode( t );
+   } else if(tLength == 0) {
+     e = doc.createElement( "span" );
+   } else {
+     if (t[0] === "#") {
+       e = doc.createElement( "span" );
+       //e = document.createDocumentFragment();
+     } else {
+       e = doc.createElement(t[0]);
+     }
+     
+     for(var i = 1; i < tLength; i++) {
+       if( i === 0 && t[i].constructor == String ) {
+         //console.log(t[i]);
+         e = doc.createElement(   t[i] );
+         continue;
+       }
+       
+       
+       
+       
+       if( t[i] == undefined ) {
+         throw complaining("Can't graft an undefined value in a list!");
+       } else if(  t[i].constructor == String ||  t[i].constructor == Array ) {
+         graft( e, t[i], doc );
+       } else if(  t[i].constructor == Number ) {
+         graft( e, t[i].toString(), doc );
+       } else if(  t[i].nodeType ) {  // Let us pass HTML elements directly too
+         e.appendChild(t[i]);
+       } else if(  t[i].constructor == Object ) {
+         // hash's properties => element's attributes
+         for(var k in t[i]) {
+           // support for attaching closures to DOM objects
+           propertyValue = t[i][k];
+           
+           switch(k) {
+           case 'class':
+             e.className = propertyValue;
+             break;
+           case 'id':
+           case 'name':
+           case 'type':
+           case 'size':
+           case 'value':
+           case 'title':
+           case 'src':
+           case 'className':
+           case 'alt':
+           case 'rows':
+           case 'cols':
+           case 'checked':
+           case 'colSpan':
+             e[k] = propertyValue;
+             break;
+           case 'onclick':
+           case 'onchange':
+           case 'onfocus':
+             if (typeof propertyValue === "function") {
+               e[k] = propertyValue;
+             } else {
+               throw complaining( "Property " + k + " must take a function" );
+             }
+             break;
+           default:
+             throw complaining( "Property " + k + " is unknown." );                        
+           }
+         }
+       } else {
+         throw complaining( "Object " + t[i] +
+                           " is inscrutable as an graft arglet." );
+       }
+     }
+   }
+   
+   parent.appendChild( e );
+   return e; // return the topmost created node
+ }
+ 
+ function showIframe(fname) {
+   var src = fname + ".i.html";
+   var iframe = document.createElement("iframe");
+
+   var size = API.getViewportSize(document);
+   
+   iframe.src = src;   
+   iframe.height = (size[0] * .75) + "px";
+   iframe.width = (size[1] * .75) + "px";
+
+   popupManager.open({
+                    close: true,
+                    dim: true,
+                    title: "From file: " + fname,
+                    element: iframe
   }
-};
-
-/**
-* Creates the dropdown layer to display multiple suggestions.
-* @scope private
-*/
-AutoSuggestControl.prototype.createDropDown = function () {
-  
-  var oThis = this;
-  
-  //create the layer and assign styles
-  this.layer = document.createElement("div");
-  this.layer.className = "suggestions";
-  this.layer.style.visibility = "hidden";
-  this.layer.style.width = this.textbox.offsetWidth;
-  
-  //when the user clicks on the a suggestion, get the text (innerHTML)
-  //and place it into a textbox
-  this.layer.onmousedown = 
-  this.layer.onmouseup = 
-  this.layer.onmouseover = function (oEvent) {
-    oEvent = oEvent || window.event;
-    oTarget = oEvent.target || oEvent.srcElement;
-    
-    if (oEvent.type == "mousedown") {
-      oThis.textbox.value = oTarget.firstChild.nodeValue;
-      oThis.hideSuggestions();
-    } else if (oEvent.type == "mouseover") {
-      oThis.highlightSuggestion(oTarget);
-    } else {
-      oThis.textbox.focus();
-    }
-  };
-  
-  
-  document.body.appendChild(this.layer);
-};
-
-/**
-* Gets the left coordinate of the textbox.
-* @scope private
-* @return The left coordinate of the textbox in pixels.
-*/
-AutoSuggestControl.prototype.getLeft = function () /*:int*/ {
-  
-  var oNode = this.textbox;
-  var iLeft = 0;
-  
-  while(oNode.tagName != "BODY") {
-    iLeft += oNode.offsetLeft;
-    oNode = oNode.offsetParent;        
-  }
-  
-  return iLeft;
-};
-
-/**
-* Gets the top coordinate of the textbox.
-* @scope private
-* @return The top coordinate of the textbox in pixels.
-*/
-AutoSuggestControl.prototype.getTop = function () /*:int*/ {
-  
-  var oNode = this.textbox;
-  var iTop = 0;
-  
-  while(oNode.tagName != "BODY") {
-    iTop += oNode.offsetTop;
-    oNode = oNode.offsetParent;
-  }
-  
-  return iTop;
-};
-
-/**
-* Handles three keydown events.
-* @scope private
-* @param oEvent The event object for the keydown event.
-*/
-AutoSuggestControl.prototype.handleKeyDown = function (oEvent /*:Event*/) {
-  
-  switch(oEvent.keyCode) {
-  case 38: //up arrow
-    this.previousSuggestion();
-    break;
-  case 40: //down arrow 
-    this.nextSuggestion();
-    break;
-  case 13: //enter
-    this.hideSuggestions();
-    break;
-  }
-  
-};
-
-/**
-* Handles keyup events.
-* @scope private
-* @param oEvent The event object for the keyup event.
-*/
-AutoSuggestControl.prototype.handleKeyUp = function (oEvent /*:Event*/) {
-  
-  var iKeyCode = oEvent.keyCode;
-  
-  //for backspace (8) and delete (46), shows suggestions without typeahead
-  if (iKeyCode == 8 || iKeyCode == 46) {
-    this.provider.requestSuggestions(this, false);
-    
-    //make sure not to interfere with non-character keys
-  } else if (iKeyCode < 32 || (iKeyCode >= 33 && iKeyCode < 46) || (iKeyCode >= 112 && iKeyCode <= 123)) {
-    //ignore
-  } else {
-    //request suggestions from the suggestion provider with typeahead
-    this.provider.requestSuggestions(this, true);
-  }
-};
-
-/**
-* Hides the suggestion dropdown.
-* @scope private
-*/
-AutoSuggestControl.prototype.hideSuggestions = function () {
-  this.layer.style.visibility = "hidden";
-};
-
-/**
-* Highlights the given node in the suggestions dropdown.
-* @scope private
-* @param oSuggestionNode The node representing a suggestion in the dropdown.
-*/
-AutoSuggestControl.prototype.highlightSuggestion = function (oSuggestionNode) {
-  
-  for (var i=0; i < this.layer.childNodes.length; i++) {
-    var oNode = this.layer.childNodes[i];
-    if (oNode == oSuggestionNode) {
-      oNode.className = "current"
-    } else if (oNode.className == "current") {
-      oNode.className = "";
-    }
-  }
-};
-
-/**
-* Initializes the textbox with event handlers for
-* auto suggest functionality.
-* @scope private
-*/
-AutoSuggestControl.prototype.init = function () {
-  
-  //save a reference to this object
-  var oThis = this;
-  
-  //assign the onkeyup event handler
-  this.textbox.onkeyup = function (oEvent) {
-    
-    //check for the proper location of the event object
-    if (!oEvent) {
-      oEvent = window.event;
-    }    
-    
-    //call the handleKeyUp() method with the event object
-    oThis.handleKeyUp(oEvent);
-  };
-  
-  //assign onkeydown event handler
-  this.textbox.onkeydown = function (oEvent) {
-    
-    //check for the proper location of the event object
-    if (!oEvent) {
-      oEvent = window.event;
-    }    
-    
-    //call the handleKeyDown() method with the event object
-    oThis.handleKeyDown(oEvent);
-  };
-  
-  //assign onblur event handler (hides suggestions)    
-  this.textbox.onblur = function () {
-    oThis.hideSuggestions();
-  };
-  
-  //JJS
-  if (this.showOnFocus) {
-    this.textbox.onfocus = function () {
-      oThis.provider.requestSuggestions(oThis, true);
-    };
-    this.textbox.onclick = this.textbox.onfocus;
-  }
-  
-  
-  //create the suggestions dropdown
-  this.createDropDown();
-};
-
-/**
-* Highlights the next suggestion in the dropdown and
-* places the suggestion into the textbox.
-* @scope private
-*/
-AutoSuggestControl.prototype.nextSuggestion = function () {
-  var cSuggestionNodes = this.layer.childNodes;
-  
-  if (cSuggestionNodes.length > 0 && this.cur < cSuggestionNodes.length-1) {
-    var oNode = cSuggestionNodes[++this.cur];
-    this.highlightSuggestion(oNode);
-    this.textbox.value = oNode.firstChild.nodeValue; 
-  }
-};
-
-/**
-* Highlights the previous suggestion in the dropdown and
-* places the suggestion into the textbox.
-* @scope private
-*/
-AutoSuggestControl.prototype.previousSuggestion = function () {
-  var cSuggestionNodes = this.layer.childNodes;
-  
-  if (cSuggestionNodes.length > 0 && this.cur > 0) {
-    var oNode = cSuggestionNodes[--this.cur];
-    this.highlightSuggestion(oNode);
-    this.textbox.value = oNode.firstChild.nodeValue;   
-  }
-};
-
-/**
-* Selects a range of text in the textbox.
-* @scope public
-* @param iStart The start index (base 0) of the selection.
-* @param iLength The number of characters to select.
-*/
-AutoSuggestControl.prototype.selectRange = function (iStart /*:int*/, iLength /*:int*/) {
-  
-  //use text ranges for Internet Explorer
-  if (this.textbox.createTextRange) {
-    var oRange = this.textbox.createTextRange(); 
-    oRange.moveStart("character", iStart); 
-    oRange.moveEnd("character", iLength - this.textbox.value.length);      
-    oRange.select();
-    
-    //use setSelectionRange() for Mozilla
-  } else if (this.textbox.setSelectionRange) {
-    this.textbox.setSelectionRange(iStart, iLength);
-  }     
-  
-  //set focus back to the textbox
-  this.textbox.focus();      
-}; 
-
-/**
-* Builds the suggestion layer contents, moves it into position,
-* and displays the layer.
-* @scope private
-* @param aSuggestions An array of suggestions for the control.
-*/
-AutoSuggestControl.prototype.showSuggestions = function (aSuggestions /*:Array*/) {
-  
-  var oDiv = null;
-  this.layer.innerHTML = "";  //clear contents of the layer
-  
-  for (var i=0; i < aSuggestions.length; i++) {
-    oDiv = document.createElement("div");
-    oDiv.appendChild(document.createTextNode(aSuggestions[i]));
-    this.layer.appendChild(oDiv);
-  }
-  
-  this.layer.style.left = this.getLeft() + "px";
-  this.layer.style.top = (this.getTop()+this.textbox.offsetHeight) + "px";
-  this.layer.style.visibility = "visible";
-  
-};
-
-/**
-* Inserts a suggestion into the textbox, highlighting the 
-* suggested part of the text.
-* @scope private
-* @param sSuggestion The suggestion for the textbox.
-*/
-AutoSuggestControl.prototype.typeAhead = function (sSuggestion /*:String*/) {
-  
-  //check for support of typeahead functionality
-  if (this.textbox.createTextRange || this.textbox.setSelectionRange){
-    var iLen = this.textbox.value.length; 
-    this.textbox.value = sSuggestion; 
-    this.selectRange(iLen, sSuggestion.length);
-  }
-};
-
-
-/**
-* Provides suggestions for state names (USA).
-* @class
-* @scope public
-*/
-function StateSuggestions() {
-  this.states = [
-    "Alabama", "Alaska", "Arizona", "Arkansas",
-    "California", "Colorado", "Connecticut",
-    "Delaware", "Florida", "Georgia", "Hawaii",
-    "Idaho", "Illinois", "Indiana", "Iowa",
-    "Kansas", "Kentucky", "Louisiana",
-    "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", 
-    "Mississippi", "Missouri", "Montana",
-    "Nebraska", "Nevada", "New Hampshire", "New Mexico", "New York",
-    "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", 
-    "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota",
-    "Tennessee", "Texas", "Utah", "Vermont", "Virginia", 
-    "Washington", "West Virginia", "Wisconsin", "Wyoming"  
-  ];
-}
-
-/**
-* Request suggestions for the given autosuggest control. 
-* @scope protected
-* @param oAutoSuggestControl The autosuggest control to provide suggestions for.
-*/
-StateSuggestions.prototype.requestSuggestions = function (oAutoSuggestControl /*:AutoSuggestControl*/,
-                                                          bTypeAhead /*:boolean*/) 
-{
-  var aSuggestions = [];
-  var sTextboxValue = oAutoSuggestControl.textbox.value;
-  
-  if (sTextboxValue.length > 0){
-    //search for matching states
-    for (var i=0; i < this.states.length; i++) { 
-      if (this.states[i].indexOf(sTextboxValue) == 0) {
-        aSuggestions.push(this.states[i]);
-      } 
-    }
-  } else {
-    aSuggestions = this.states;
-  }
-  
-  //provide suggestions to the control
-  oAutoSuggestControl.autosuggest(aSuggestions, bTypeAhead);
-};
+  );
+   
+   
+ }

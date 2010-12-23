@@ -14,6 +14,7 @@ function makeImageMap(staff, score) {
     var o = {};
     
     o.idx = score.data.indexOf(mel);
+    
     setIfExists(mel, o, "type");
     setIfExists(mel, o, "note");
     setIfExists(mel, o, "midiName");
@@ -28,11 +29,16 @@ function makeImageMap(staff, score) {
     setIfExists(mel, o, "paddingRight");
     setIfExists(mel, o, "forceToX2"); 
     setIfExists(mel, o, "noForceX");
-
+    
     
     if (mel.rect) {
       setIfExists(mel.rect, o, "x");
     }
+    
+    if (mel.c && mel.c.staffCounter) {
+      setIfExists(mel.c, o, "staffCounter");
+    }
+    
     
     setIfExists(mel, o, "isLeadIn");
     setIfExists(mel, o, "isLeadOut");
@@ -57,7 +63,7 @@ function makeImageMap(staff, score) {
       imgEl.src = "pics/black.gif";
       imgEl.src = "pics/transparent-gif.gif";
       API.setOpacity(imgEl, 0.10);
-
+      
     } else {
       imgEl.src = "pics/transparent-gif.gif";
       
@@ -74,6 +80,12 @@ function makeImageMap(staff, score) {
   
   domTools.removeChildren(map);
   
+  var babble = hdots_prefs.getValueOf("fill_image_map") === "true";
+  var areaProto = document.createElement("area");
+  areaProto.nohref = 'nohref'; 
+  areaProto.className = 'hand';                       
+  areaProto.shape = "rect";
+  
   score.data.forEach(function(mel) {
                      if (!mel) {return;}
                      
@@ -87,17 +99,17 @@ function makeImageMap(staff, score) {
                        var x2 = x1 + Math.round(rect.width);
                        var y2 = y1 + Math.round(rect.height);
                        
-                       area = document.createElement("area");
+                       area = areaProto.cloneNode(true);
                        
-                       area.href = "#";
-                       area.shape = "rect";
                        //logit(["ImageMap", x1, y1, x2, y2]);
                        area.coords = [x1, y1, x2, y2].join(",");
                        
                        //ctx.fillStyle = "red";
                        //ctx.fillRect(x1, y1, 2, 2);
                        
+                       if (babble) {
                        area.title = "Element: " + JSON.stringify(getInfo(mel), undefined, " ");
+                       }
                        map.appendChild(area);
                        
                      }                         

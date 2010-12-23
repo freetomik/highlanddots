@@ -32,23 +32,6 @@ I'll look into the why's later.
 
 
 <script type="text/javascript">
-
-
-function midiTest() {
-  var ticks = 256;
-  scoretoaudio(score, ticks);
-}
-
-function closeInputDialog() {
-  var id = "inputDialog";
-  if (arguments.length == 1)
-    id = arguments[0];
-
-  document.getElementById(id).style.visibility = 'hidden';
-  document.getElementById(id).style.display = 'none';
-
-}
-
 function openSettings(srcElem) {
   var div = document.createElement("div");
 
@@ -62,7 +45,7 @@ function openSettings(srcElem) {
 }
   );
 
-}
+  }
 
 
 
@@ -173,9 +156,9 @@ function loadFromEditor() {
 
 <div>
   <ul id="menuBar">
-   <li>
+    <li>
       <img src="ui/images/tuliana/reload.png" onclick="loadFromEditor();" title="Redraw Score">
-   </li>
+    </li>
     <li>
       <input type="text" id="scale" value="100%" size="4">
       <b>Scale</b>
@@ -186,33 +169,33 @@ function loadFromEditor() {
     <li><a href="#" onClick="alert('Not yet implemented');return false;">LIBRARY</a></li>
     <li><a href="#" onClick="alert('Not yet implemented');return false;">PRINT</a></li>
 
-   <li>
-   <img src="ui/images/tuliana/player_start.png" onclick="alert('Not yet implemented');return false;" title="Rewind to beginning">
-   </li>
+    <li>
+    <img src="ui/images/tuliana/player_start.png" onclick="alert('Not yet implemented');return false;" title="Rewind to beginning">
+    </li>
 
-   <li>
+    <li>
       <img src="ui/images/tuliana/player_stop.png" onclick="alert('Not yet implemented');return false;" title="Stop playing">
-   </li>
-   <li>
+    </li>
+    <li>
       <img src="ui/images/tuliana/player_play.png" onclick="midiTest();return false;" title="Start playing">
-   </li>
+    </li>
 
-   <li>
+    <li>
       <img src="ui/images/tuliana/arts.png" onclick="alert('Not yet implemented');return false;">
-   </li>
+    </li>
 
-   <li>
+    <li>
       <input type="text" id="text_bpm" value="80" size="3">
       <b>BPM</b>
-   </li>
+    </li>
 
 
     <li><a href="#" onClick="openSettings(this);return false;">SETTINGS</a></li>
     <li><a style="margin-left: 2em" href="#" onClick="showIframe('help');">HELP</a></li>
-   <li>
+    <li>
       <img src="ui/log.png" onclick="toggleLog()" title="Toggle log.">
-   </li>
- </ul>
+    </li>
+  </ul>
 </div>
 
 

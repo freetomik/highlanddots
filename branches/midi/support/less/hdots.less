@@ -1,0 +1,388 @@
+/*
+ * File: hdots.less
+ *
+ * Turned into a CSS file by scripting.  Do not hand-edit the CSS file.
+ *
+ */
+ 
+.rounded(@radius: 3px) {
+  -webkit-border-radius: @radius;
+  -moz-border-radius: @radius;
+  border-radius: @radius;
+}
+
+.background-linear-gradient(@i: #fff, @j: #000) {
+  /* Start off with browsers that don't have gradients */
+  background-color: ((@i + @j)+@i) /2;
+  color: #fff - @i;
+  background: -webkit-gradient(linear, 0 0, 0 bottom, @i, @j);
+  background: -moz-linear-gradient(@i, @j);
+  background: -o-linear-gradient(@i, @j);
+  background: linear-gradient(@i, @j);
+  
+  @k: %("DXImageTransform.Microsoft.gradient(startColorstr=%d, endColorstr=%d)", @i, @j);
+  progid: @k;
+ 
+  @k: %("progid:DXImageTransform.Microsoft.gradient(startColorstr=%d, endColorstr=%d)", @i, @j);
+  -ms-filter: @k; 
+  
+}
+
+@hd_fade1: #1E90FF; 
+@hd_fade2: #104E8B;
+@hd_border: #A43C20;
+@hd_color: #FFF;
+
+
+@chrome1: #135;
+@chrome2: #fff - #222;
+
+@popchrome1: #B0C4DE;
+@popchrome2: #6E7B8B;
+@popchrome_color: #A0A0A0;
+
+body { behavior: url("jslib/csshover3.htc"); } 
+
+.hand {
+   cursor: pointer;
+}
+
+
+.button {
+  .rounded(5px);
+   border: 1px solid black;
+   padding-left: 0.25em;
+   padding-right: 0.25em;
+   cursor: pointer;
+}
+
+#popup_outer {
+  padding: .25em .25em .25em .25em;
+  margin: .5em .5em .5em .5em;
+  color: @popchrome_color;
+  border: 1px solid black;
+  position: absolute;
+  .background-linear-gradient(@popchrome1, @popchrome2);
+  
+  .button {
+    .background-linear-gradient(@popchrome1, @popchrome2);
+  }
+}
+
+#popup_title {
+  /* This makes the title div 'expand' and accept its floated contents */
+  overflow: auto;
+  color: #FFF;
+  background-color: #000;
+}
+
+#popup_close {
+  float: right;
+  white-space:nowrap;
+}
+
+#popup_dim {
+  background-color: black;
+}
+
+
+
+
+div.fileOpen {
+  border: 1px solid @hd_border;
+
+  fieldset {
+    border: 1px solid @hd_border;
+    width: 100%;
+  }
+}
+
+
+
+
+
+span.icon_list img {
+  /* float:right; */
+  height:25px;
+  width:25px;
+  /* text-align:center; */
+}
+
+.inputArea {
+  width: auto;
+  z-index: 500;
+  background-color: #eeeeee;
+	border-left: 2px solid #CCCCCC;
+	border-bottom: 2px solid #CCCCCC;
+	border-right: 2px solid #CCCCCC;
+	visibility: hidden;
+	display:none;
+}
+
+
+.uiInputHeading {
+  width:100%;
+  font-weight:bold;
+  .background-linear-gradient(@hd_fade1, @hd_fade2);
+  color: @hd_color;
+}
+
+.sectionHeader {
+  .background-linear-gradient(@hd_fade1, @hd_fade2);
+  color: @hd_color;
+  
+  border-bottom: 1px solid #cccccc;
+  font-family: Verdana, Arial, SunSans-Regular, Sans-Serif;
+  font-weight:bold;
+  font-size: 14px;
+  
+}
+
+
+/* ids */
+#menuBar { 
+  //@chrome1: @hd_fade2 + #222;
+  //@chrome2: @hd_fade1 + #222;
+  @text-color: #000000;
+  @highlight-color: #FFF;
+  
+  width: 100%;
+  .background-linear-gradient(@hd_fade1, @hd_fade2);
+  color: @hd_color;
+  border: 1px solid @hd_border;
+  
+  a {
+    .button;
+    .background-linear-gradient(@chrome1, @chrome2);
+
+    border: 1px solid @hd_border;
+    width: auto;
+   	padding-left: .5em;
+   	padding-right: .5em;
+   	margin-right: 1em;
+	  color: @text-color;
+	  font-family: Verdana, Arial, SunSans-Regular, Sans-Serif;
+	  font-weight:bold;
+	  text-decoration: none;
+  }
+
+  a:hover {
+	  color: @highlight-color;  
+    .background-linear-gradient(@chrome2, @chrome1);
+  }
+
+  img {
+    height: 1em;
+    vertical-align:middle;  
+  }
+
+  
+  span {
+    padding:0px 0px 0px 0px;
+  }
+  ul {
+	  list-style: none;
+	  padding:0px 0px 0px 0px;
+	  margin-top:4px;
+  }
+
+  li {
+    display:inline;
+    padding:0px 0px 0px 0px;
+  }
+  
+  input {
+    background: transparent;
+  }
+}
+
+
+
+
+
+
+/* xSplitter Styles */
+
+.xSplitter {
+  position: absolute;
+  overflow: hidden;
+  visibility: hidden;
+  margin: 0;
+  padding: 0;
+  background: #FFF;
+  border: none;
+}
+
+.xsp-pane, .xsp-toolbar-pane {
+  position: absolute;
+  overflow: auto;
+  visibility: visible;
+  margin: 0;
+  padding: 0;
+  background: #EEE;
+  border: none;
+}
+
+.xsp-toolbar-pane {
+  overflow: hidden; 
+}
+
+
+.xsp-dragbar {
+  position: absolute;
+  overflow: hidden;
+  visibility: visible;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+/* Cool images! Thanks very much to http://gnuzoo.org/rssreader/test.htm */
+.xsp-dragbar-vframe {
+  width: 6px;
+  height: 8px;
+  background-image: url('ui/vframe.png');
+  background-repeat: repeat-y;
+}
+.xsp-dragbar-hframe {
+  width: 8px;
+  height: 6px;
+  background-image: url('ui/hframe.png');
+  background-repeat: repeat-x;
+}
+
+#xBody {
+  /*
+  margin: 10px 60px 20px 60px;
+  padding: 10px 10px 10px 10px;
+  */
+  overflow: visible;
+  background-color: #FFF;
+}
+
+.temp-container { /* replace this with something like xFenster */
+  position: relative;
+  overflow: visible;
+  visibility: visible;
+  /* height: 310px; */
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+#xsp5 {
+  border: 8px solid #ddd;
+}
+#xsp1, #xsp2, #xsp3, #xsp4, #xsp6, #xsp7, #xsp8 {
+  border: 2px solid #999;
+}
+
+/* iframe support */
+
+.xsp-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+#xsp1-pane1,
+#xsp1-pane2,
+#xsp2-pane2 {
+  overflow: hidden;
+  background-color: #fff;
+}
+
+
+
+
+div.suggestions {
+  border: 1px solid black;
+  position: absolute;
+  z-index: 1000;
+  .background-linear-gradient(@popchrome1, @popchrome2);
+  
+  div {
+    cursor: default;
+    padding: 0px 3px;
+  }
+
+  div.current {
+    .background-linear-gradient(@popchrome2, @popchrome1);
+  }
+  
+}
+
+
+
+
+/* From layout.css */
+#hd_config_plugin {
+}
+
+
+
+
+#hd_config {
+}
+
+.hd_pluginPref {
+  border: 1px solid green;
+}
+
+
+
+#hd_config label {
+  color: green;
+}
+
+#hd_config label span {
+  float:left;
+  width:50%; 
+  margin-right:0.5em;
+  padding-top:0.2em;
+  text-align:right;
+  font-weight:bold;
+  color: white;
+  padding-right: 0.5em;
+  border: 1px solid black;
+  background: blue;
+}
+
+
+/* The values for that particular plugin */
+.hd_pluginPref_i label span {
+  border-left: 1em solid white !important;
+}
+
+
+#hd_config div.breaker {
+  clear: both;
+}
+
+.log_error {
+  background-color: red;
+  color: white;
+}
+
+
+
+div.fileinputs {
+	position: relative;
+}
+
+div.fakefile {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	z-index: 2001;
+}
+
+input.file {
+	position: relative;
+	text-align: right;
+	-moz-opacity:0 ;
+//	filter:alpha(opacity: 0);
+	opacity: 0;
+	z-index: 2002;
+}
+
+

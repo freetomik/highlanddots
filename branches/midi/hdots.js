@@ -19,20 +19,36 @@ var staff =
  var HIDDEN_LINE_COLOR = "rgb(200, 200, 200)";
  var details = {};
  var coords = {};
-
+ 
  // These are values that are set at load time, but are user-changeable and
  // shouldn't reset when the score is re-rendered.
  details.thick = 1;          // Thickness of staff line segment
  details.space = 10;         // The thickness of each space
- details.beamStyle = "bww";  // can be "bww" or "straight" or "sloped"
  details.logging = false;    // true | false toggles bounding box tracing
  details.uiTracing = false;  // true | false toggles bounding box tracing
-  
+ 
  function resetValues() {
+   var scaleEl = document.getElementById("scale");
+   var scale = scaleEl.value;
+   scale = parseInt(scale, 10);
+   if (!scale) {scale = 100};
+   
+   if (scale > 200) {
+     scale = 200;
+   }
+   
+   scaleEl.value = scale + "%"; 
+   
+   
+   scale = scale/100;
+   
+   details.space = 10 * scale;
+   details.thick = details.space / 9;
+   
    details.height = -1;      // Calculated at run time
    details.width = 0;        // The width of the staff
-   details.leftMargin = 10;  // Margin for a new staff line
-   details.newTop = 50;      // Top of a new score
+   details.leftMargin = 10 * scale;  // Margin for a new staff line
+   details.newTop = 50 * scale;      // Top of a new score
    details.top = -1;         // Where to draw the top line of the CURRENT line of music
    details.x = 0;            // Cursor postion
    details.maxX = 0;         // Max width of score
@@ -42,8 +58,9 @@ var staff =
    details.noteColor2 = "green";
    details.noteColor3 = "blue";
    details.noteColor4 = "red";
+
+   details.beamStyle = hdots_prefs.getValueOf("beam_style");
  }
- resetValues();
  
  function drawStaff(width) {
    var ctx = details.ctx;
@@ -172,6 +189,10 @@ var staff =
      if (typeof G_vmlCanvasManager !== 'undefined') {
        G_vmlCanvasManager.initElement(details.canvas);
      }
+     if (typeof FlashCanvas != "undefined") {
+       FlashCanvas.initElement(details.canvas);
+     }     
+     
    }
    
    var canvasName = "hdots_canvas";
@@ -190,7 +211,6 @@ var staff =
    
    var ctx = details.canvas.getContext("2d");
    details.ctx = ctx;
-   details.canvas.style.border = "5px solid red";
  }
  
  return {
@@ -203,14 +223,32 @@ var staff =
 
 
 function loadTune(ext, tuneText) {
-  var tuneOk = false;
-  score.removeAllNodes();
-  staff.prepForDrawing(); // Erase old tune.
-  tuneOk = parseBWW(tuneText);
-  if (tuneOk) {
-    plotMusic(score);
+  function inner() {
+    var tuneOk = false;
+    score.removeAllNodes();
+    staff.prepForDrawing(); // Erase old tune.
+    tuneOk = parseBWW(tuneText);
+    if (tuneOk) {
+      document.getElementById("text_bpm").value = score.metaData.TuneTempo;
+      document.title = score.metaData.Title + " - Highland Dots";
+      plotMusic(score);
+    } else {
+      popupManager.close();
+      document.title = "Music Error - Highland Dots";
+      alert("There was a problem translating the music");
+    }
   }
+  
+  popupManager.open({
+                    close: false,
+                    dim: true,
+                    message: "Parsing Music"
+  }
+  );
+  setTimeout(function() {inner(); }, 1);    
+  
 }
+
 
 
 function plotMusic(score)
@@ -218,7 +256,7 @@ function plotMusic(score)
   var sdet = staff.details;
   
   popupManager.open({
-                    close: true,
+                    close: false,
                     dim: true,
                     message: "Drawing score.  Please wait."
   }
@@ -232,14 +270,16 @@ function plotMusic_inner(score)
 {
   var sdet = staff.details;
   var needStaff = true;
-  
+  var staffCounter;
   var ctx;
+  var staffGap = sdet.space * 6;
   
   function prepNewStaff() {
     staff.drawStaff();
     sdet.x = sdet.leftMargin;
     ctx.fillStyle = sdet.noteColor1;
     ctx.strokeStyle = sdet.noteColor1;
+    staffCounter++;
   }
   
   
@@ -248,6 +288,7 @@ function plotMusic_inner(score)
       w: sdet.maxX,
       h: sdet.top
     };
+    staffCounter = 0;
     
     var drawBoundingBox = hdots_prefs.getValueOf("boundingbox") === "true";
     
@@ -298,6 +339,9 @@ function plotMusic_inner(score)
         sdet.x = mel.forceToX;
       }
       
+      if (mel.c) {
+        mel.c.staffCounter = staffCounter;
+      }
       
       if (typeof mel.calc === "function") {
         mel.calc(staff);
@@ -307,7 +351,7 @@ function plotMusic_inner(score)
         rect = mel.getBoundingRect(staff);
         
         if (rect) {
-          logit([mel.type, "rect: ", rect.x, rect.y, rect.width, rect.height, mel.paddingRight]);
+          //logit([mel.type, "rect: ", rect.x, rect.y, rect.width, rect.height, mel.paddingRight]);
           mel.rect = rect;
           if (doPaint && drawBoundingBox) {
             try {
@@ -325,8 +369,6 @@ function plotMusic_inner(score)
           }
         }
       }
-      
-      
       
       switch(mel.type) {
       case "melody":
@@ -369,7 +411,7 @@ function plotMusic_inner(score)
       
       if (mel.staffEnd) {
         needStaff = true;
-        sdet.top += sdet.space * 3;
+        sdet.top += staffGap;
       }
     }
     
@@ -384,7 +426,7 @@ function plotMusic_inner(score)
     }
     
     //NUKE try {
-      score.data.forEach(processMel);
+    score.data.forEach(processMel);
     //NUKE } catch(err) {
     //NUKE   alert("Something horrible has happened! I've crashed trying to show that score.\r\n\r\n" +
     //NUKE         "Please forgive me, I'm just a humble bit of Javascript.");
@@ -404,7 +446,12 @@ function plotMusic_inner(score)
   
   var f = hdots_prefs.getPluginFunction("beauty_engine");
   
+  
   reFlowAndReDraw(false); // Calculate sizes
+  
+  staffGap = calcNewStaffGap(staff);
+  
+  
   f(staff, 1);  // Pass 1
   reFlowAndReDraw(false); // Readjust everything
   f(staff, 2);  // Pass 2
