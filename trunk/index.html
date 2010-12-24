@@ -17,7 +17,7 @@
 
 <!--
 19 Dec 2010 - JJS
-Flash canvas didn't easily work ... 
+Flash canvas didn't easily work ...
 I'll look into the why's later.
 <script src="flashcanvas.js"></script>
 -->
@@ -30,6 +30,23 @@ I'll look into the why's later.
 
 
 <script type="text/javascript">
+
+
+function playAudio() {
+  var ticks = 256;
+  scoretoaudio(score, ticks);
+}
+
+function closeInputDialog() {
+  var id = "inputDialog";
+  if (arguments.length == 1)
+    id = arguments[0];
+
+  document.getElementById(id).style.visibility = 'hidden';
+  document.getElementById(id).style.display = 'none';
+
+}
+
 function openSettings(srcElem) {
   var div = document.createElement("div");
 
@@ -43,7 +60,7 @@ function openSettings(srcElem) {
 }
   );
 
-  }
+}
 
 
 
@@ -154,46 +171,46 @@ function loadFromEditor() {
 
 <div>
   <ul id="menuBar">
-    <li>
+   <li>
       <img src="ui/images/tuliana/reload.png" onclick="loadFromEditor();" title="Redraw Score">
-    </li>
+   </li>
     <li>
       <input type="text" id="scale" value="100%" size="4">
       <b>Scale</b>
     </li>
 
-    
+
     <li><a href="#" onClick="loadFile();return false;">OPEN</a></li>
     <li><a href="#" onClick="alert('Not yet implemented');return false;">LIBRARY</a></li>
     <li><a href="#" onClick="alert('Not yet implemented');return false;">PRINT</a></li>
 
-    <li>
-    <img src="ui/images/tuliana/player_start.png" onclick="alert('Not yet implemented');return false;" title="Rewind to beginning">
-    </li>
+   <li>
+   <img src="ui/images/tuliana/player_start.png" onclick="alert('Not yet implemented');return false;" title="Rewind to beginning">
+   </li>
 
-    <li>
+   <li>
       <img src="ui/images/tuliana/player_stop.png" onclick="alert('Not yet implemented');return false;" title="Stop playing">
-    </li>
-    <li>
-      <img src="ui/images/tuliana/player_play.png" onclick="alert('Not yet implemented');return false;" title="Start playing">
-    </li>
+   </li>
+   <li>
+      <img src="ui/images/tuliana/player_play.png" onclick="playAudio();return false;" title="Start playing">
+   </li>
 
-    <li>
+   <li>
       <img src="ui/images/tuliana/arts.png" onclick="alert('Not yet implemented');return false;">
-    </li>
+   </li>
 
-    <li>
+   <li>
       <input type="text" id="text_bpm" value="80" size="3">
       <b>BPM</b>
-    </li>
+   </li>
 
 
     <li><a href="#" onClick="openSettings(this);return false;">SETTINGS</a></li>
     <li><a style="margin-left: 2em" href="#" onClick="showIframe('help');">HELP</a></li>
-    <li>
+   <li>
       <img src="ui/log.png" onclick="toggleLog()" title="Toggle log.">
-    </li>
-  </ul>
+   </li>
+ </ul>
 </div>
 
 
@@ -272,6 +289,20 @@ function loadFromEditor() {
 <map name="hDotsMap" id="hDotsMap">
 <area shape="circle" coords="0,0,0" >
 </map>
+
+
+
+<div id="playerWrapper" style="height:22px; width: 144px; border: 2px solid black;">
+  <EMBED name="embededPlayer"
+	EnableJavaScript="true"
+	src="midi/silent0.mid"
+    autostart="true"
+    height="22px" width="144px"
+    controls="true"
+    >
+</div>
+
+
 
 
 </body>

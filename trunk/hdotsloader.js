@@ -30,6 +30,8 @@ var scriptLoader =
      "imagemap.js",
      "beautifyscore.js",
      "postimport.js",
+     "scoretoaudio.js",
+     "jslib/jsmidi/midi.js",
      "examples.js",
      "xsplitter.js"
    ];
