@@ -17,7 +17,7 @@
 
 <!--
 19 Dec 2010 - JJS
-Flash canvas didn't easily work ... 
+Flash canvas didn't easily work ...
 I'll look into the why's later.
 <script src="flashcanvas.js"></script>
 -->
@@ -27,14 +27,12 @@ I'll look into the why's later.
 <![endif]-->
 
 <script type="text/javascript" src="hdotsloader.js"></script>
-<script type="text/javascript" src="jslib/jsmidi/midi.js"></script>
-<script type="text/javascript" src="scoretoaudio.js"></script>
 
 
 <script type="text/javascript">
 
 
-function midiTest() {
+function playAudio() {
   var ticks = 256;
   scoretoaudio(score, ticks);
 }
@@ -181,7 +179,7 @@ function loadFromEditor() {
       <b>Scale</b>
     </li>
 
-    
+
     <li><a href="#" onClick="loadFile();return false;">OPEN</a></li>
     <li><a href="#" onClick="alert('Not yet implemented');return false;">LIBRARY</a></li>
     <li><a href="#" onClick="alert('Not yet implemented');return false;">PRINT</a></li>
@@ -194,7 +192,7 @@ function loadFromEditor() {
       <img src="ui/images/tuliana/player_stop.png" onclick="alert('Not yet implemented');return false;" title="Stop playing">
    </li>
    <li>
-      <img src="ui/images/tuliana/player_play.png" onclick="midiTest();return false;" title="Start playing">
+      <img src="ui/images/tuliana/player_play.png" onclick="playAudio();return false;" title="Start playing">
    </li>
 
    <li>
